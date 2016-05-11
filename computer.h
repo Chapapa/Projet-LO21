@@ -7,7 +7,8 @@
 #include <QDebug>
 using namespace std;
 
-class ComputerException {
+class ComputerException
+{
     QString info;
 public:
     ComputerException(const QString& str):info(str){}
@@ -15,7 +16,8 @@ public:
 };
 
 
-class Litterale {
+class Litterale
+{
     QString type;
     friend class LitteraleManager;
 public:
@@ -25,19 +27,9 @@ public:
     virtual int getValue() const=0;
 };
 
-/*class Numerique : public Litterale {
-    int value;
-    Numerique(int v,QString t="int"):value(v), Litterale(t){}
-    Numerique(const Numerique& e);
-    Numerique& operator=(const Numerique& e);
-    friend class LitteraleManager;
-public:
-    QString toString() const { return QString::number(value);}
-    int getValue() const { return value; }
 
-};*/
-
-class Numerique : public Litterale {
+class Numerique : public Litterale
+{
     double numReel;
     double denomReel;
     double numIm;
@@ -47,17 +39,17 @@ class Numerique : public Litterale {
 
     Numerique(int v,QString t="entier"):numReel(v),denomReel(1),numIm(0),denomIm(1),Litterale(t){}
     Numerique(double v,QString t="reel"):numReel(v),denomReel(1),numIm(0),denomIm(1), Litterale(t){}
-    Numerique(int v1, int v2,QString t="rationel"):numIm(0),denomIm(1), Litterale(t){ setRationel(v1,v2);}
+    Numerique(int v1, int v2,QString t="rationnel"):numIm(0),denomIm(1), Litterale(t){ setRationnel(v1,v2);}
     Numerique(double v1, double v2,double v3, double v4,QString t="complexe"):numReel(v1),denomReel(v2),numIm(v3),denomIm(v4), Litterale(t){}
 
     Numerique(const Numerique& e);
     Numerique& operator=(const Numerique& e);
     friend class LitteraleManager;
 public:
-    QString toString() const { return QString::number(value);}
-    int getValue() const { return value; }
+    QString toString() const;
+    int getValue() const {return numReel;} // à modifier pour considérer tous les cas
 
-    void setRationel(int n,int d);// exception si denominateur a 0
+    void setRationnel(int n,int d);// exception si denominateur a 0
 
     //pas encore implementés
     Numerique operator+(const Numerique& n);
@@ -67,7 +59,8 @@ public:
 };
 
 
-class LitteraleManager {
+class LitteraleManager
+{
     Litterale** exps;
     unsigned int nb;
     unsigned int nbMax;
@@ -77,7 +70,8 @@ class LitteraleManager {
     LitteraleManager(const LitteraleManager& m);
     LitteraleManager& operator=(const LitteraleManager& m);
 
-    struct Handler{
+    struct Handler
+    {
         LitteraleManager* instance;
         Handler():instance(nullptr){}
         // destructeur appelé à la fin du programme
@@ -89,7 +83,8 @@ public:
     void removeLitterale(Litterale& e);
     static LitteraleManager& getInstance();
     static void libererInstance();
-    class Iterator {
+    class Iterator
+    {
         friend class LitteraleManager;
         Litterale** currentExp;
         unsigned int nbRemain;
@@ -97,22 +92,26 @@ public:
     public:
         Iterator():currentExp(nullptr),nbRemain(0){}
         bool isDone() const { return nbRemain==0; }
-        void next() {
+        void next()
+        {
             if (isDone())
                 throw ComputerException("error, next on an iterator which is done");
             nbRemain--;
             currentExp++;
         }
-        Litterale& current() const {
+        Litterale& current() const
+        {
             if (isDone())
                 throw ComputerException("error, indirection on an iterator which is done");
             return **currentExp;
         }
     };
-    Iterator getIterator() {
+    Iterator getIterator()
+    {
         return Iterator(exps,nb);
     }
-    class iterator {
+    class iterator
+    {
         Litterale** current;
         iterator(Litterale** u):current(u){}
         friend class LitteraleManager;
@@ -125,7 +124,8 @@ public:
     iterator begin() { return iterator(exps); }
     iterator end() { return iterator(exps+nb); }
 
-    class const_iterator {
+    class const_iterator
+    {
         Litterale** current;
         const_iterator(Litterale** u):current(u){}
         friend class LitteraleManager;
@@ -140,7 +140,8 @@ public:
 };
 
 
-class Item {
+class Item
+{
     Litterale* exp;
 public:
     Item():exp(nullptr){}
@@ -149,7 +150,8 @@ public:
     Litterale& getLitterale() const;
 };
 
-class Pile : public QObject {
+class Pile : public QObject
+{
     Q_OBJECT
 
     Item* items;
@@ -171,7 +173,8 @@ public:
     unsigned int getNbItemsToAffiche() const { return nbAffiche; }
     void setMessage(const QString& m) { message=m; modificationEtat(); }
     QString getMessage() const { return message; }
-    class iterator {
+    class iterator
+    {
         Item* current;
         iterator(Item* u):current(u){}
         friend class Pile;
@@ -184,7 +187,8 @@ public:
     iterator begin() { return iterator(items+nb-1); }
     iterator end() { return iterator(items-1); }
 
-    class const_iterator {
+    class const_iterator
+    {
         Item* current;
         const_iterator(Item* u):current(u){}
         friend class Pile;
@@ -201,7 +205,8 @@ signals:
     void modificationEtat();
 };
 
-class Controleur {
+class Controleur
+{
     LitteraleManager& expMng;
     Pile& expAff;
 public:

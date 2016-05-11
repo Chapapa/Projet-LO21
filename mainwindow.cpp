@@ -1,21 +1,8 @@
-/*#include "mainwindow.h"
-#include "ui_mainwindow.h"
-
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
-}
-*/
 #include "mainwindow.h"
 
-QComputer::QComputer(QWidget *parent):QWidget(parent){
+
+QComputer::QComputer(QWidget *parent):QWidget(parent)
+{
 
     message= new QLineEdit(this);
     pile= new Pile();
@@ -58,9 +45,12 @@ QComputer::QComputer(QWidget *parent):QWidget(parent){
     for(unsigned int i=0;i<pile->getNbItemsToAffiche();i++)
         vuePile->setItem(i,0, new QTableWidgetItem(""));
 
+
+
 }
 
-void QComputer::refresh(){
+void QComputer::refresh()
+{
     //MaJ du message
     message->setText(pile->getMessage());
 
@@ -75,7 +65,8 @@ void QComputer::refresh(){
     }
 }
 
-void QComputer::getNextCommande(){
+void QComputer::getNextCommande()
+{
     pile->setMessage("");
     controleur->commande(commande->text());
     commande->clear();

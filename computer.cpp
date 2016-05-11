@@ -3,25 +3,26 @@
 
 
 
-void Numerique::simplification(){
-// si le numerateur est 0, le denominateur prend la valeur 1
-if (numReel==0) { denomReel=1; return; }
-/* un denominateur ne devrait pas être 0;
-si c’est le cas, on sort de la méthode */
-if (denomReel==0) return;
-/* utilisation de l’algorithme d’Euclide pour trouver le Plus Grand Commun
-Denominateur (PGCD) entre le numerateur et le denominateur */
-int a=numReel, b=denomReel;
-// on ne travaille qu’avec des valeurs positives...
-if (a<0) a=-a; if (b<0) b=-b;
-while(a!=b){ if (a>b) a=a-b; else b=b-a; }
-// on divise le numerateur et le denominateur par le PGCD=a
-numReel/=a; denomReel/=a;
-// si le denominateur est négatif, on fait passer le signe - au denominateur
-if (denomReel<0) { denomReel=-denomReel; numReel=-numReel; }
+void Numerique::simplification()
+{
+    // si le numerateur est 0, le denominateur prend la valeur 1
+    if (numReel==0) { denomReel=1; return; }
+    /* un denominateur ne devrait pas être 0;
+    si c’est le cas, on sort de la méthode */
+    if (denomReel==0) return;
+    /* utilisation de l’algorithme d’Euclide pour trouver le Plus Grand Commun
+    Denominateur (PGCD) entre le numerateur et le denominateur */
+    int a=numReel, b=denomReel;
+    // on ne travaille qu’avec des valeurs positives...
+    if (a<0) a=-a; if (b<0) b=-b;
+    while(a!=b){ if (a>b) a=a-b; else b=b-a; }
+    // on divise le numerateur et le denominateur par le PGCD=a
+    numReel/=a; denomReel/=a;
+    // si le denominateur est négatif, on fait passer le signe - au numérateur
+    if (denomReel<0) { denomReel=-denomReel; numReel=-numReel; }
 }
 
-void Numerique::setRationel(int n,int d)
+void Numerique::setRationnel(int n,int d)
 {
        if(d==0)
         {
@@ -42,20 +43,72 @@ void Numerique::setRationel(int n,int d)
 LitteraleManager::Handler LitteraleManager::handler=LitteraleManager::Handler();
 
 
-LitteraleManager& LitteraleManager::getInstance(){
+LitteraleManager& LitteraleManager::getInstance()
+{
     if (handler.instance==nullptr) handler.instance=new LitteraleManager;
     return *handler.instance;
 }
 
-void LitteraleManager::libererInstance(){
+void LitteraleManager::libererInstance()
+{
     delete handler.instance;
     handler.instance=nullptr;
 }
 
 
-/*QString  Numerique::toString() const {
-    return QString::number(value);
+QString  Numerique::toString() const
+{
+    QString val;
+    QString sNumR = QString::number(numReel);
+    QString sDenomR = QString::number(denomReel);
+    QString sNumI = QString::number(numIm);
+    QString sDenomI = QString::number(denomIm);
+
+    if(getType()=="entier" || getType()=="reel")
+    {
+        val = sNumR;
+        return val;
+    }
+    else if(getType()=="rationnel")
+    {
+        val += sNumR;
+        if(denomReel != 1)
+        {
+            val += "/" + sDenomR;
+        }
+        return val;
+    }
+    else if(getType()=="complexe")
+    {
+        if(numReel != 0)
+        {
+            val += QString::number(numReel);
+            if(denomReel != 1)
+            {
+                val += "/" + sDenomR;
+            }
+        }
+        if(numIm != 0)
+        {
+            val += "$" + sNumI;
+            if(denomIm != 1)
+            {
+                val += "/" + sDenomI;
+            }
+        }
+        return val;
+    }
+    else
+    {
+        return NULL;
+    }
+}
+
+/*int getValue() const
+{
+
 }*/
+
 
 void LitteraleManager::agrandissementCapacite() {
     Litterale** newtab=new Litterale*[(nbMax+1)*2];
