@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+/*#include "mainwindow.h"
 #include <QApplication>
 
 int main(int argc, char *argv[])
@@ -8,4 +8,13 @@ int main(int argc, char *argv[])
     w.show();
 
     return a.exec();
+}
+*/
+#include <QApplication>
+#include "mainwindow.h"
+int main(int argc, char* argv[]){
+    QApplication app(argc, argv);
+    QComputer fenetre;
+    fenetre.show();
+    return app.exec();
 }
