@@ -18,11 +18,16 @@ public:
 
 class Litterale
 {
-    QString type;
+    QString typeRe;
+    QString typeIm;
     friend class LitteraleManager;
 public:
-    Litterale (QString t):type(t){}
-    QString getType() const {return type;}
+    Litterale (const QString tr,const QString ti):typeRe(tr),typeIm(ti){}
+    QString getTypeRe() const {return typeRe;}
+    QString getTypeIm() const {return typeIm;}
+    void setTypeRe(QString s){typeRe=s;}
+    void setTypeIm(QString s){typeIm=s;}
+
     virtual QString toString()const=0;
     virtual int getValue() const=0;
 };
@@ -31,32 +36,77 @@ public:
 class Numerique : public Litterale
 {
     double numReel;
-    double denomReel;
+    int denomReel;
     double numIm;
-    double denomIm;
+    int denomIm;
 
-    void simplification();// simplifier les rationels
+    void simplificationRe();// simplifier les rationels
+    void simplificationIm();
 
-    Numerique(int v,QString t="entier"):numReel(v),denomReel(1),numIm(0),denomIm(1),Litterale(t){}
-    Numerique(double v,QString t="reel"):numReel(v),denomReel(1),numIm(0),denomIm(1), Litterale(t){}
-    Numerique(int v1, int v2,QString t="rationnel"):numIm(0),denomIm(1), Litterale(t){ setRationnel(v1,v2);}
-    Numerique(double v1, double v2,double v3, double v4,QString t="complexe"):numReel(v1),denomReel(v2),numIm(v3),denomIm(v4), Litterale(t){}
+
+    friend class LitteraleManager;
+public:
+
+    Numerique(int v,QString tr="entier"):numReel(v),denomReel(1),numIm(0),denomIm(1),Litterale(tr,"null"){}
+    Numerique(double v,QString tr="reel"):numReel(v),denomReel(1),numIm(0),denomIm(1), Litterale(tr,"null"){}
+    Numerique(int v1, int v2,QString tr="rationnel"):numIm(0),denomIm(1), Litterale(tr,"null"){ setRationnelRe(v1,v2);}
+    Numerique(double v1,double v3,QString tr,QString ti, double v2=1, double v4=1):Litterale(tr,ti)
+    {
+        if (tr=="rationnel")setRationnelRe(v1,v2);
+        if (ti=="rationnel")setRationnelIm(v3,v4);
+    }
 
     Numerique(const Numerique& e);
     Numerique& operator=(const Numerique& e);
-    friend class LitteraleManager;
-public:
     QString toString() const;
-    int getValue() const {return numReel;} // à modifier pour considérer tous les cas
 
-    void setRationnel(int n,int d);// exception si denominateur a 0
+    int getValue() const {return numReel;} // Ã  modifier pour considérer tous les cas
+
+    void setRationnelRe(int n,int d);// exception si denominateur a 0
+    void setRationnelIm(int n,int d);
+
+
+    QString getResTypeRe(const Numerique& n, double dr);
+    QString getResTypeIm(const Numerique& n, double ni, double di);
+
+
+    Numerique operator+(const Numerique& n)
+    {
+            double nr=(numReel*n.denomReel + n.numReel*denomReel);
+            int dr=denomReel*n.denomReel;
+            double ni=(numIm*n.denomIm+n.numIm*denomIm);
+            int di=denomIm*n.denomIm;
+
+            QString tRe=getResTypeRe(n,dr);
+            QString tIm=getResTypeIm(n,ni,di);
+
+           Numerique res(nr,ni,tRe,tIm,dr,di);
+
+            return res;
+    }
+
+    Numerique operator-(const Numerique& n)
+    {
+
+        double nr=(numReel*n.denomReel-n.numReel*denomReel);
+        int dr=denomReel*n.denomReel;
+        double ni=(numIm*n.denomIm-n.numIm*denomIm);
+        int di=denomIm*n.denomIm;
+
+        QString tRe=getResTypeRe(n,dr);
+        QString tIm=getResTypeIm(n,ni,di);
+
+        Numerique res(nr,ni,tRe,tIm,dr,di);
+
+        return res;
+    }
 
     //pas encore implementés
-    Numerique operator+(const Numerique& n);
-    Numerique operator-(const Numerique& n);
     Numerique operator*(const Numerique& n);
     Numerique operator/(const Numerique& n);
+    Numerique operator$(const Numerique& n);
 };
+
 
 
 class LitteraleManager
