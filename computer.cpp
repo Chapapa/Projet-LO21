@@ -1,23 +1,80 @@
 #include "computer.h"
 #include <algorithm>
 
+Numerique Numerique::operator+(const Numerique& n)
+{
+    double nr=numReel*n.denomReel + n.numReel*denomReel;
+    int dr=denomReel*n.denomReel;
+    double ni=numIm*n.denomIm+n.numIm*denomIm;
+    int di=denomIm*n.denomIm;
+
+    QString tRe=getResTypeRe(n,dr);
+    QString tIm=getResTypeIm(n,ni,di);
+
+    Numerique res(nr,ni,tRe,tIm,dr,di);
+
+    return res;
+}
+
+Numerique Numerique::operator-(const Numerique& n)
+{
+
+    double nr=numReel*n.denomReel-n.numReel*denomReel;
+    int dr=denomReel*n.denomReel;
+    double ni=numIm*n.denomIm-n.numIm*denomIm;
+    int di=denomIm*n.denomIm;
+
+    QString tRe=getResTypeRe(n,dr);
+    QString tIm=getResTypeIm(n,ni,di);
+
+    Numerique res(nr,ni,tRe,tIm,dr,di);
+
+    return res;
+}
+
+
+Numerique Numerique::operator*(const Numerique& n)
+{
+    double nr=(numReel*n.numReel);
+    int dr=denomReel*n.denomReel;
+    double ni=(numIm*n.numIm);
+    int di=denomIm*n.denomIm;
+
+    QString tRe=getResTypeRe(n,dr);
+    QString tIm=getResTypeIm(n,ni,di);
+
+    Numerique res(nr,ni,tRe,tIm,dr,di);
+
+    return res;
+}
+
+Numerique Numerique::operator/(const Numerique& n)
+{
+    double nr=numReel*n.denomReel;
+    int dr=denomReel*n.numReel;
+    double ni=numIm*n.denomIm;
+    int di=denomIm*n.numIm;
+
+    QString tRe=getResTypeRe(n,dr);
+    QString tIm=getResTypeIm(n,ni,di);
+
+    Numerique res(nr,ni,tRe,tIm,dr,di);
+
+    return res;
+}
 
 
 QString Numerique::getResTypeRe(const Numerique& n,double dr)
 {
-    QString tThisRe=this->getTypeRe();
-    QString tnRe=n.getTypeRe();
     QString res;
 
     if(dr==1)//pas un rationnel
     {
-        QString tThisRe=this->getTypeRe();
-        QString tnRe=n.getTypeRe();
-        if (tThisRe=="entier" && tnRe=="entier")
+        if (typeRe=="entier" && n.typeRe=="entier")
         {
              res="entier";
         }
-        if (tThisRe=="reel" || tnRe=="reel")
+        if (typeRe=="reel" || n.typeRe=="reel")
         {
              res="reel";
         }
@@ -33,16 +90,14 @@ QString Numerique::getResTypeRe(const Numerique& n,double dr)
 QString Numerique::getResTypeIm(const Numerique& n, double ni, double di)
 {
     QString res;
-    QString tThisIm=this->getTypeIm();
-    QString tnIm=n.getTypeIm();
     if(ni==0) return "null";
     if(di==1)//pas un rationnel
     {
-        if (tThisIm=="entier"&&tnIm=="entier")
+        if (typeIm=="entier" && n.typeIm=="entier")
         {
             res="entier";
         }
-        if (tThisIm=="reel"||tnIm=="reel")
+        if (typeIm=="reel" || n.typeIm=="reel")
         {
             res="reel";
         }
@@ -395,11 +450,11 @@ void Controleur::commande(const QString& c)
             {
                 try{
                 //double v2=expAff.top().getValue();
-                Numerique& v2=dynamic_cast<Numerique&>(expAff.top());// on a que des numerique donc devrait marcher
+                Numerique v2=dynamic_cast<Numerique&>(expAff.top());// on a que des numerique donc devrait marcher
                 expMng.removeLitterale(expAff.top());
                 expAff.pop();
                 //double v1=expAff.top().getValue();
-                Numerique& v1=dynamic_cast<Numerique&>(expAff.top());
+                Numerique v1=dynamic_cast<Numerique&>(expAff.top());
                 expMng.removeLitterale(expAff.top());
                 expAff.pop();
                 //double res;
@@ -413,7 +468,7 @@ void Controleur::commande(const QString& c)
                 if (s == "/")
                 {
                     //if (v2 != 0)
-                    if(v2.getNumReel() != 0 && v2.getNumIm() != 0)
+                    if(v2.getNumReel() != 0 || v2.getNumIm() != 0)
                         res = v1 / v2;
                     else
                     {

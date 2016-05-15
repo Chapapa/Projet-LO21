@@ -38,13 +38,12 @@ class Numerique : public Litterale
     QString typeRe;
     QString typeIm;
 
-    void simplificationRe();// simplifier les rationels
+    void simplificationRe();// simplifier les rationnels
     void simplificationIm();
 
 
     friend class LitteraleManager;
 public:
-
     QString getTypeRe() const {return typeRe;}
     QString getTypeIm() const {return typeIm;}
     void setTypeRe(QString s){typeRe=s;}
@@ -79,66 +78,10 @@ public:
     QString getResTypeIm(const Numerique& n, double ni, double di);
 
 
-    Numerique operator+(const Numerique& n)
-    {
-        double nr=numReel*n.denomReel + n.numReel*denomReel;
-        int dr=denomReel*n.denomReel;
-        double ni=numIm*n.denomIm+n.numIm*denomIm;
-        int di=denomIm*n.denomIm;
-
-        QString tRe=getResTypeRe(n,dr);
-        QString tIm=getResTypeIm(n,ni,di);
-
-        Numerique res(nr,ni,tRe,tIm,dr,di);
-
-        return res;
-    }
-
-    Numerique operator-(const Numerique& n)
-    {
-
-        double nr=numReel*n.denomReel-n.numReel*denomReel;
-        int dr=denomReel*n.denomReel;
-        double ni=numIm*n.denomIm-n.numIm*denomIm;
-        int di=denomIm*n.denomIm;
-
-        QString tRe=getResTypeRe(n,dr);
-        QString tIm=getResTypeIm(n,ni,di);
-
-        Numerique res(nr,ni,tRe,tIm,dr,di);
-
-        return res;
-    }
-
-
-    Numerique operator*(const Numerique& n)
-    {
-        double nr=(numReel*n.numReel);
-        int dr=denomReel*n.denomReel;
-        double ni=(numIm*n.numIm);
-        int di=denomIm*n.denomIm;
-
-        QString tRe=getResTypeRe(n,dr);
-        QString tIm=getResTypeIm(n,ni,di);
-
-        Numerique res(nr,ni,tRe,tIm,dr,di);
-
-        return res;
-    }
-    Numerique operator/(const Numerique& n)
-    {
-        double nr=numReel*n.denomReel;
-        int dr=denomReel*n.numReel;
-        double ni=numIm*n.denomIm;
-        int di=denomIm*n.numIm;
-
-        QString tRe=getResTypeRe(n,dr);
-        QString tIm=getResTypeIm(n,ni,di);
-
-        Numerique res(nr,ni,tRe,tIm,dr,di);
-
-        return res;
-    }
+    Numerique operator+(const Numerique& n);
+    Numerique operator-(const Numerique& n);
+    Numerique operator*(const Numerique& n);
+    Numerique operator/(const Numerique& n);
     //Numerique operator$(const Numerique& n);
 };
 
