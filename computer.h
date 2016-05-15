@@ -18,16 +18,12 @@ public:
 
 class Litterale
 {
-    QString typeRe;
-    QString typeIm;
+    QString type;
     friend class LitteraleManager;
 public:
-    Litterale (const QString tr,const QString ti):typeRe(tr),typeIm(ti){}
-    QString getTypeRe() const {return typeRe;}
-    QString getTypeIm() const {return typeIm;}
-    void setTypeRe(QString s){typeRe=s;}
-    void setTypeIm(QString s){typeIm=s;}
-
+    Litterale (const QString t):type(t){}
+    QString getType() const {return type;}
+    void setType(QString s){type=s;}
     virtual QString toString()const=0;
     virtual double getValue() const=0;
 };
@@ -39,6 +35,8 @@ class Numerique : public Litterale
     int denomReel;
     double numIm;
     int denomIm;
+    QString typeRe;
+    QString typeIm;
 
     void simplificationRe();// simplifier les rationels
     void simplificationIm();
@@ -47,20 +45,27 @@ class Numerique : public Litterale
     friend class LitteraleManager;
 public:
 
-    Numerique(int v,QString tr="entier"):numReel(v),denomReel(1),numIm(0),denomIm(1),Litterale(tr,"null"){}
-    Numerique(double v,QString tr="reel"):numReel(v),denomReel(1),numIm(0),denomIm(1), Litterale(tr,"null"){}
-    Numerique(int v1, int v2,QString tr="rationnel"):numIm(0),denomIm(1), Litterale(tr,"null"){ setRationnelRe(v1,v2);}
-    Numerique(double v1,double v3,QString tr,QString ti, double v2=1, double v4=1):Litterale(tr,ti)
+    QString getTypeRe() const {return typeRe;}
+    QString getTypeIm() const {return typeIm;}
+    void setTypeRe(QString s){typeRe=s;}
+    void setTypeIm(QString s){typeIm=s;}
+
+    Numerique(int v,QString tr="entier"):numReel(v),denomReel(1),numIm(0),denomIm(1),typeRe(tr), typeIm("null"),Litterale("Numerique"){}
+    Numerique(double v,QString tr="reel"):numReel(v),denomReel(1),numIm(0),denomIm(1),typeRe(tr), typeIm("null"),Litterale("Numerique"){}
+    Numerique(int v1, int v2,QString tr="rationnel"):numIm(0),denomIm(1), typeRe(tr), typeIm("null"),Litterale("Numerique") {setRationnelRe(v1,v2);}
+    Numerique(double v1,double v3,QString tr,QString ti, double v2=1, double v4=1):typeRe(tr),typeIm(ti),Litterale("Numerique")
     {
-        if (tr=="rationnel")setRationnelRe(v1,v2);
-        if (ti=="rationnel")setRationnelIm(v3,v4);
+        if (typeRe=="rationnel")setRationnelRe(v1,v2);
+        else setRationnelRe(v1,1);
+        if (typeIm=="rationnel")setRationnelIm(v3,v4);
+        else setRationnelIm(v3,1);
     }
 
     Numerique(const Numerique& e);
     Numerique& operator=(const Numerique& e);
     QString toString() const;
 
-    double getValue() const {return numReel;} // Ã  modifier pour considérer tous les cas
+    double getValue() const {return numReel;}
 
     void setRationnelRe(int n,int d);// exception si denominateur a 0
     void setRationnelIm(int n,int d);
@@ -72,25 +77,9 @@ public:
 
     Numerique operator+(const Numerique& n)
     {
-            double nr=(numReel*n.denomReel + n.numReel*denomReel);
-            int dr=denomReel*n.denomReel;
-            double ni=(numIm*n.denomIm+n.numIm*denomIm);
-            int di=denomIm*n.denomIm;
-
-            QString tRe=getResTypeRe(n,dr);
-            QString tIm=getResTypeIm(n,ni,di);
-
-           Numerique res(nr,ni,tRe,tIm,dr,di);
-
-            return res;
-    }
-
-    Numerique operator-(const Numerique& n)
-    {
-
-        double nr=(numReel*n.denomReel-n.numReel*denomReel);
+        double nr=numReel*n.denomReel + n.numReel*denomReel;
         int dr=denomReel*n.denomReel;
-        double ni=(numIm*n.denomIm-n.numIm*denomIm);
+        double ni=numIm*n.denomIm+n.numIm*denomIm;
         int di=denomIm*n.denomIm;
 
         QString tRe=getResTypeRe(n,dr);
@@ -101,10 +90,52 @@ public:
         return res;
     }
 
-    //pas encore implementés
-    Numerique operator*(const Numerique& n);
-    Numerique operator/(const Numerique& n);
-    Numerique operator$(const Numerique& n);
+    Numerique operator-(const Numerique& n)
+    {
+
+        double nr=numReel*n.denomReel-n.numReel*denomReel;
+        int dr=denomReel*n.denomReel;
+        double ni=numIm*n.denomIm-n.numIm*denomIm;
+        int di=denomIm*n.denomIm;
+
+        QString tRe=getResTypeRe(n,dr);
+        QString tIm=getResTypeIm(n,ni,di);
+
+        Numerique res(nr,ni,tRe,tIm,dr,di);
+
+        return res;
+    }
+
+
+    Numerique operator*(const Numerique& n)
+    {
+        double nr=(numReel*n.numReel);
+        int dr=denomReel*n.denomReel;
+        double ni=(numIm*n.numIm);
+        int di=denomIm*n.denomIm;
+
+        QString tRe=getResTypeRe(n,dr);
+        QString tIm=getResTypeIm(n,ni,di);
+
+        Numerique res(nr,ni,tRe,tIm,dr,di);
+
+        return res;
+    }
+    Numerique operator/(const Numerique& n)
+    {
+        double nr=numReel*n.denomReel;
+        int dr=denomReel*n.numReel;
+        double ni=numIm*n.denomIm;
+        int di=denomIm*n.numIm;
+
+        QString tRe=getResTypeRe(n,dr);
+        QString tIm=getResTypeIm(n,ni,di);
+
+        Numerique res(nr,ni,tRe,tIm,dr,di);
+
+        return res;
+    }
+    //Numerique operator$(const Numerique& n);
 };
 
 

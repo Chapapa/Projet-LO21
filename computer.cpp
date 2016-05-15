@@ -16,11 +16,11 @@ QString Numerique::getResTypeRe(const Numerique& n,double dr)
     {
         QString tThisRe=this->getTypeRe();
         QString tnRe=n.getTypeRe();
-        if (tThisRe=="entier"&&tnRe=="entier")
+        if (tThisRe=="entier" && tnRe=="entier")
         {
              res="entier";
         }
-        if (tThisRe=="reel"||tnRe=="reel")
+        if (tThisRe=="reel" || tnRe=="reel")
         {
              res="reel";
         }
@@ -98,16 +98,15 @@ void Numerique::simplificationIm()
 
 void Numerique::setRationnelRe(int n,int d)
 {
-       if(d==0)
-        {
-            throw ComputerException("fraction exeption division par 0");
-        }
-
-        else
-        {
-            numReel=n;
-            denomReel=d;
-        }
+    if(d==0)
+    {
+        throw ComputerException("fraction exception division par 0");
+    }
+    else
+    {
+        numReel=n;
+        denomReel=d;
+    }
     simplificationRe();
     if (denomReel==1)
         setTypeRe("entier");
@@ -115,20 +114,19 @@ void Numerique::setRationnelRe(int n,int d)
 }
 void Numerique::setRationnelIm(int n,int d)
 {
-       if(d==0)
-        {
-            throw ComputerException("fraction exeption division par 0");
-        }
+    if(d==0)
+    {
+        throw ComputerException("fraction exception division par 0");
+    }
 
-        else
-        {
-            numIm=n;
-            denomIm=d;
-        }
+    else
+    {
+        numIm=n;
+        denomIm=d;
+    }
     simplificationIm();
     if (denomIm==1)
         setTypeIm("entier");
-
 }
 
 
@@ -150,7 +148,7 @@ void LitteraleManager::libererInstance()
 }
 
 
-QString  Numerique::toString() const
+QString Numerique::toString() const
 {
     QString val;
     QString sNumR = QString::number(numReel);
@@ -198,12 +196,12 @@ QString  Numerique::toString() const
     }
 }
 
-
-/*int getValue() const
+/*
+double Numerique::getValue() const
 {
-
-}*/
-
+    return 0;
+}
+*/
 
 void LitteraleManager::agrandissementCapacite() {
     Litterale** newtab=new Litterale*[(nbMax+1)*2];
@@ -291,9 +289,8 @@ Litterale& Pile::top() const {
     return items[nb-1].getLitterale();
 }
 
-
-
-bool estUnOperateur(const QString s){
+bool estUnOperateur(const QString s)
+{
     if (s=="+") return true;
     if (s=="-") return true;
     if (s=="*") return true;
@@ -301,7 +298,8 @@ bool estUnOperateur(const QString s){
     return false;
 }
 /*
-bool estUnOperateur(const QCharRef s){
+bool estUnOperateur(const QCharRef s)
+{
     if (s=='+') return true;
     if (s=='-') return true;
     if (s=='*') return true;
@@ -309,20 +307,23 @@ bool estUnOperateur(const QCharRef s){
     return false;
 }*/
 
-/*bool estUnNombre(const QString s){
+/*bool estUnNombre(const QString s)
+{
    bool ok=false;
    s.toInt(&ok);
    return ok;
 }*/
 
-bool estUnEntier(const QString s){
+bool estUnEntier(const QString s)
+{
    bool ok=false;
    s.toInt(&ok);
    return ok;
 }
 
 
-bool estUnReel(const QString s){
+bool estUnReel(const QString s)
+{
    bool ok=false;
    s.toDouble(&ok);
    return ok;
@@ -336,10 +337,10 @@ bool estUnReel(const QString s){
 
         if (estUnOperateur(c)){
             if (expAff.taille()>=2) {
-                int v2=expAff.top().getValue();
+                double v2=expAff.top().getValue();
                 expMng.removeLitterale(expAff.top());
                 expAff.pop();
-                int v1=expAff.top().getValue();
+                double v1=expAff.top().getValue();
                 expMng.removeLitterale(expAff.top());
                 expAff.pop();
                 int res;
@@ -373,8 +374,6 @@ void Controleur::commande(const QString& c)
             i++;
         }
 
-
-        //s=c.substr(j,i-j);
         s = c.mid(j,i-j+1);
 
         if(estUnEntier(s))
@@ -399,16 +398,20 @@ void Controleur::commande(const QString& c)
                 if (c == "+") res = v1 + v2;
                 if (c == "-") res = v1 - v2;
                 if (c == "*") res = v1 * v2;
-                if (c == "/") {
-                    if (v2 != 0) res = v1 / v2;
-                    else {
+                if (c == "/")
+                {
+                    if (v2 != 0)
+                        res = v1 / v2;
+                    else
+                    {
                         expAff.setMessage("Erreur : division par zéro");
                         res = v1;
                     }
                 }
                 Litterale& e=expMng.addLitterale(res);
                 expAff.push(e);
-            }else
+            }
+            else
             {
                 expAff.setMessage("Erreur : pas assez d'arguments");
             }
