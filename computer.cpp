@@ -221,6 +221,12 @@ Litterale& LitteraleManager::addLitterale(double v){
     return *exps[nb-1];
 }
 
+Litterale& LitteraleManager::addLitterale(Numerique &v){
+    if (nb==nbMax) agrandissementCapacite();
+    exps[nb++]=new Numerique(v);// appel au constructeur de recopie
+    return *exps[nb-1];
+}
+
 void LitteraleManager::removeLitterale(Litterale& e){
     unsigned int i=0;
     while(i<nb && exps[i]!=&e) i++;
@@ -383,21 +389,31 @@ void Controleur::commande(const QString& c)
 
         else if(estUnOperateur(s))
         {
+            expAff.setMessage("test1");
+
             if (expAff.taille() >= 2)
             {
-                double v2=expAff.top().getValue();
+                try{
+                //double v2=expAff.top().getValue();
+                Numerique& v2=dynamic_cast<Numerique&>(expAff.top());// on a que des numerique donc devrait marcher
                 expMng.removeLitterale(expAff.top());
                 expAff.pop();
-                double v1=expAff.top().getValue();
+                //double v1=expAff.top().getValue();
+                Numerique& v1=dynamic_cast<Numerique&>(expAff.top());
                 expMng.removeLitterale(expAff.top());
                 expAff.pop();
-                double res;
-                if (c == "+") res = v1 + v2;
-                if (c == "-") res = v1 - v2;
-                if (c == "*") res = v1 * v2;
-                if (c == "/")
+                //double res;
+                Numerique res(0);// on initialise res a zero
+
+                expAff.setMessage("test2");
+
+                if (s == "+") res = v1 + v2;
+                if (s == "-") res = v1 - v2;
+                if (s == "*") res = v1 * v2;
+                if (s == "/")
                 {
-                    if (v2 != 0)
+                    //if (v2 != 0)
+                    if(v2.getNumReel() != 0 && v2.getNumIm() != 0)
                         res = v1 / v2;
                     else
                     {
@@ -405,8 +421,16 @@ void Controleur::commande(const QString& c)
                         res = v1;
                     }
                 }
+
+                expAff.setMessage("test3");
+
                 Litterale& e=expMng.addLitterale(res);
+
+                expAff.setMessage("test4");
+
                 expAff.push(e);
+                }
+                catch(std::bad_cast& e) { expAff.setMessage("Erreur : cast"); }
             }
             else
             {

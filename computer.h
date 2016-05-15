@@ -49,6 +49,10 @@ public:
     QString getTypeIm() const {return typeIm;}
     void setTypeRe(QString s){typeRe=s;}
     void setTypeIm(QString s){typeIm=s;}
+    double getNumReel()const {return numReel;}
+    double getNumIm()const {return numIm;}
+    int getDenomReel()const {return denomReel;}
+    int getDenomIm()const {return denomIm;}
 
     Numerique(int v,QString tr="entier"):numReel(v),denomReel(1),numIm(0),denomIm(1),typeRe(tr), typeIm("null"),Litterale("Numerique"){}
     Numerique(double v,QString tr="reel"):numReel(v),denomReel(1),numIm(0),denomIm(1),typeRe(tr), typeIm("null"),Litterale("Numerique"){}
@@ -60,9 +64,9 @@ public:
         if (typeIm=="rationnel")setRationnelIm(v3,v4);
         else setRationnelIm(v3,1);
     }
-
-    Numerique(const Numerique& e);
-    Numerique& operator=(const Numerique& e);
+    //pas besoin, ceux par defaut devraient marcher
+    /*Numerique(const Numerique& e);
+    Numerique& operator=(const Numerique& e);*/
     QString toString() const;
 
     double getValue() const {return numReel;}
@@ -160,8 +164,14 @@ class LitteraleManager
     };
     static Handler handler;
 public:
+
+
+    Litterale& addLitterale(Numerique& v);
+
     Litterale& addLitterale(int v);
+
     Litterale& addLitterale(double v);
+
     void removeLitterale(Litterale& e);
     static LitteraleManager& getInstance();
     static void libererInstance();
