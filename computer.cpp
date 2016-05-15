@@ -3,9 +3,6 @@
 
 
 
-#include "computer.h"
-#include <algorithm>
-
 QString Numerique::getResTypeRe(const Numerique& n,double dr)
 {
     QString tThisRe=this->getTypeRe();
