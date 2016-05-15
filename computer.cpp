@@ -220,6 +220,12 @@ Litterale& LitteraleManager::addLitterale(int v){
     return *exps[nb-1];
 }
 
+Litterale& LitteraleManager::addLitterale(double v){
+    if (nb==nbMax) agrandissementCapacite();
+    exps[nb++]=new Numerique(v);
+    return *exps[nb-1];
+}
+
 void LitteraleManager::removeLitterale(Litterale& e){
     unsigned int i=0;
     while(i<nb && exps[i]!=&e) i++;
@@ -287,21 +293,21 @@ Litterale& Pile::top() const {
 
 
 
-/*bool estUnOperateur(const QString s){
+bool estUnOperateur(const QString s){
     if (s=="+") return true;
     if (s=="-") return true;
     if (s=="*") return true;
     if (s=="/") return true;
     return false;
-}*/
-
+}
+/*
 bool estUnOperateur(const QCharRef s){
     if (s=='+') return true;
     if (s=='-') return true;
     if (s=='*') return true;
     if (s=='/') return true;
     return false;
-}
+}*/
 
 /*bool estUnNombre(const QString s){
    bool ok=false;
@@ -360,53 +366,56 @@ void Controleur::commande(const QString& c)
 {
     QString s;
     int i=0, j=0;
-    while(c[i] != '\0')
+    while(i < (c.length()))
     {
-        while(!estUnOperateur(c[i]) && c[i]!=' ')
-    {
-        i++;
-    }
-
-    //s=c.substr(j,i-j);
-    s.mid(j,i-j);
-
-    if(estUnEntier(s))
-        expAff.push(expMng.addLitterale(c.toInt()));
-
-    else if(estUnReel(s))
-        expAff.push(expMng.addLitterale(c.toDouble()));
-
-    else if(estUnOperateur(c[i]))
-    {
-        if (expAff.taille()>=2)
+        while(i < (c.length()-1) && !estUnOperateur(c[i]) && c[i]!=' ')
         {
-            int v2=expAff.top().getValue();
-            expMng.removeLitterale(expAff.top());
-            expAff.pop();
-            int v1=expAff.top().getValue();
-            expMng.removeLitterale(expAff.top());
-            expAff.pop();
-            int res;
-            if (c=="+") res=v1+v2;
-            if (c=="-") res=v1-v2;
-            if (c=="*") res=v1*v2;
-            if (c=="/") {
-                if (v2!=0) res=v1/v2;
-                else {
-                    expAff.setMessage("Erreur : division par zéro");
-                    res=v1;
-                }
-            }
-            Litterale& e=expMng.addLitterale(res);
-            expAff.push(e);
-        }else
-        {
-            expAff.setMessage("Erreur : pas assez d'arguments");
+            i++;
         }
-    }
-    else expAff.setMessage("Erreur : commande inconnue");
 
-    j=i+1;
-    i++;
+
+        //s=c.substr(j,i-j);
+        s = c.mid(j,i-j+1);
+
+        if(estUnEntier(s))
+        {
+            expAff.push(expMng.addLitterale(s.toInt()));
+        }
+
+        else if(estUnReel(s))
+            expAff.push(expMng.addLitterale(s.toDouble()));
+
+        else if(estUnOperateur(s))
+        {
+            if (expAff.taille() >= 2)
+            {
+                double v2=expAff.top().getValue();
+                expMng.removeLitterale(expAff.top());
+                expAff.pop();
+                double v1=expAff.top().getValue();
+                expMng.removeLitterale(expAff.top());
+                expAff.pop();
+                double res;
+                if (c == "+") res = v1 + v2;
+                if (c == "-") res = v1 - v2;
+                if (c == "*") res = v1 * v2;
+                if (c == "/") {
+                    if (v2 != 0) res = v1 / v2;
+                    else {
+                        expAff.setMessage("Erreur : division par zéro");
+                        res = v1;
+                    }
+                }
+                Litterale& e=expMng.addLitterale(res);
+                expAff.push(e);
+            }else
+            {
+                expAff.setMessage("Erreur : pas assez d'arguments");
+            }
+        }
+        else expAff.setMessage("Erreur : commande inconnue");
+
+        i++;
+        j = i;
     }
 }

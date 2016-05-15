@@ -29,7 +29,7 @@ public:
     void setTypeIm(QString s){typeIm=s;}
 
     virtual QString toString()const=0;
-    virtual int getValue() const=0;
+    virtual double getValue() const=0;
 };
 
 
@@ -60,7 +60,7 @@ public:
     Numerique& operator=(const Numerique& e);
     QString toString() const;
 
-    int getValue() const {return numReel;} // Ã  modifier pour considérer tous les cas
+    double getValue() const {return numReel;} // Ã  modifier pour considérer tous les cas
 
     void setRationnelRe(int n,int d);// exception si denominateur a 0
     void setRationnelIm(int n,int d);
@@ -130,6 +130,7 @@ class LitteraleManager
     static Handler handler;
 public:
     Litterale& addLitterale(int v);
+    Litterale& addLitterale(double v);
     void removeLitterale(Litterale& e);
     static LitteraleManager& getInstance();
     static void libererInstance();
