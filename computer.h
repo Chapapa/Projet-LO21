@@ -82,7 +82,14 @@ public:
     Numerique operator-(const Numerique& n);
     Numerique operator*(const Numerique& n);
     Numerique operator/(const Numerique& n);
-    //Numerique operator$(const Numerique& n);
+    Numerique operator$(const Numerique& n);
+    Numerique operatorDIV(const Numerique& n);
+    Numerique operatorMOD(const Numerique& n);
+    Numerique operatorNEG();
+    Numerique operatorNUM();
+    Numerique operatorDEN();
+    Numerique operatorRE();
+    Numerique operatorIM();
 };
 
 
@@ -250,7 +257,8 @@ public:
 
 };
 
-bool estUnOperateur(const QString s);
+bool estUnOperateurBinaire(const QString s);
+bool estUnOperateurUnaire(const QString s);
 bool estUnNombre(const QString s);
 
 
