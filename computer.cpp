@@ -1,6 +1,150 @@
 #include "computer.h"
 #include <algorithm>
 
+Expression Expression::operatorAND(const Expression& e)
+{
+    QString res;
+    res="AND("+exp+","+e.exp+")";
+
+    return Expression(res);
+}
+
+Expression Expression::operatorOR(const Expression& e)
+{
+    QString res;
+    res="OR("+exp+","+e.exp+")";
+
+    return Expression(res);
+}
+
+Expression Expression::operatorNOT(const Expression& e)
+{
+    QString res;
+    res="NOT("+exp+","+e.exp+")";
+
+    return Expression(res);
+}
+
+
+Expression Expression::operatorNEG()
+{
+    QString res;
+    res="NEG("+exp+")";
+
+    return Expression(res);
+}
+
+Expression Expression::operator*(const Expression& e)
+{
+    QString res;
+    res=exp+"*"+e.exp;
+
+    return Expression(res);
+}
+
+Expression Expression::operator/(const Expression& e)
+{
+    QString res;
+    res=exp+"/"+e.exp;
+
+    return Expression(res);
+}
+
+Expression Expression::operator+(const Expression& e)
+{
+    int i=0;
+    bool priorite=true;
+    while(i < (exp.length()))
+    {
+        if(exp[i]== '(')
+        {
+            while(i < (exp.length()) && exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (exp[i] == '/' || exp[i] == '*')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+
+    while(i < (e.exp.length()))
+    {
+        if(e.exp[i]== '(')
+        {
+            while(i < (e.exp.length()) && e.exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (e.exp[i] == '/' || e.exp[i] == '*')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+    QString res;
+    if (priorite)
+       res=exp+"+"+e.exp;
+    else
+        res= "("+exp+")+("+e.exp+")";
+    return Expression(res);
+}
+
+Expression Expression::operator-(const Expression& e)
+{
+    int i=0;
+    bool priorite=true;
+    while(i < (exp.length()))
+    {
+        if(exp[i]== '(')
+        {
+            while(i < (exp.length()) && exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (exp[i] == '/' || exp[i] == '*')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+
+    while(i < (e.exp.length()))
+    {
+        if(e.exp[i]== '(')
+        {
+            while(i < (e.exp.length()) && e.exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (e.exp[i] == '/' || e.exp[i] == '*')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+    QString res;
+    if (priorite)
+       res=exp+"-"+e.exp;
+    else
+        res= "("+exp+")-("+e.exp+")";
+    return Expression(res);
+}
+
+
 Numerique Numerique::operator+(const Numerique& n)
 {
     double nr=numReel*n.denomReel + n.numReel*denomReel;
@@ -352,6 +496,18 @@ void LitteraleManager::agrandissementCapacite() {
     delete old;
 }
 
+Litterale& LitteraleManager::addLitterale(QString v){
+    if (nb==nbMax) agrandissementCapacite();
+    exps[nb++]=new Expression(v);
+    return *exps[nb-1];
+}
+
+Litterale& LitteraleManager::addLitterale(Expression &v){
+    if (nb==nbMax) agrandissementCapacite();
+    exps[nb++]=new Expression(v);// appel au constructeur de recopie
+    return *exps[nb-1];
+}
+
 Litterale& LitteraleManager::addLitterale(int v){
     if (nb==nbMax) agrandissementCapacite();
     exps[nb++]=new Numerique(v);
@@ -435,6 +591,13 @@ Litterale& Pile::top() const {
     return items[nb-1].getLitterale();
 }
 
+bool estUneExpression(const QString s)
+{
+    if( s[0]=='\'' && s[s.length()-1]=='\'' )
+        return true;
+    return false;
+}
+
 bool estUnOperateurBinaire(const QString s)
 {
     if (s=="+") return true;
@@ -444,6 +607,9 @@ bool estUnOperateurBinaire(const QString s)
     if (s=="$") return true;
     if (s=="DIV") return true;
     if (s=="MOD") return true;
+    if (s=="AND") return true;
+    if (s=="OR") return true;
+    if (s=="NOT") return true;
     return false;
 }
 
@@ -528,11 +694,20 @@ void Controleur::commande(const QString& c)
     QString s;
     int i=0, j=0;
     while(i < (c.length()))
-    {
-        while(i < (c.length()-1) && !estUnOperateurBinaire(c[i]) && c[i]!=' ')
         {
-            i++;
-        }
+            if (c[0] != '\''){
+                while(i < (c.length()-1) && !estUnOperateurBinaire(c[i]) && c[i]!=' ')
+                {
+                    i++;
+                }
+            }
+            else {
+                i++;
+                while(i < (c.length()-1) && c[i]!='\'')
+                {
+                    i++;
+                }
+            }
 
         s = c.mid(j,i-j+1);
 
@@ -543,6 +718,12 @@ void Controleur::commande(const QString& c)
 
         else if(estUnReel(s))
             expAff.push(expMng.addLitterale(s.toDouble()));
+
+        else if(estUneExpression(s))
+                {
+                    s=s.mid(1,s.length()-2);
+                    expAff.push(expMng.addLitterale(s));
+                }
 
         else if(estUnOperateurBinaire(s))
         {
@@ -622,6 +803,35 @@ void Controleur::commande(const QString& c)
                 expAff.push(e);
                 }
                 catch(std::bad_cast& e) { expAff.setMessage("Erreur : cast"); }
+
+                try{
+
+                Expression v2=dynamic_cast<Expression&>(expAff.top());
+                expMng.removeLitterale(expAff.top());
+                expAff.pop();
+                Expression v1=dynamic_cast<Expression&>(expAff.top());
+                expMng.removeLitterale(expAff.top());
+                expAff.pop();
+
+                Expression res("");// on initialise res a zero
+
+
+                if (s == "+") res = v1 + v2;
+                if (s == "-") res = v1 - v2;
+                if (s == "*") res = v1 * v2;
+                if (s == "/") res = v1 / v2;
+                if (s == "AND") res = v1.operatorAND(v2);
+                if (s == "OR") res = v1.operatorOR(v2);
+                if (s == "NOT") res = v1.operatorNOT(v2);
+
+                Litterale& e=expMng.addLitterale(res);
+
+                expAff.push(e);
+                }
+                catch(std::bad_cast& e)
+                {
+                expAff.setMessage("Erreur : cast");
+                }
             }
             else
             {
@@ -701,6 +911,26 @@ void Controleur::commande(const QString& c)
                     expAff.push(e);
                     }
                     catch(std::bad_cast& e) { expAff.setMessage("Erreur : cast"); }
+
+                    try{
+
+                    Expression v1=dynamic_cast<Expression&>(expAff.top());
+                    expMng.removeLitterale(expAff.top());
+                    expAff.pop();
+
+                    Expression res("");// on initialise res a zero
+
+
+                    if (s == "NEG") res = v1.operatorNEG();
+
+                    Litterale& e=expMng.addLitterale(res);
+
+                    expAff.push(e);
+                    }
+                    catch(std::bad_cast& e)
+                    {
+                    expAff.setMessage("Erreur : cast");
+                    }
                 }
                 else
                 {

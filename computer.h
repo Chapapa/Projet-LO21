@@ -25,9 +25,31 @@ public:
     QString getType() const {return type;}
     void setType(QString s){type=s;}
     virtual QString toString()const=0;
-    virtual double getValue() const=0;
+    //virtual double getValue() const=0;
 };
 
+class Expression : public Litterale
+{
+    QString exp;
+public :
+    Expression(QString e):exp(e),Litterale("Expression"){}
+    QString getExp() const{return exp;}
+    QString toString()const {
+        QString res= "'"+exp+"'";
+        return res;
+    }
+
+    Expression operator+(const Expression& n);
+    Expression operator-(const Expression& n);
+    Expression operator*(const Expression& n);
+    Expression operator/(const Expression& n);
+    Expression operatorAND(const Expression& n);
+    Expression operatorOR(const Expression& n);
+    Expression operatorNOT(const Expression& n);
+    Expression operatorNEG();
+    //Expression operator$(const Expression& n);
+    //Expression operatorEVAL();
+};
 
 class Numerique : public Litterale
 {
@@ -115,11 +137,11 @@ class LitteraleManager
     static Handler handler;
 public:
 
-
+    //faire template methode
+    Litterale& addLitterale(Expression & v);
+    Litterale& addLitterale(QString v);
     Litterale& addLitterale(Numerique& v);
-
     Litterale& addLitterale(int v);
-
     Litterale& addLitterale(double v);
 
     void removeLitterale(Litterale& e);
@@ -260,6 +282,7 @@ public:
 bool estUnOperateurBinaire(const QString s);
 bool estUnOperateurUnaire(const QString s);
 bool estUnNombre(const QString s);
+bool estUneExpression(const QString s);
 
 
 #endif
