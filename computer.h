@@ -81,9 +81,17 @@ public:
     Numerique(double v1,double v3,QString tr,QString ti, double v2=1, double v4=1):typeRe(tr),typeIm(ti),Litterale("Numerique")
     {
         if (typeRe=="rationnel")setRationnelRe(v1,v2);
-        else setRationnelRe(v1,1);
+        else
+        {
+            numReel=v1;
+            denomReel=1;
+        }
         if (typeIm=="rationnel")setRationnelIm(v3,v4);
-        else setRationnelIm(v3,1);
+        else
+        {
+            numIm=v3;
+            denomIm=1;
+        }
     }
     //pas besoin, ceux par defaut devraient marcher
     /*Numerique(const Numerique& e);

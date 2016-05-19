@@ -214,7 +214,6 @@ Numerique Numerique::operator$(const Numerique& n)
 }
 
 
-//probleme si n.numReel>numReel
 Numerique Numerique::operatorDIV(const Numerique& n)
 {
    int num=(int)numReel/(int)n.numReel;
