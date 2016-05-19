@@ -801,7 +801,7 @@ void Controleur::commande(const QString& c)
 
                 expAff.push(e);
                 }
-                catch(std::bad_cast& e) { expAff.setMessage("Erreur : cast"); }
+                catch(std::bad_cast& e) { expAff.setMessage(e.what()); }
 
                 try{
 
@@ -829,7 +829,7 @@ void Controleur::commande(const QString& c)
                 }
                 catch(std::bad_cast& e)
                 {
-                expAff.setMessage("Erreur : cast");
+                expAff.setMessage(e.what());
                 }
             }
             else
@@ -909,7 +909,7 @@ void Controleur::commande(const QString& c)
 
                     expAff.push(e);
                     }
-                    catch(std::bad_cast& e) { expAff.setMessage("Erreur : cast"); }
+                    catch(std::bad_cast& e) { expAff.setMessage(e.what()); }
 
                     try{
 
@@ -928,7 +928,7 @@ void Controleur::commande(const QString& c)
                     }
                     catch(std::bad_cast& e)
                     {
-                    expAff.setMessage("Erreur : cast");
+                    expAff.setMessage(e.what());
                     }
                 }
                 else
