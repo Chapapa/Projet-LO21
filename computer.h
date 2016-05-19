@@ -25,9 +25,31 @@ public:
     QString getType() const {return type;}
     void setType(QString s){type=s;}
     virtual QString toString()const=0;
-    virtual double getValue() const=0;
+    //virtual double getValue() const=0;
 };
 
+class Expression : public Litterale
+{
+    QString exp;
+public :
+    Expression(QString e):exp(e),Litterale("Expression"){}
+    QString getExp() const{return exp;}
+    QString toString()const {
+        QString res= "'"+exp+"'";
+        return res;
+    }
+
+    Expression operator+(const Expression& n);
+    Expression operator-(const Expression& n);
+    Expression operator*(const Expression& n);
+    Expression operator/(const Expression& n);
+    Expression operatorAND(const Expression& n);
+    Expression operatorOR(const Expression& n);
+    Expression operatorNOT(const Expression& n);
+    Expression operatorNEG();
+    //Expression operator$(const Expression& n);
+    //Expression operatorEVAL();
+};
 
 class Numerique : public Litterale
 {
@@ -59,9 +81,17 @@ public:
     Numerique(double v1,double v3,QString tr,QString ti, double v2=1, double v4=1):typeRe(tr),typeIm(ti),Litterale("Numerique")
     {
         if (typeRe=="rationnel")setRationnelRe(v1,v2);
-        else setRationnelRe(v1,1);
+        else
+        {
+            numReel=v1;
+            denomReel=1;
+        }
         if (typeIm=="rationnel")setRationnelIm(v3,v4);
-        else setRationnelIm(v3,1);
+        else
+        {
+            numIm=v3;
+            denomIm=1;
+        }
     }
     //pas besoin, ceux par defaut devraient marcher
     /*Numerique(const Numerique& e);
@@ -82,7 +112,14 @@ public:
     Numerique operator-(const Numerique& n);
     Numerique operator*(const Numerique& n);
     Numerique operator/(const Numerique& n);
-    //Numerique operator$(const Numerique& n);
+    Numerique operator$(const Numerique& n);
+    Numerique operatorDIV(const Numerique& n);
+    Numerique operatorMOD(const Numerique& n);
+    Numerique operatorNEG();
+    Numerique operatorNUM();
+    Numerique operatorDEN();
+    Numerique operatorRE();
+    Numerique operatorIM();
 };
 
 
@@ -108,11 +145,11 @@ class LitteraleManager
     static Handler handler;
 public:
 
-
+    //faire template methode
+    Litterale& addLitterale(Expression & v);
+    Litterale& addLitterale(QString v);
     Litterale& addLitterale(Numerique& v);
-
     Litterale& addLitterale(int v);
-
     Litterale& addLitterale(double v);
 
     void removeLitterale(Litterale& e);
@@ -250,8 +287,10 @@ public:
 
 };
 
-bool estUnOperateur(const QString s);
+bool estUnOperateurBinaire(const QString s);
+bool estUnOperateurUnaire(const QString s);
 bool estUnNombre(const QString s);
+bool estUneExpression(const QString s);
 
 
 #endif
