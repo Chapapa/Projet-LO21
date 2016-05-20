@@ -1,6 +1,7 @@
 #include "computer.h"
 #include <algorithm>
 
+
 Expression Expression::operatorAND(const Expression& e)
 {
     QString res;
@@ -642,6 +643,7 @@ bool estUnOperateurBinaire(const QString s)
     if (s=="AND") return true;
     if (s=="OR") return true;
     if (s=="NOT") return true;
+    if (s=="SWAP") return true;
     return false;
 }
 
@@ -652,8 +654,17 @@ bool estUnOperateurUnaire(const QString s)
     if (s=="DEN") return true;
     if (s=="RE") return true;
     if (s=="IM") return true;
+    if (s=="DUP") return true;
+    if (s=="DROP") return true;
     return false;
 }
+
+bool estUnOperateurSansArg(const QString s)
+{
+    if (s=="CLEAR") return true;
+    return false;
+}
+
 
 /*
 bool estUnOperateur(const QCharRef s)
@@ -763,108 +774,176 @@ void Controleur::commande(const QString& c)
             if (expAff.taille() >= 2)
             {
                 try{
-                //double v2=expAff.top().getValue();
-                Numerique v2=dynamic_cast<Numerique&>(expAff.top());// on a que des numeriques donc devrait marcher
-                expMng.removeLitterale(expAff.top());
-                expAff.pop();
-                //double v1=expAff.top().getValue();
-                Numerique v1=dynamic_cast<Numerique&>(expAff.top());
-                expMng.removeLitterale(expAff.top());
-                expAff.pop();
-                //double res;
-                Numerique res(0);// on initialise res a zero
 
-
-                if (s == "+") res = v1 + v2;
-                if (s == "-") res = v1 - v2;
-                if (s == "*") res = v1 * v2;
-                if (s == "$")
-                {
-                    if(v2.getTypeIm() != "null" || v1.getTypeIm() != "null")
+                    if(expAff.top().getType()=="Numerique")
                     {
-                        expAff.setMessage("Erreur : au moins une litterale est deja complexes");
-                        res = v1;
-                    }
+                        Numerique v2=dynamic_cast<Numerique&>(expAff.top());
+                        expMng.removeLitterale(expAff.top());
+                        expAff.pop();
 
-                    else
-                    {
-                        res = v1.operator$(v2);
-                    }
-                }
-                if (s == "/")
-                {
-                    //if (v2 != 0)
-                    if(v2.getNumReel() != 0 || v2.getNumIm() != 0)
-                        res = v1 / v2;
-                    else
-                    {
-                        expAff.setMessage("Erreur : division par zéro");
-                        res = v1;
-                    }
-                }
-                if (s == "DIV")
-                {
-                    if(v2.getTypeIm() == "null" || v1.getTypeIm() == "null" || v2.getTypeRe() == "entier" || v1.getTypeRe() == "entier")
-                    {
-                        res = v1.operatorDIV(v2);
-                    }
+                        if(expAff.top().getType()=="Numerique")
+                        {
+                            Numerique v1=dynamic_cast<Numerique&>(expAff.top());
+                            expMng.removeLitterale(expAff.top());
+                            expAff.pop();
 
-                    else
-                    {
-                        expAff.setMessage("Erreur : au moins une litterale n'est pas entiere");
-                        res = v1;
-                    }
-                }
-                if (s == "MOD")
-                {
-                    if(v2.getTypeIm() == "null" || v1.getTypeIm() == "null" || v2.getTypeRe() == "entier" || v1.getTypeRe() == "entier")
-                    {
-                        res = v1.operatorMOD(v2);
-                    }
-
-                    else
-                    {
-                        expAff.setMessage("Erreur : au moins une litterale n'est pas entiere");
-                        res = v1;
-                    }
-                }
+                            Numerique res(0);// on initialise res a zero
 
 
-                Litterale& e=expMng.addLitterale(res);
+                            if (s == "+") res = v1 + v2;
+                            if (s == "-") res = v1 - v2;
+                            if (s == "*") res = v1 * v2;
+                            if (s == "$")
+                            {
+                                if(v2.getTypeIm() != "null" || v1.getTypeIm() != "null")
+                                {
+                                    expAff.setMessage("Erreur : au moins une litterale est deja complexes");
+                                    res = v1;
+                                }
 
-                expAff.push(e);
-                }
+                                else
+                                {
+                                    res = v1.operator$(v2);
+                                }
+                            }
+                            if (s == "/")
+                            {
+                                //if (v2 != 0)
+                                if(v2.getNumReel() != 0 || v2.getNumIm() != 0)
+                                    res = v1 / v2;
+                                else
+                                {
+                                    expAff.setMessage("Erreur : division par zéro");
+                                    res = v1;
+                                }
+                            }
+                            if (s == "DIV")
+                            {
+                                if(v2.getTypeIm() == "null" || v1.getTypeIm() == "null" || v2.getTypeRe() == "entier" || v1.getTypeRe() == "entier")
+                                {
+                                    res = v1.operatorDIV(v2);
+                                }
+
+                                else
+                                {
+                                    expAff.setMessage("Erreur : au moins une litterale n'est pas entiere");
+                                    res = v1;
+                                }
+                            }
+                            if (s == "MOD")
+                            {
+                                if(v2.getTypeIm() == "null" || v1.getTypeIm() == "null" || v2.getTypeRe() == "entier" || v1.getTypeRe() == "entier")
+                                {
+                                    res = v1.operatorMOD(v2);
+                                }
+
+                                else
+                                {
+                                    expAff.setMessage("Erreur : au moins une litterale n'est pas entiere");
+                                    res = v1;
+                                }
+                            }
+                            if (s == "SWAP")
+                            {
+                                res=v1;
+                                Litterale& l=expMng.addLitterale(v2);
+
+                                expAff.push(l);
+
+                            }
+
+                            Litterale& e=expMng.addLitterale(res);
+
+                            expAff.push(e);
+                        } // if v1 numerique
+                        else if(expAff.top().getType()=="Expression")
+                        {
+                            Expression v1=dynamic_cast<Expression&>(expAff.top());
+                            expMng.removeLitterale(expAff.top());
+                            expAff.pop();
+
+                            Expression res("");
+
+                            if (s == "SWAP")
+                            {
+                                res=v1;
+                                Litterale& l=expMng.addLitterale(v2);
+
+                                expAff.push(l);
+
+                            }
+
+                            Litterale& e=expMng.addLitterale(res);
+
+                            expAff.push(e);
+                        }// else v1 expression
+
+                    }//if v2 numerique
+                    else if(expAff.top().getType()=="Expression")
+                    {
+                        Expression v2=dynamic_cast<Expression&>(expAff.top());
+                        expMng.removeLitterale(expAff.top());
+                        expAff.pop();
+                        if(expAff.top().getType()=="Expression")
+                        {
+                            Expression v1=dynamic_cast<Expression&>(expAff.top());
+                            expMng.removeLitterale(expAff.top());
+                            expAff.pop();
+
+                            Expression res("");// on initialise res a zero
+
+
+                            if (s == "+") res = v1 + v2;
+                            if (s == "-") res = v1 - v2;
+                            if (s == "*") res = v1 * v2;
+                            if (s == "/") res = v1 / v2;
+                            if (s == "AND") res = v1.operatorAND(v2);
+                            if (s == "OR") res = v1.operatorOR(v2);
+                            if (s == "NOT") res = v1.operatorNOT(v2);
+                            if (s == "SWAP")
+                            {
+                                res=v1;
+                                Litterale& l=expMng.addLitterale(v2);
+
+                                expAff.push(l);
+
+                            }
+
+                            Litterale& e=expMng.addLitterale(res);
+
+                            expAff.push(e);
+                            }//if v1 expression
+
+
+
+                            else if(expAff.top().getType()=="Numerique")
+                            {
+                                Numerique v1=dynamic_cast<Numerique&>(expAff.top());
+                                expMng.removeLitterale(expAff.top());
+                                expAff.pop();
+
+                                Numerique res(0);
+
+                                if (s == "SWAP")
+                                {
+                                    res=v1;
+                                    Litterale& l=expMng.addLitterale(v2);
+
+                                    expAff.push(l);
+                                 }
+
+                                Litterale& e=expMng.addLitterale(res);
+
+                                expAff.push(e);
+                            }//if v1 numerique
+
+                    }// else v2 expression
+
+                } //try
                 catch(std::bad_cast& e) { expAff.setMessage(e.what()); }
 
-                try{
 
-                Expression v2=dynamic_cast<Expression&>(expAff.top());
-                expMng.removeLitterale(expAff.top());
-                expAff.pop();
-                Expression v1=dynamic_cast<Expression&>(expAff.top());
-                expMng.removeLitterale(expAff.top());
-                expAff.pop();
-
-                Expression res("");// on initialise res a zero
-
-
-                if (s == "+") res = v1 + v2;
-                if (s == "-") res = v1 - v2;
-                if (s == "*") res = v1 * v2;
-                if (s == "/") res = v1 / v2;
-                if (s == "AND") res = v1.operatorAND(v2);
-                if (s == "OR") res = v1.operatorOR(v2);
-                if (s == "NOT") res = v1.operatorNOT(v2);
-
-                Litterale& e=expMng.addLitterale(res);
-
-                expAff.push(e);
-                }
-                catch(std::bad_cast& e)
-                {
-                expAff.setMessage(e.what());
-                }
-            }
+            }// taille>=2
             else
             {
                 expAff.setMessage("Erreur : pas assez d'arguments");
@@ -937,7 +1016,18 @@ void Controleur::commande(const QString& c)
                             res = v1;
                         }
                     }
-
+                    if (s== "DUP")
+                    {
+                        res= v1;
+                        Litterale& l=expMng.addLitterale(res);
+                        expAff.push(l);
+                    }
+                    if (s== "DROP")
+                    {
+                        i++;
+                        j = i;
+                        continue;
+                    }
                     Litterale& e=expMng.addLitterale(res);
 
                     expAff.push(e);
@@ -954,6 +1044,18 @@ void Controleur::commande(const QString& c)
 
 
                     if (s == "NEG") res = v1.operatorNEG();
+                    if (s== "DUP")
+                    {
+                        res= v1;
+                        Litterale& l=expMng.addLitterale(res);
+                        expAff.push(l);
+                    }
+                    if (s== "DROP")
+                    {
+                        i++;
+                        j = i;
+                        continue;
+                    }
 
                     Litterale& e=expMng.addLitterale(res);
 
@@ -969,6 +1071,18 @@ void Controleur::commande(const QString& c)
                     expAff.setMessage("Erreur : pas assez d'arguments");
                 }
         }
+        else if(estUnOperateurSansArg(s))
+        {
+            if (s == "CLEAR")
+            {
+                while(!expAff.estVide())
+                {
+                    expMng.removeLitterale(expAff.top());
+                    expAff.pop();
+                }
+            }
+        }
+
         else expAff.setMessage("Erreur : commande inconnue");
 
         i++;

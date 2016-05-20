@@ -273,6 +273,11 @@ public:
     const_iterator begin() const { return const_iterator(items+nb-1); }
     const_iterator end() const { return const_iterator(items-1); }
 
+    /*void operatorDUP();
+    void operatorDROP();
+    void operatorSWAP();
+    void operatorCLEAR();*/
+
 signals:
     void modificationEtat();
 };
@@ -291,6 +296,7 @@ bool estUnOperateurBinaire(const QString s);
 bool estUnOperateurUnaire(const QString s);
 bool estUnNombre(const QString s);
 bool estUneExpression(const QString s);
+bool estUnOperateurSansArg(const QString s);
 
 
 #endif
