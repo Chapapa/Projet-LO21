@@ -199,12 +199,45 @@ Numerique Numerique::operator/(const Numerique& n)
     double ni=numIm*n.denomIm;
     int di=denomIm*n.numIm;
 
-    QString tRe=getResTypeRe(n,dr);
-    QString tIm=getResTypeIm(n,ni,di);
+    QString tRe;
+    QString tIm;
+
+    if (typeRe=="entier" && n.typeRe=="entier")
+    {
+         tRe="rationnel";
+    }
+    else if (typeRe=="reel" || n.typeRe=="reel")
+    {
+         tRe="reel";
+         nr=nr/dr;
+         dr=1;
+    }
+    else//rationnel
+    {
+        tRe="rationnel";
+    }
+
+    if(ni==0) tIm="null";
+
+    else if (typeIm=="entier" && n.typeIm=="entier")
+    {
+        tIm="rationnel";
+    }
+    else if (typeIm=="reel" || n.typeIm=="reel")
+    {
+        tIm="reel";
+        ni=ni/di;
+        di=1;
+    }
+    else
+    {
+        tIm="rationnel";
+    }
 
     Numerique res(nr,ni,tRe,tIm,dr,di);
 
     return res;
+
 }
 
 Numerique Numerique::operator$(const Numerique& n)
