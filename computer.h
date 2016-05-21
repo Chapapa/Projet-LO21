@@ -47,7 +47,14 @@ public :
     Expression operatorOR(const Expression& n);
     Expression operatorNOT();
     Expression operatorNEG();
-    //Expression operator$(const Expression& n);
+
+    Expression operator$(const Expression& e);
+    //Expression operator==(const Expression& n);
+    //Expression operator!=(const Expression& n);
+    //Expression operator<=(const Expression& n);
+    //Expression operator>=(const Expression& n);
+    //Expression operator<(const Expression& n);
+    //Expression operator>(const Expression& n);
     //Expression operatorEVAL();
 };
 

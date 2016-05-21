@@ -139,7 +139,7 @@ Expression Expression::operator/(const Expression& e)
 
 }
 
-Expression Expression::operator+(const Expression& e)
+Expression Expression::operator$(const Expression& e)
 {
     int i=0;
     bool priorite=true;
@@ -152,7 +152,7 @@ Expression Expression::operator+(const Expression& e)
         }
         else
         {
-            if (exp[i] == '/' || exp[i] == '*')
+            if (exp[i] == '+' || exp[i] == '-' || exp[i] == '*' || exp[i] == '/')
             {
                 priorite=false;
                 break;
@@ -170,7 +170,54 @@ Expression Expression::operator+(const Expression& e)
         }
         else
         {
-            if (e.exp[i] == '/' || e.exp[i] == '*')
+            if (exp[i] == '+' || exp[i] == '-' || exp[i] == '*' || exp[i] == '/')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+    QString res;
+    if (priorite)
+       res=exp+"$"+e.exp;
+    else
+        res= "("+exp+"$"+e.exp+")";
+    return Expression(res);
+}
+
+Expression Expression::operator+(const Expression& e)
+{
+    int i=0;
+    bool priorite=true;
+    while(i < (exp.length()))
+    {
+        if(exp[i]== '(')
+        {
+            while(i < (exp.length()) && exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (exp[i] == '/' || exp[i] == '*' ||  exp[i] == '$')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+
+    while(i < (e.exp.length()))
+    {
+        if(e.exp[i]== '(')
+        {
+            while(i < (e.exp.length()) && e.exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (e.exp[i] == '/' || e.exp[i] == '*' ||  exp[i] == '$')
             {
                 priorite=false;
                 break;
@@ -199,7 +246,7 @@ Expression Expression::operator-(const Expression& e)
         }
         else
         {
-            if (exp[i] == '/' || exp[i] == '*')
+            if (exp[i] == '/' || exp[i] == '*' ||  exp[i] == '$')
             {
                 priorite=false;
                 break;
@@ -217,7 +264,7 @@ Expression Expression::operator-(const Expression& e)
         }
         else
         {
-            if (e.exp[i] == '/' || e.exp[i] == '*')
+            if (e.exp[i] == '/' || e.exp[i] == '*' ||  exp[i] == '$')
             {
                 priorite=false;
                 break;
@@ -1205,7 +1252,14 @@ void Controleur::commande(const QString& c)
                                 expAff.push(l);
 
                             }
-
+                            Expression v2E=v2.toString();
+                            if (s == "+") res = v1 + v2E;
+                            if (s == "-") res = v1 - v2E;
+                            if (s == "*") res = v1 * v2E;
+                            if (s == "/") res = v1 / v2E;
+                            if (s == "$") res = v1.operator$(v2E);
+                            if (s == "AND") res = v1.operatorAND(v2E);
+                            if (s == "OR") res = v1.operatorOR(v2E);
                             Litterale& e=expMng.addLitterale(res);
 
                             expAff.push(e);
@@ -1240,7 +1294,7 @@ void Controleur::commande(const QString& c)
                                 expAff.push(l);
 
                             }
-
+                            if (s == "$") res = v1.operator$(v2);
                             Litterale& e=expMng.addLitterale(res);
 
                             expAff.push(e);
@@ -1260,13 +1314,28 @@ void Controleur::commande(const QString& c)
                                 {
                                     res=v1;
                                     Litterale& l=expMng.addLitterale(v2);
-
                                     expAff.push(l);
+
+                                    Litterale& e=expMng.addLitterale(res);
+                                    expAff.push(e);
                                  }
+                                else
+                                {
+                                    Expression v1E=v1.toString();
+                                    Expression resE("");
+                                    if (s == "+") resE = v1E + v2;
+                                    if (s == "-") resE = v1E - v2;
+                                    if (s == "*") resE = v1E * v2;
+                                    if (s == "/") resE = v1E / v2;
+                                    if (s == "AND") resE = v1E.operatorAND(v2);
+                                    if (s == "OR") resE = v1E.operatorOR(v2);
+                                    if (s == "$") resE = v1E.operator$(v2);
 
-                                Litterale& e=expMng.addLitterale(res);
+                                    Litterale& e=expMng.addLitterale(resE);
+                                    expAff.push(e);
+                                }
 
-                                expAff.push(e);
+
                             }//if v1 numerique
 
                     }// else v2 expression
