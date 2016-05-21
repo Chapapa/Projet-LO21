@@ -45,7 +45,7 @@ public :
     Expression operator/(const Expression& n);
     Expression operatorAND(const Expression& n);
     Expression operatorOR(const Expression& n);
-    Expression operatorNOT(const Expression& n);
+    Expression operatorNOT();
     Expression operatorNEG();
     //Expression operator$(const Expression& n);
     //Expression operatorEVAL();
@@ -120,6 +120,15 @@ public:
     Numerique operatorDEN();
     Numerique operatorRE();
     Numerique operatorIM();
+    Numerique operator==(const Numerique& n);
+    Numerique operator!=(const Numerique& n);
+    Numerique operator>=(const Numerique& n);
+    Numerique operator<=(const Numerique& n);
+    Numerique operator<(const Numerique& n);
+    Numerique operator>(const Numerique& n);
+    Numerique operatorAND(const Numerique& n);
+    Numerique operatorOR(const Numerique& n);
+    Numerique operatorNOT();
 };
 
 
@@ -272,11 +281,6 @@ public:
     };
     const_iterator begin() const { return const_iterator(items+nb-1); }
     const_iterator end() const { return const_iterator(items-1); }
-
-    /*void operatorDUP();
-    void operatorDROP();
-    void operatorSWAP();
-    void operatorCLEAR();*/
 
 signals:
     void modificationEtat();

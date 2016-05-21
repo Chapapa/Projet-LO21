@@ -18,10 +18,10 @@ Expression Expression::operatorOR(const Expression& e)
     return Expression(res);
 }
 
-Expression Expression::operatorNOT(const Expression& e)
+Expression Expression::operatorNOT()
 {
     QString res;
-    res="NOT("+exp+","+e.exp+")";
+    res="NOT("+exp+")";
 
     return Expression(res);
 }
@@ -37,18 +37,106 @@ Expression Expression::operatorNEG()
 
 Expression Expression::operator*(const Expression& e)
 {
-    QString res;
+   /* QString res;
     res=exp+"*"+e.exp;
 
+    return Expression(res);*/
+
+    int i=0;
+    bool priorite=true;
+    while(i < (exp.length()))
+    {
+        if(exp[i]== '(')
+        {
+            while(i < (exp.length()) && exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (exp[i] == '+' || exp[i] == '-')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+
+    while(i < (e.exp.length()))
+    {
+        if(e.exp[i]== '(')
+        {
+            while(i < (e.exp.length()) && e.exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (e.exp[i] == '-' || e.exp[i] == '+')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+    QString res;
+    if (priorite)
+       res=exp+"*"+e.exp;
+    else
+        res= "("+exp+")*("+e.exp+")";
     return Expression(res);
 }
 
 Expression Expression::operator/(const Expression& e)
 {
-    QString res;
+    /*QString res;
     res=exp+"/"+e.exp;
 
+    return Expression(res);*/
+    int i=0;
+    bool priorite=true;
+    while(i < (exp.length()))
+    {
+        if(exp[i]== '(')
+        {
+            while(i < (exp.length()) && exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (exp[i] == '+' || exp[i] == '-')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+
+    while(i < (e.exp.length()))
+    {
+        if(e.exp[i]== '(')
+        {
+            while(i < (e.exp.length()) && e.exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (e.exp[i] == '-' || e.exp[i] == '+')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+    QString res;
+    if (priorite)
+       res=exp+"/"+e.exp;
+    else
+        res= "("+exp+")/("+e.exp+")";
     return Expression(res);
+
 }
 
 Expression Expression::operator+(const Expression& e)
@@ -261,6 +349,171 @@ Numerique Numerique::operatorMOD(const Numerique& n)
    int num=(int)numReel%(int)n.numReel;
    Numerique res(num,0,"entier","null",1, 1);
    return res;
+}
+
+Numerique Numerique::operator==(const Numerique& n)
+{
+
+    if (numReel==n.numReel && denomReel==n.denomReel && numIm==n.numIm && denomIm==n.denomIm)
+    {
+        Numerique res1(1,"entier");
+        return res1;
+    }
+    else
+    {
+        Numerique res0(0,"entier");
+        return res0;
+    }
+
+}
+
+Numerique Numerique::operator!=(const Numerique& n)
+{
+
+    if (numReel!=n.numReel || denomReel!=n.denomReel || numIm!=n.numIm || denomIm!=n.denomIm)
+    {
+        Numerique res1(1,"entier");
+        return res1;
+    }
+    else
+    {
+        Numerique res0(0,"entier");
+        return res0;
+    }
+
+}
+
+Numerique Numerique::operator>=(const Numerique& n)
+{
+    double temp1=(double)numReel/(double)denomReel;
+    double temp2=(double)n.numReel/(double)n.denomReel;
+    if (temp1 >= temp2)
+    {
+        Numerique res1(1,"entier");
+        return res1;
+    }
+    else
+    {
+        Numerique res0(0,"entier");
+        return res0;
+    }
+}
+
+Numerique Numerique::operator<=(const Numerique& n)
+{
+    double temp1=(double)numReel/(double)denomReel;
+    double temp2=(double)n.numReel/(double)n.denomReel;
+    if (temp1 <= temp2)
+    {
+        Numerique res1(1,"entier");
+        return res1;
+    }
+    else
+    {
+        Numerique res0(0,"entier");
+        return res0;
+    }
+}
+
+Numerique Numerique::operator<(const Numerique& n)
+{
+    double temp1=(double)numReel/(double)denomReel;
+    double temp2=(double)n.numReel/(double)n.denomReel;
+    if (temp1 < temp2)
+    {
+        Numerique res1(1,"entier");
+        return res1;
+    }
+    else
+    {
+        Numerique res0(0,"entier");
+        return res0;
+    }
+}
+
+Numerique Numerique::operator>(const Numerique& n)
+{
+    double temp1=(double)numReel/(double)denomReel;
+    double temp2=(double)n.numReel/(double)n.denomReel;
+    if (temp1 > temp2)
+    {
+        Numerique res1(1,"entier");
+        return res1;
+    }
+    else
+    {
+        Numerique res0(0,"entier");
+        return res0;
+    }
+}
+
+Numerique Numerique::operatorAND(const Numerique& n)
+{
+
+    if ( numReel>0 && n.numReel>0)
+    {
+        Numerique res1(1,"entier");
+        return res1;
+    }
+    else if (typeIm!="null" && n.typeIm!="null" && numIm>0 && n.numIm>0 )
+    {
+        Numerique res1cmplx(1,"entier");
+        return res1cmplx;
+    }
+    else if (numReel>0  && n.typeIm!="null" && n.numIm>0 )
+    {
+        Numerique res1cmplx(1,"entier");
+        return res1cmplx;
+    }
+    else if (n.numReel>0  && typeIm!="null" && numIm>0 )
+    {
+        Numerique res1cmplx(1,"entier");
+        return res1cmplx;
+    }
+    else
+    {
+        Numerique res0(0,"entier");
+        return res0;
+    }
+}
+
+Numerique Numerique::operatorOR(const Numerique& n)
+{
+    if ( numReel>0 || n.numReel>0)
+    {
+        Numerique res1(1,"entier");
+        return res1;
+    }
+    else if ((typeIm!="null" &&  numIm>0) || (n.typeIm!="null" && n.numIm>0))
+    {
+        Numerique res1cmplx(1,"entier");
+        return res1cmplx;
+    }
+    else
+    {
+        Numerique res0(0,"entier");
+        return res0;
+    }
+
+}
+
+Numerique Numerique::operatorNOT()
+{
+    if ( numReel>0)
+    {
+        Numerique res0(0,"entier");
+        return res0;
+    }
+    if ( numIm>0)
+    {
+        Numerique res0cmplx(0,"entier");
+        return res0cmplx;
+    }
+    else
+    {
+        Numerique res1(1,"entier");
+        return res1;
+    }
 }
 
 Numerique Numerique::operatorNEG()
@@ -642,8 +895,13 @@ bool estUnOperateurBinaire(const QString s)
     if (s=="MOD") return true;
     if (s=="AND") return true;
     if (s=="OR") return true;
-    if (s=="NOT") return true;
     if (s=="SWAP") return true;
+    if (s=="==") return true;
+    if (s=="!=") return true;
+    if (s==">=") return true;
+    if (s=="<=") return true;
+    if (s==">") return true;
+    if (s=="<") return true;
     return false;
 }
 
@@ -656,6 +914,7 @@ bool estUnOperateurUnaire(const QString s)
     if (s=="IM") return true;
     if (s=="DUP") return true;
     if (s=="DROP") return true;
+    if (s=="NOT") return true;
     return false;
 }
 
@@ -798,7 +1057,9 @@ void Controleur::commande(const QString& c)
                                 if(v2.getTypeIm() != "null" || v1.getTypeIm() != "null")
                                 {
                                     expAff.setMessage("Erreur : au moins une litterale est deja complexes");
-                                    res = v1;
+                                    Litterale& l=expMng.addLitterale(v1);
+                                    expAff.push(l);
+                                    res=v2;
                                 }
 
                                 else
@@ -809,7 +1070,7 @@ void Controleur::commande(const QString& c)
                             if (s == "/")
                             {
                                 //if (v2 != 0)
-                                if(v2.getNumReel() != 0 || v2.getNumIm() != 0)
+                                if(v2.getNumReel() != 0 && v2.getNumIm() != 0)
                                     res = v1 / v2;
                                 else
                                 {
@@ -819,7 +1080,7 @@ void Controleur::commande(const QString& c)
                             }
                             if (s == "DIV")
                             {
-                                if(v2.getTypeIm() == "null" || v1.getTypeIm() == "null" || v2.getTypeRe() == "entier" || v1.getTypeRe() == "entier")
+                                if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null" && v2.getTypeRe() == "entier" && v1.getTypeRe() == "entier")
                                 {
                                     res = v1.operatorDIV(v2);
                                 }
@@ -827,12 +1088,14 @@ void Controleur::commande(const QString& c)
                                 else
                                 {
                                     expAff.setMessage("Erreur : au moins une litterale n'est pas entiere");
-                                    res = v1;
+                                    Litterale& l=expMng.addLitterale(v1);
+                                    expAff.push(l);
+                                    res=v2;
                                 }
                             }
                             if (s == "MOD")
                             {
-                                if(v2.getTypeIm() == "null" || v1.getTypeIm() == "null" || v2.getTypeRe() == "entier" || v1.getTypeRe() == "entier")
+                                if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null" && v2.getTypeRe() == "entier" && v1.getTypeRe() == "entier")
                                 {
                                     res = v1.operatorMOD(v2);
                                 }
@@ -840,7 +1103,9 @@ void Controleur::commande(const QString& c)
                                 else
                                 {
                                     expAff.setMessage("Erreur : au moins une litterale n'est pas entiere");
-                                    res = v1;
+                                    Litterale& l=expMng.addLitterale(v1);
+                                    expAff.push(l);
+                                    res=v2;
                                 }
                             }
                             if (s == "SWAP")
@@ -850,6 +1115,74 @@ void Controleur::commande(const QString& c)
 
                                 expAff.push(l);
 
+                            }
+                            if (s == "==")
+                            {
+                                res=v1==v2;
+                            }
+                            if (s == "!=")
+                            {
+                                res=v1!=v2;
+                            }
+                            if (s == ">=")
+                            {
+                               if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null")
+                                    res=v1>=v2;
+                               else
+                               {
+                                   expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
+                                   Litterale& l=expMng.addLitterale(v1);
+                                   expAff.push(l);
+                                   res=v2;
+                               }
+                            }
+
+                            if (s == "<=")
+                            {
+                               if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null")
+                                    res=v1<=v2;
+                               else
+                               {
+                                   expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
+                                   Litterale& l=expMng.addLitterale(v1);
+                                   expAff.push(l);
+                                   res=v2;
+                               }
+                            }
+
+                            if (s == ">")
+                            {
+                               if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null")
+                                    res=v1>v2;
+                               else
+                               {
+                                   expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
+                                   Litterale& l=expMng.addLitterale(v1);
+                                   expAff.push(l);
+                                   res=v2;
+                               }
+                            }
+
+                            if (s == "<")
+                            {
+                               if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null")
+                                    res=v1<v2;
+                               else
+                               {
+                                   expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
+                                   Litterale& l=expMng.addLitterale(v1);
+                                   expAff.push(l);
+                                   res=v2;
+                               }
+                            }
+
+                            if (s == "AND")
+                            {
+                                res=v1.operatorAND(v2);
+                            }
+                            if (s == "OR")
+                            {
+                                res=v1.operatorOR(v2);
                             }
 
                             Litterale& e=expMng.addLitterale(res);
@@ -899,7 +1232,6 @@ void Controleur::commande(const QString& c)
                             if (s == "/") res = v1 / v2;
                             if (s == "AND") res = v1.operatorAND(v2);
                             if (s == "OR") res = v1.operatorOR(v2);
-                            if (s == "NOT") res = v1.operatorNOT(v2);
                             if (s == "SWAP")
                             {
                                 res=v1;
@@ -1028,6 +1360,10 @@ void Controleur::commande(const QString& c)
                         j = i;
                         continue;
                     }
+                    if (s == "NOT")
+                    {
+                        res=v1.operatorNOT();
+                    }
                     Litterale& e=expMng.addLitterale(res);
 
                     expAff.push(e);
@@ -1056,7 +1392,7 @@ void Controleur::commande(const QString& c)
                         j = i;
                         continue;
                     }
-
+                    if (s == "NOT") res = v1.operatorNOT();
                     Litterale& e=expMng.addLitterale(res);
 
                     expAff.push(e);
