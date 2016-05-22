@@ -300,6 +300,18 @@ class Controleur
 public:
     Controleur(LitteraleManager& m, Pile& v):expMng(m), expAff(v){}
     void commande(const QString& c);
+    Numerique manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res);
+    Numerique manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res);
+    Numerique managePileOpeNumAndNum(Numerique v1, Numerique v2,QString s, Numerique res);
+    Expression manageNumOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res);
+    Expression manageLogicOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res);
+    Expression managePileOpeNumAndExpr(Expression v1, Numerique v2, QString s, Expression res);
+    Expression manageNumOpeExprAndExpr(Expression v1, Expression v2E, QString s, Expression res);
+    Expression manageLogicOpeExprAndExpr(Expression v1, Expression v2E, QString s, Expression res);
+    Expression managePileOpeExprAndExpr(Expression v1, Expression v2,QString s, Expression res);
+    Expression manageNumOpeExprAndNum(Expression v1, Expression v2E,QString s, Expression res);
+    Expression manageLogicOpeExprAndNum(Expression v1, Expression v2E,QString s, Expression res);
+    Numerique managePileOpeExprAndNum(Numerique v1, Expression v2,QString s, Numerique res);
 
 };
 

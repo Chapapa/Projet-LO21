@@ -1004,6 +1004,27 @@ bool estUnReel(const QString s)
    return ok;
 }
 
+bool estUnRationnel(const QString c, QString s, int i)
+{
+    if(estUnEntier(s) && c[i]=='/')
+    {
+        i++;
+        int j = i;
+        while(i < (c.length()-1) && !estUnOperateurBinaire(c[i]) && c[i]!=' ')
+        {
+            i++;
+        }
+        if(i == c.length()-1)
+        {
+            i++;
+        }
+        s = c.mid(j,i-j);
+        if(estUnEntier(s))
+            return true;
+        else return false;
+    }
+    return false;
+}
 
 /*void Controleur::commande(const QString& c){
     if (estUnNombre(c)){
@@ -1038,29 +1059,306 @@ bool estUnReel(const QString s)
     }
 }*/
 
+Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res)
+{
+    if (s == "+") res = v1 + v2;
+    if (s == "-") res = v1 - v2;
+    if (s == "*") res = v1 * v2;
+    if (s == "$")
+    {
+        if(v2.getTypeIm() != "null" || v1.getTypeIm() != "null")
+        {
+            expAff.setMessage("Erreur : au moins une litterale est deja complexe");
+            Litterale& l=expMng.addLitterale(v1);
+            expAff.push(l);
+            res=v2;
+        }
+        else
+        {
+            res = v1.operator$(v2);
+        }
+    }
+    if (s == "/")
+    {
+        //if (v2 != 0)
+        if(v2.getNumReel() != 0 || v2.getNumIm() != 0)
+            res = v1 / v2;
+        else
+        {
+            expAff.setMessage("Erreur : division par zéro");
+            res = v1;
+        }
+    }
+    if (s == "DIV")
+    {
+        if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null" && v2.getTypeRe() == "entier" && v1.getTypeRe() == "entier")
+        {
+            res = v1.operatorDIV(v2);
+        }
+
+        else
+        {
+            expAff.setMessage("Erreur : au moins une litterale n'est pas entiere");
+            Litterale& l=expMng.addLitterale(v1);
+            expAff.push(l);
+            res=v2;
+        }
+    }
+    if (s == "MOD")
+    {
+        if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null" && v2.getTypeRe() == "entier" && v1.getTypeRe() == "entier")
+        {
+            res = v1.operatorMOD(v2);
+        }
+
+        else
+        {
+            expAff.setMessage("Erreur : au moins une litterale n'est pas entiere");
+            Litterale& l=expMng.addLitterale(v1);
+            expAff.push(l);
+            res=v2;
+        }
+    }
+    return res;
+}
+
+
+Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res)
+{
+    if (s == "==")
+    {
+        res=v1==v2;
+    }
+    if (s == "!=")
+    {
+        res=v1!=v2;
+    }
+    if (s == ">=")
+    {
+       if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null")
+            res=v1>=v2;
+       else
+       {
+           expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
+           Litterale& l=expMng.addLitterale(v1);
+           expAff.push(l);
+           res=v2;
+       }
+    }
+
+    if (s == "<=")
+    {
+       if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null")
+            res=v1<=v2;
+       else
+       {
+           expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
+           Litterale& l=expMng.addLitterale(v1);
+           expAff.push(l);
+           res=v2;
+       }
+    }
+
+    if (s == ">")
+    {
+       if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null")
+            res=v1>v2;
+       else
+       {
+           expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
+           Litterale& l=expMng.addLitterale(v1);
+           expAff.push(l);
+           res=v2;
+       }
+    }
+
+    if (s == "<")
+    {
+       if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null")
+            res=v1<v2;
+       else
+       {
+           expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
+           Litterale& l=expMng.addLitterale(v1);
+           expAff.push(l);
+           res=v2;
+       }
+    }
+
+    if (s == "AND")
+    {
+        res=v1.operatorAND(v2);
+    }
+    if (s == "OR")
+    {
+        res=v1.operatorOR(v2);
+    }
+    return res;
+}
+
+
+Numerique Controleur::managePileOpeNumAndNum(Numerique v1, Numerique v2,QString s, Numerique res)
+{
+    if (s == "SWAP")
+    {
+        res=v1;
+        Litterale& l=expMng.addLitterale(v2);
+        expAff.push(l);
+    }
+    return res;
+}
+
+
+Expression Controleur::manageNumOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res)
+{
+    if (s == "+") res = v1 + v2E;
+    if (s == "-") res = v1 - v2E;
+    if (s == "*") res = v1 * v2E;
+    if (s == "/") res = v1 / v2E;
+    if (s == "$") res = v1.operator$(v2E);
+    return res;
+}
+
+
+Expression Controleur::manageLogicOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res)
+{
+    if (s == "AND") res = v1.operatorAND(v2E);
+    if (s == "OR") res = v1.operatorOR(v2E);
+    return res;
+}
+
+
+Expression Controleur::managePileOpeNumAndExpr(Expression v1, Numerique v2,QString s, Expression res)
+{
+    if (s == "SWAP")
+    {
+        res=v1;
+        Litterale& l=expMng.addLitterale(v2);
+        expAff.push(l);
+    }
+    return res;
+}
+
+
+Expression Controleur::manageNumOpeExprAndExpr(Expression v1, Expression v2, QString s, Expression res)
+{
+    if (s == "+") res = v1 + v2;
+    if (s == "-") res = v1 - v2;
+    if (s == "*") res = v1 * v2;
+    if (s == "/") res = v1 / v2;
+    if (s == "$") res = v1.operator$(v2);
+    return res;
+}
+
+
+Expression Controleur::manageLogicOpeExprAndExpr(Expression v1, Expression v2, QString s, Expression res)
+{
+    if (s == "AND") res = v1.operatorAND(v2);
+    if (s == "OR") res = v1.operatorOR(v2);
+    return res;
+}
+
+
+Expression Controleur::managePileOpeExprAndExpr(Expression v1, Expression v2,QString s, Expression res)
+{
+    if (s == "SWAP")
+    {
+        res=v1;
+        Litterale& l=expMng.addLitterale(v2);
+
+        expAff.push(l);
+
+    }
+    return res;
+}
+
+
+Expression Controleur::manageNumOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
+{
+    if (s == "+") resE = v1E + v2;
+    if (s == "-") resE = v1E - v2;
+    if (s == "*") resE = v1E * v2;
+    if (s == "/") resE = v1E / v2;
+    if (s == "$") resE = v1E.operator$(v2);
+    return resE;
+}
+
+
+Expression Controleur::manageLogicOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
+{
+    if (s == "AND") resE = v1E.operatorAND(v2);
+    if (s == "OR") resE = v1E.operatorOR(v2);
+    return resE;
+}
+
+
+Numerique Controleur::managePileOpeExprAndNum(Numerique v1, Expression v2,QString s, Numerique res)
+{
+    if (s == "SWAP")
+    {
+        res=v1;
+        Litterale& l=expMng.addLitterale(v2);
+        expAff.push(l);
+
+        Litterale& e=expMng.addLitterale(res);
+        expAff.push(e);
+    }
+    return res;
+}
+
+
 void Controleur::commande(const QString& c)
 {
     QString s;
     int i=0, j=0;
     while(i < (c.length()))
+    {
+        if (c[0] != '\'')
         {
-            if (c[0] != '\''){
-                while(i < (c.length()-1) && !estUnOperateurBinaire(c[i]) && c[i]!=' ')
-                {
-                    i++;
-                }
-            }
-            else {
+            while(i < (c.length()-1) && !estUnOperateurBinaire(c[i]) && c[i]!=' ')
+            {
                 i++;
-                while(i < (c.length()-1) && c[i]!='\'')
-                {
-                    i++;
-                }
             }
+            if(i == c.length()-1)
+            {
+                i++;
+            }
+            else if(estUnOperateurBinaire(c[i]) && i == j)
+            {
+                i++;
+            }
+        }
+        else
+        {
+            i++;
+            while(i < (c.length()-1) && c[i]!='\'')
+            {
+                i++;
+            }
+        }
 
-        s = c.mid(j,i-j+1);
+        s = c.mid(j,i-j);
 
-        if(estUnEntier(s))
+        if(i < c.length()-1 && estUnRationnel(c, s, i))
+        {
+            Numerique v1(s.toInt());
+            i++;
+            j = i;
+            while(i < (c.length()-1) && !estUnOperateurBinaire(c[i]) && c[i]!=' ')
+            {
+                i++;
+            }
+            if(i == c.length()-1)
+            {
+                i++;
+            }
+            s = c.mid(j,i-j);
+            Numerique v2 = s.toInt();
+            Numerique res(v1.getNumReel(), v2.getNumReel());
+            Litterale& e=expMng.addLitterale(res);
+            expAff.push(e);
+        }
+        else if(estUnEntier(s))
         {
             expAff.push(expMng.addLitterale(s.toInt()));
         }
@@ -1069,25 +1367,25 @@ void Controleur::commande(const QString& c)
             expAff.push(expMng.addLitterale(s.toDouble()));
 
         else if(estUneExpression(s))
-                {
-                    s=s.mid(1,s.length()-2);
-                    expAff.push(expMng.addLitterale(s));
-                }
+        {
+            s=s.mid(1,s.length()-2);
+            expAff.push(expMng.addLitterale(s));
+        }
 
         else if(estUnOperateurBinaire(s))
         {
-
             if (expAff.taille() >= 2)
             {
-                try{
+                try
+                {
 
-                    if(expAff.top().getType()=="Numerique")
+                    if(expAff.top().getType()=="Numerique") // La premier littérale saisie est numérique
                     {
                         Numerique v2=dynamic_cast<Numerique&>(expAff.top());
                         expMng.removeLitterale(expAff.top());
                         expAff.pop();
 
-                        if(expAff.top().getType()=="Numerique")
+                        if(expAff.top().getType()=="Numerique") // La deuxième littérale saisie est numérique
                         {
                             Numerique v1=dynamic_cast<Numerique&>(expAff.top());
                             expMng.removeLitterale(expAff.top());
@@ -1096,147 +1394,17 @@ void Controleur::commande(const QString& c)
                             Numerique res(0);// on initialise res a zero
 
 
-                            if (s == "+") res = v1 + v2;
-                            if (s == "-") res = v1 - v2;
-                            if (s == "*") res = v1 * v2;
-                            if (s == "$")
-                            {
-                                if(v2.getTypeIm() != "null" || v1.getTypeIm() != "null")
-                                {
-                                    expAff.setMessage("Erreur : au moins une litterale est deja complexes");
-                                    Litterale& l=expMng.addLitterale(v1);
-                                    expAff.push(l);
-                                    res=v2;
-                                }
+                            res = manageNumOpeNumAndNum(v1, v2, s, res);
 
-                                else
-                                {
-                                    res = v1.operator$(v2);
-                                }
-                            }
-                            if (s == "/")
-                            {
-                                //if (v2 != 0)
-                                if(v2.getNumReel() != 0 && v2.getNumIm() != 0)
-                                    res = v1 / v2;
-                                else
-                                {
-                                    expAff.setMessage("Erreur : division par zéro");
-                                    res = v1;
-                                }
-                            }
-                            if (s == "DIV")
-                            {
-                                if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null" && v2.getTypeRe() == "entier" && v1.getTypeRe() == "entier")
-                                {
-                                    res = v1.operatorDIV(v2);
-                                }
+                            res = managePileOpeNumAndNum(v1, v2, s, res);
 
-                                else
-                                {
-                                    expAff.setMessage("Erreur : au moins une litterale n'est pas entiere");
-                                    Litterale& l=expMng.addLitterale(v1);
-                                    expAff.push(l);
-                                    res=v2;
-                                }
-                            }
-                            if (s == "MOD")
-                            {
-                                if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null" && v2.getTypeRe() == "entier" && v1.getTypeRe() == "entier")
-                                {
-                                    res = v1.operatorMOD(v2);
-                                }
-
-                                else
-                                {
-                                    expAff.setMessage("Erreur : au moins une litterale n'est pas entiere");
-                                    Litterale& l=expMng.addLitterale(v1);
-                                    expAff.push(l);
-                                    res=v2;
-                                }
-                            }
-                            if (s == "SWAP")
-                            {
-                                res=v1;
-                                Litterale& l=expMng.addLitterale(v2);
-
-                                expAff.push(l);
-
-                            }
-                            if (s == "==")
-                            {
-                                res=v1==v2;
-                            }
-                            if (s == "!=")
-                            {
-                                res=v1!=v2;
-                            }
-                            if (s == ">=")
-                            {
-                               if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null")
-                                    res=v1>=v2;
-                               else
-                               {
-                                   expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
-                                   Litterale& l=expMng.addLitterale(v1);
-                                   expAff.push(l);
-                                   res=v2;
-                               }
-                            }
-
-                            if (s == "<=")
-                            {
-                               if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null")
-                                    res=v1<=v2;
-                               else
-                               {
-                                   expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
-                                   Litterale& l=expMng.addLitterale(v1);
-                                   expAff.push(l);
-                                   res=v2;
-                               }
-                            }
-
-                            if (s == ">")
-                            {
-                               if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null")
-                                    res=v1>v2;
-                               else
-                               {
-                                   expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
-                                   Litterale& l=expMng.addLitterale(v1);
-                                   expAff.push(l);
-                                   res=v2;
-                               }
-                            }
-
-                            if (s == "<")
-                            {
-                               if(v2.getTypeIm() == "null" && v1.getTypeIm() == "null")
-                                    res=v1<v2;
-                               else
-                               {
-                                   expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
-                                   Litterale& l=expMng.addLitterale(v1);
-                                   expAff.push(l);
-                                   res=v2;
-                               }
-                            }
-
-                            if (s == "AND")
-                            {
-                                res=v1.operatorAND(v2);
-                            }
-                            if (s == "OR")
-                            {
-                                res=v1.operatorOR(v2);
-                            }
+                            res = manageLogicOpeNumAndNum(v1, v2, s, res);
 
                             Litterale& e=expMng.addLitterale(res);
 
                             expAff.push(e);
-                        } // if v1 numerique
-                        else if(expAff.top().getType()=="Expression")
+                        } // if v1 Numerique
+                        else if(expAff.top().getType()=="Expression") // La deuxième littérale saisie est une expression
                         {
                             Expression v1=dynamic_cast<Expression&>(expAff.top());
                             expMng.removeLitterale(expAff.top());
@@ -1244,34 +1412,26 @@ void Controleur::commande(const QString& c)
 
                             Expression res("");
 
-                            if (s == "SWAP")
-                            {
-                                res=v1;
-                                Litterale& l=expMng.addLitterale(v2);
+                            res = managePileOpeNumAndExpr(v1, v2,s, res);
 
-                                expAff.push(l);
-
-                            }
                             Expression v2E=v2.toString();
-                            if (s == "+") res = v1 + v2E;
-                            if (s == "-") res = v1 - v2E;
-                            if (s == "*") res = v1 * v2E;
-                            if (s == "/") res = v1 / v2E;
-                            if (s == "$") res = v1.operator$(v2E);
-                            if (s == "AND") res = v1.operatorAND(v2E);
-                            if (s == "OR") res = v1.operatorOR(v2E);
+
+                            res = manageNumOpeNumAndExpr(v1, v2E, s, res);
+
+                            res = manageLogicOpeNumAndExpr(v1, v2E, s, res);
+
                             Litterale& e=expMng.addLitterale(res);
 
                             expAff.push(e);
                         }// else v1 expression
 
-                    }//if v2 numerique
-                    else if(expAff.top().getType()=="Expression")
+                    }//if v2 Numerique
+                    else if(expAff.top().getType()=="Expression") // La première littérale saisie est une expression
                     {
                         Expression v2=dynamic_cast<Expression&>(expAff.top());
                         expMng.removeLitterale(expAff.top());
                         expAff.pop();
-                        if(expAff.top().getType()=="Expression")
+                        if(expAff.top().getType()=="Expression") // La deuxième littérale saisie est une expression
                         {
                             Expression v1=dynamic_cast<Expression&>(expAff.top());
                             expMng.removeLitterale(expAff.top());
@@ -1279,64 +1439,44 @@ void Controleur::commande(const QString& c)
 
                             Expression res("");// on initialise res a zero
 
+                            res = manageNumOpeExprAndExpr(v1, v2, s, res);
 
-                            if (s == "+") res = v1 + v2;
-                            if (s == "-") res = v1 - v2;
-                            if (s == "*") res = v1 * v2;
-                            if (s == "/") res = v1 / v2;
-                            if (s == "AND") res = v1.operatorAND(v2);
-                            if (s == "OR") res = v1.operatorOR(v2);
-                            if (s == "SWAP")
-                            {
-                                res=v1;
-                                Litterale& l=expMng.addLitterale(v2);
+                            res = manageLogicOpeExprAndExpr(v1, v2, s, res);
 
-                                expAff.push(l);
+                            res = managePileOpeExprAndExpr(v1, v2, s, res);
 
-                            }
-                            if (s == "$") res = v1.operator$(v2);
                             Litterale& e=expMng.addLitterale(res);
 
                             expAff.push(e);
-                            }//if v1 expression
+                        }//if v1 expression
 
+                        else if(expAff.top().getType()=="Numerique") // La deuxième littérale saisie est numérique
+                        {
+                            Numerique v1=dynamic_cast<Numerique&>(expAff.top());
+                            expMng.removeLitterale(expAff.top());
+                            expAff.pop();
 
+                            Numerique res(0);
 
-                            else if(expAff.top().getType()=="Numerique")
+                            if (s == "SWAP")
                             {
-                                Numerique v1=dynamic_cast<Numerique&>(expAff.top());
-                                expMng.removeLitterale(expAff.top());
-                                expAff.pop();
-
-                                Numerique res(0);
-
-                                if (s == "SWAP")
-                                {
-                                    res=v1;
-                                    Litterale& l=expMng.addLitterale(v2);
-                                    expAff.push(l);
-
-                                    Litterale& e=expMng.addLitterale(res);
-                                    expAff.push(e);
-                                 }
-                                else
-                                {
-                                    Expression v1E=v1.toString();
-                                    Expression resE("");
-                                    if (s == "+") resE = v1E + v2;
-                                    if (s == "-") resE = v1E - v2;
-                                    if (s == "*") resE = v1E * v2;
-                                    if (s == "/") resE = v1E / v2;
-                                    if (s == "AND") resE = v1E.operatorAND(v2);
-                                    if (s == "OR") resE = v1E.operatorOR(v2);
-                                    if (s == "$") resE = v1E.operator$(v2);
-
-                                    Litterale& e=expMng.addLitterale(resE);
-                                    expAff.push(e);
-                                }
+                                res = managePileOpeExprAndNum(v1, v2, s, res);
+                            }
+                            else
+                            {
+                                Expression v1E=v1.toString();
+                                Expression resE("");
+                                resE = manageNumOpeExprAndNum(v1E, v2, s, resE);
+                                resE = manageLogicOpeExprAndNum(v1E, v2, s, resE);
 
 
-                            }//if v1 numerique
+
+                                Litterale& e=expMng.addLitterale(resE);
+                                expAff.push(e);
+                            }
+
+
+                        }//if v1 Numerique
 
                     }// else v2 expression
 
