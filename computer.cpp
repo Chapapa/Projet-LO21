@@ -1313,7 +1313,7 @@ void Controleur::commande(const QString& c)
     int i=0, j=0;
     while(i < (c.length()))
     {
-        if (c[0] != '\'')
+        if (c[i] != '\'')
         {
             while(i < (c.length()-1) && !estUnOperateurBinaire(c[i]) && c[i]!=' ')
             {
@@ -1335,9 +1335,19 @@ void Controleur::commande(const QString& c)
             {
                 i++;
             }
+            //if(i == c.length()-1)
+            //{
+                i++;
+            //}
+            if(estUnOperateurBinaire(c[i]) && i == j)
+            {
+                i++;
+            }
         }
-
-        s = c.mid(j,i-j);
+        if(i-j != 0)
+            s = c.mid(j,i-j);
+        else
+            s = c.mid(j, 1);
 
         if(i < c.length()-1 && estUnRationnel(c, s, i))
         {
