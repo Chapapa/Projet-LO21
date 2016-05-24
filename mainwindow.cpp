@@ -8,8 +8,10 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     pile= new Pile();
     vuePile= new QTableWidget(pile->getNbItemsToAffiche(),1,this);
     commande= new QLineEdit(this);
+//    options = new QComboBox(this);
 
     couche= new QVBoxLayout;
+//    couche->addWidget(options);
     couche->addWidget(message);
     couche->addWidget(vuePile);
     couche->addWidget(commande);
@@ -43,6 +45,16 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
 
     for(unsigned int i=0;i<pile->getNbItemsToAffiche();i++)
         vuePile->setItem(i,0, new QTableWidgetItem(""));
+/*
+    // Barre d'options
+
+    options->addItem("Afficher le clavier Graphique");
+    options->addItem("Desactiver les sons d'erreur");
+    options->addItem("Edition des variables stockées");
+    options->addItem("Edition des programmes stockés");
+    options->addItem("Paramètres du calculateur");
+    couche->addWidget(options);
+*/
 
     // Graphic Pad
 
@@ -120,7 +132,6 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     layout->addLayout(layoutB);
     couche->addLayout(layout);
     setLayout(couche);
-
 
     QSignalMapper *mapper = new QSignalMapper( this );
 

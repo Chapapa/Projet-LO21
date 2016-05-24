@@ -111,8 +111,9 @@ public:
     void setRationnelIm(int n,int d);
 
 
-    QString getResTypeRe(const Numerique& n, double dr);
-    QString getResTypeIm(const Numerique& n, double ni, double di);
+    //QString getResTypeRe(const Numerique& n, int dr);
+    QString getResTypeRe(double nr, int dr);
+    QString getResTypeIm(double ni, int di);
 
 
     Numerique operator+(const Numerique& n);

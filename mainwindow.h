@@ -34,6 +34,7 @@ private:
 #include <QDebug>
 #include <QSignalMapper>
 #include <QLabel>
+#include <QComboBox>
 #include "computer.h"
 
 class QComputer : public QWidget{
@@ -42,6 +43,7 @@ class QComputer : public QWidget{
     QTableWidget* vuePile;
     QLineEdit* commande;
     QVBoxLayout* couche;
+//    QComboBox* options;
     Pile* pile;
     Controleur* controleur;
     QHBoxLayout* layout1;

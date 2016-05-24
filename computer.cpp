@@ -280,16 +280,47 @@ Expression Expression::operator-(const Expression& e)
     return Expression(res);
 }
 
+//Pour enlever les espaces dans les expressions entrées par l'utilisateur
+QString RemoveSpaces(QString s)
+{
+    QString res = "";
+    for(int i = 0; i < s.length(); i++)
+    {
+        if(s[i] != ' ')
+            res.append(s[i]);
+    }
+    return res;
+}
 
 Numerique Numerique::operator+(const Numerique& n)
 {
-    double nr=numReel*n.denomReel + n.numReel*denomReel;
-    int dr=denomReel*n.denomReel;
-    double ni=numIm*n.denomIm+n.numIm*denomIm;
-    int di=denomIm*n.denomIm;
+    double nr;
+    int dr;
+    double ni;
+    int di;
+    if(typeRe == "reel" || n.typeRe == "reel")
+    {
+        nr = (numReel/denomReel)+(n.numReel/n.denomReel);
+        dr = 1;
+    }
+    else
+    {
+        nr=numReel*n.denomReel + n.numReel*denomReel;
+        dr=denomReel*n.denomReel;
+    }
+    if(typeIm == "reel" || n.typeIm == "reel")
+    {
+        ni = (numIm/denomIm)+(n.numIm/n.denomIm);
+        di = 1;
+    }
+    else
+    {
+        ni=numIm*n.denomIm+n.numIm*denomIm;
+        di=denomIm*n.denomIm;
+    }
 
-    QString tRe=getResTypeRe(n,dr);
-    QString tIm=getResTypeIm(n,ni,di);
+    QString tRe=getResTypeRe(nr,dr);
+    QString tIm=getResTypeIm(ni,di);
 
     Numerique res(nr,ni,tRe,tIm,dr,di);
 
@@ -298,14 +329,32 @@ Numerique Numerique::operator+(const Numerique& n)
 
 Numerique Numerique::operator-(const Numerique& n)
 {
-
-    double nr=numReel*n.denomReel-n.numReel*denomReel;
-    int dr=denomReel*n.denomReel;
-    double ni=numIm*n.denomIm-n.numIm*denomIm;
-    int di=denomIm*n.denomIm;
-
-    QString tRe=getResTypeRe(n,dr);
-    QString tIm=getResTypeIm(n,ni,di);
+    double nr;
+    int dr;
+    double ni;
+    int di;
+    if(typeRe == "reel" || n.typeRe == "reel")
+    {
+        nr = (numReel/denomReel)-(n.numReel/n.denomReel);
+        dr = 1;
+    }
+    else
+    {
+        nr=numReel*n.denomReel-n.numReel*denomReel;
+        dr=denomReel*n.denomReel;
+    }
+    if(typeIm == "reel" || n.typeIm == "reel")
+    {
+        ni = (numIm/denomIm)-(n.numIm/n.denomIm);
+        di = 1;
+    }
+    else
+    {
+        ni=numIm*n.denomIm-n.numIm*denomIm;
+        di=denomIm*n.denomIm;
+    }
+    QString tRe=getResTypeRe(nr,dr);
+    QString tIm=getResTypeIm(ni,di);
 
     Numerique res(nr,ni,tRe,tIm,dr,di);
 
@@ -315,13 +364,33 @@ Numerique Numerique::operator-(const Numerique& n)
 
 Numerique Numerique::operator*(const Numerique& n)
 {
-    double nr=(numReel*n.numReel);
-    int dr=denomReel*n.denomReel;
-    double ni=(numIm*n.numIm);
-    int di=denomIm*n.denomIm;
+    double nr;
+    int dr;
+    double ni;
+    int di;
+    if(typeRe == "reel" || n.typeRe == "reel")
+    {
+        nr = (numReel/denomReel)*(n.numReel/n.denomReel);
+        dr = 1;
+    }
+    else
+    {
+        nr=(numReel*n.numReel);
+        dr=denomReel*n.denomReel;
+    }
+    if(typeIm == "reel" || n.typeIm == "reel")
+    {
+        ni = (numIm/denomIm)*(n.numIm/n.denomIm);
+        di = 1;
+    }
+    else
+    {
+        ni=(numIm*n.numIm);
+        di=denomIm*n.denomIm;
+    }
 
-    QString tRe=getResTypeRe(n,dr);
-    QString tIm=getResTypeIm(n,ni,di);
+    QString tRe=getResTypeRe(nr,dr);
+    QString tIm=getResTypeIm(ni,di);
 
     Numerique res(nr,ni,tRe,tIm,dr,di);
 
@@ -330,45 +399,37 @@ Numerique Numerique::operator*(const Numerique& n)
 
 Numerique Numerique::operator/(const Numerique& n)
 {
-    double nr=numReel*n.denomReel;
-    int dr=denomReel*n.numReel;
-    double ni=numIm*n.denomIm;
-    int di=denomIm*n.numIm;
-
-    QString tRe;
-    QString tIm;
-
-    if (typeRe=="entier" && n.typeRe=="entier")
+    double nr;
+    int dr;
+    double ni;
+    int di;
+    if(typeRe == "reel" || n.typeRe == "reel")
     {
-         tRe="rationnel";
-    }
-    else if (typeRe=="reel" || n.typeRe=="reel")
-    {
-         tRe="reel";
-         nr=nr/dr;
-         dr=1;
-    }
-    else//rationnel
-    {
-        tRe="rationnel";
-    }
-
-    if(ni==0) tIm="null";
-
-    else if (typeIm=="entier" && n.typeIm=="entier")
-    {
-        tIm="rationnel";
-    }
-    else if (typeIm=="reel" || n.typeIm=="reel")
-    {
-        tIm="reel";
-        ni=ni/di;
-        di=1;
+        nr = (numReel/denomReel)/(n.numReel/n.denomReel);
+        dr = 1;
     }
     else
     {
-        tIm="rationnel";
+        nr=numReel*n.denomReel;
+        dr=denomReel*n.numReel;
     }
+    if(typeIm == "reel" || n.typeIm == "reel")
+    {
+        ni = (numIm/denomIm)/(n.numIm/n.denomIm);
+        di = 1;
+    }
+    else
+    {
+        ni=numIm*n.denomIm;
+        di=denomIm*n.numIm;
+    }
+
+    QString tRe;
+    QString tIm;
+    simplificationRe();
+    simplificationIm();
+    tRe = getResTypeRe(nr, dr);
+    tIm = getResTypeIm(ni, di);
 
     Numerique res(nr,ni,tRe,tIm,dr,di);
 
@@ -629,22 +690,21 @@ Numerique Numerique::operatorIM()
 }
 
 
-QString Numerique::getResTypeRe(const Numerique& n,double dr)
+QString Numerique::getResTypeRe( double nr, int dr)
 {
     QString res;
-
-    if(dr==1)//pas un rationnel
+    if(dr == 1)
     {
-        if (typeRe=="entier" && n.typeRe=="entier")
+        if(floor(nr) == nr)
         {
-             res="entier";
+            res = "entier";
         }
-        if (typeRe=="reel" || n.typeRe=="reel")
+        else
         {
-             res="reel";
+            res = "reel";
         }
     }
-    else//rationnel
+    else
     {
         res="rationnel";
     }
@@ -652,26 +712,27 @@ QString Numerique::getResTypeRe(const Numerique& n,double dr)
 
 }
 
-QString Numerique::getResTypeIm(const Numerique& n, double ni, double di)
+
+QString Numerique::getResTypeIm(double ni, int di)
 {
     QString res;
     if(ni==0) return "null";
     if(di==1)//pas un rationnel
     {
-        if (typeIm=="entier" && n.typeIm=="entier")
+        if(floor(ni) == ni)
         {
-            res="entier";
+            res = "entier";
         }
-        if (typeIm=="reel" || n.typeIm=="reel")
+        else
         {
-            res="reel";
+            res = "reel";
         }
     }
     else
     {
         res="rationnel";
     }
-return res;
+    return res;
 }
 
 void Numerique::simplificationRe()
@@ -679,9 +740,9 @@ void Numerique::simplificationRe()
     // si le numerateur est 0, le denominateur prend la valeur 1
     if (numReel==0) { denomReel=1; return; }
     /* un denominateur ne devrait pas Ãªtre 0;
-    si câ€™est le cas, on sort de la mÃ©thode */
+    si c'est le cas, on sort de la mÃ©thode */
     if (denomReel==0) return;
-    /* utilisation de lâ€™algorithme dâ€™Euclide pour trouver le Plus Grand Commun
+    /* utilisation de l'algorithme d'Euclide pour trouver le Plus Grand Commun
     Denominateur (PGCD) entre le numerateur et le denominateur */
     int a=numReel, b=denomReel;
     // on ne travaille quâ€™avec des valeurs positives...
@@ -689,7 +750,7 @@ void Numerique::simplificationRe()
     while(a!=b){ if (a>b) a=a-b; else b=b-a; }
     // on divise le numerateur et le denominateur par le PGCD=a
     numReel/=a; denomReel/=a;
-    // si le denominateur est nÃ©gatif, on fait passer le signe - au numÃ©rateur
+    // si le denominateur est negatif, on fait passer le signe - au numÃ©rateur
     if (denomReel<0) { denomReel=-denomReel; numReel=-numReel; }
 }
 
@@ -729,6 +790,7 @@ void Numerique::setRationnelRe(int n,int d)
         setTypeRe("entier");
 
 }
+
 void Numerique::setRationnelIm(int n,int d)
 {
     if(d==0)
@@ -745,9 +807,6 @@ void Numerique::setRationnelIm(int n,int d)
     if (denomIm==1)
         setTypeIm("entier");
 }
-
-
-
 
 LitteraleManager::Handler LitteraleManager::handler=LitteraleManager::Handler();
 
@@ -813,14 +872,8 @@ QString Numerique::toString() const
     }
 }
 
-/*
-double Numerique::getValue() const
+void LitteraleManager::agrandissementCapacite()
 {
-    return 0;
-}
-*/
-
-void LitteraleManager::agrandissementCapacite() {
     Litterale** newtab=new Litterale*[(nbMax+1)*2];
     for(unsigned int i=0; i<nb; i++) newtab[i]=exps[i];
     Litterale**  old=exps;
@@ -829,37 +882,43 @@ void LitteraleManager::agrandissementCapacite() {
     delete old;
 }
 
-Litterale& LitteraleManager::addLitterale(QString v){
+Litterale& LitteraleManager::addLitterale(QString v)
+{
     if (nb==nbMax) agrandissementCapacite();
     exps[nb++]=new Expression(v);
     return *exps[nb-1];
 }
 
-Litterale& LitteraleManager::addLitterale(Expression &v){
+Litterale& LitteraleManager::addLitterale(Expression &v)
+{
     if (nb==nbMax) agrandissementCapacite();
     exps[nb++]=new Expression(v);// appel au constructeur de recopie
     return *exps[nb-1];
 }
 
-Litterale& LitteraleManager::addLitterale(int v){
+Litterale& LitteraleManager::addLitterale(int v)
+{
     if (nb==nbMax) agrandissementCapacite();
     exps[nb++]=new Numerique(v);
     return *exps[nb-1];
 }
 
-Litterale& LitteraleManager::addLitterale(double v){
+Litterale& LitteraleManager::addLitterale(double v)
+{
     if (nb==nbMax) agrandissementCapacite();
     exps[nb++]=new Numerique(v);
     return *exps[nb-1];
 }
 
-Litterale& LitteraleManager::addLitterale(Numerique &v){
+Litterale& LitteraleManager::addLitterale(Numerique &v)
+{
     if (nb==nbMax) agrandissementCapacite();
     exps[nb++]=new Numerique(v);// appel au constructeur de recopie
     return *exps[nb-1];
 }
 
-void LitteraleManager::removeLitterale(Litterale& e){
+void LitteraleManager::removeLitterale(Litterale& e)
+{
     unsigned int i=0;
     while(i<nb && exps[i]!=&e) i++;
     if (i==nb) throw ComputerException("elimination d'une Litterale inexistante");
@@ -869,18 +928,21 @@ void LitteraleManager::removeLitterale(Litterale& e){
     nb--;
 }
 
-LitteraleManager::~LitteraleManager(){
+LitteraleManager::~LitteraleManager()
+{
     for(unsigned int i=0; i<nb; i++) delete exps[i];
     delete[] exps;
 }
 
-Litterale& Item::getLitterale() const {
+Litterale& Item::getLitterale() const
+{
         if (exp==nullptr) throw ComputerException("Item : tentative d'acces a une Litterale inexistante");
         return *exp;
 }
 
 
-void Pile::agrandissementCapacite() {
+void Pile::agrandissementCapacite()
+{
     Item* newtab=new Item[(nbMax+1)*2];
     for(unsigned int i=0; i<nb; i++) newtab[i]=items[i];
     Item*  old=items;
@@ -889,20 +951,23 @@ void Pile::agrandissementCapacite() {
     delete[] old;
 }
 
-void Pile::push(Litterale& e){
+void Pile::push(Litterale& e)
+{
     if (nb==nbMax) agrandissementCapacite();
     items[nb].setLitterale(e);
     nb++;
     modificationEtat();
 }
 
-void Pile::pop(){
+void Pile::pop()
+{
     nb--;
     items[nb].raz();
     modificationEtat();
 }
 
-void Pile::affiche(QTextStream& f) const{
+void Pile::affiche(QTextStream& f) const
+{
     f<<"********************************************* \n";
     f<<"M : "<<message<<"\n";
     f<<"---------------------------------------------\n";
@@ -914,15 +979,18 @@ void Pile::affiche(QTextStream& f) const{
 }
 
 
-Pile::~Pile(){
+Pile::~Pile()
+{
     delete[] items;
 }
 
-Litterale& Pile::top() const {
+Litterale& Pile::top() const
+{
 
     if (nb==0) throw ComputerException("aucune Litterale sur la pile");
     return items[nb-1].getLitterale();
 }
+
 
 bool estUneExpression(const QString s)
 {
@@ -971,31 +1039,12 @@ bool estUnOperateurSansArg(const QString s)
     return false;
 }
 
-
-/*
-bool estUnOperateur(const QCharRef s)
-{
-    if (s=='+') return true;
-    if (s=='-') return true;
-    if (s=='*') return true;
-    if (s=='/') return true;
-    return false;
-}*/
-
-/*bool estUnNombre(const QString s)
-{
-   bool ok=false;
-   s.toInt(&ok);
-   return ok;
-}*/
-
 bool estUnEntier(const QString s)
 {
    bool ok=false;
    s.toInt(&ok);
    return ok;
 }
-
 
 bool estUnReel(const QString s)
 {
@@ -1025,39 +1074,6 @@ bool estUnRationnel(const QString c, QString s, int i)
     }
     return false;
 }
-
-/*void Controleur::commande(const QString& c){
-    if (estUnNombre(c)){
-        expAff.push(expMng.addLitterale(c.toInt()));
-    }else{
-
-        if (estUnOperateur(c)){
-            if (expAff.taille()>=2) {
-                double v2=expAff.top().getValue();
-                expMng.removeLitterale(expAff.top());
-                expAff.pop();
-                double v1=expAff.top().getValue();
-                expMng.removeLitterale(expAff.top());
-                expAff.pop();
-                int res;
-                if (c=="+") res=v1+v2;
-                if (c=="-") res=v1-v2;
-                if (c=="*") res=v1*v2;
-                if (c=="/") {
-                    if (v2!=0) res=v1/v2;
-                    else {
-                        expAff.setMessage("Erreur : division par zéro");
-                        res=v1;
-                    }
-                }
-                Litterale& e=expMng.addLitterale(res);
-                expAff.push(e);
-            }else{
-                expAff.setMessage("Erreur : pas assez d'arguments");
-            }
-        }else expAff.setMessage("Erreur : commande inconnue");
-    }
-}*/
 
 Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res)
 {
@@ -1121,7 +1137,6 @@ Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString 
     }
     return res;
 }
-
 
 Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res)
 {
@@ -1196,7 +1211,6 @@ Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QStrin
     return res;
 }
 
-
 Numerique Controleur::managePileOpeNumAndNum(Numerique v1, Numerique v2,QString s, Numerique res)
 {
     if (s == "SWAP")
@@ -1208,7 +1222,6 @@ Numerique Controleur::managePileOpeNumAndNum(Numerique v1, Numerique v2,QString 
     return res;
 }
 
-
 Expression Controleur::manageNumOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res)
 {
     if (s == "+") res = v1 + v2E;
@@ -1219,14 +1232,12 @@ Expression Controleur::manageNumOpeNumAndExpr(Expression v1, Expression v2E, QSt
     return res;
 }
 
-
 Expression Controleur::manageLogicOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res)
 {
     if (s == "AND") res = v1.operatorAND(v2E);
     if (s == "OR") res = v1.operatorOR(v2E);
     return res;
 }
-
 
 Expression Controleur::managePileOpeNumAndExpr(Expression v1, Numerique v2,QString s, Expression res)
 {
@@ -1239,7 +1250,6 @@ Expression Controleur::managePileOpeNumAndExpr(Expression v1, Numerique v2,QStri
     return res;
 }
 
-
 Expression Controleur::manageNumOpeExprAndExpr(Expression v1, Expression v2, QString s, Expression res)
 {
     if (s == "+") res = v1 + v2;
@@ -1250,14 +1260,12 @@ Expression Controleur::manageNumOpeExprAndExpr(Expression v1, Expression v2, QSt
     return res;
 }
 
-
 Expression Controleur::manageLogicOpeExprAndExpr(Expression v1, Expression v2, QString s, Expression res)
 {
     if (s == "AND") res = v1.operatorAND(v2);
     if (s == "OR") res = v1.operatorOR(v2);
     return res;
 }
-
 
 Expression Controleur::managePileOpeExprAndExpr(Expression v1, Expression v2,QString s, Expression res)
 {
@@ -1272,7 +1280,6 @@ Expression Controleur::managePileOpeExprAndExpr(Expression v1, Expression v2,QSt
     return res;
 }
 
-
 Expression Controleur::manageNumOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
 {
     if (s == "+") resE = v1E + v2;
@@ -1283,14 +1290,12 @@ Expression Controleur::manageNumOpeExprAndNum(Expression v1E, Expression v2, QSt
     return resE;
 }
 
-
 Expression Controleur::manageLogicOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
 {
     if (s == "AND") resE = v1E.operatorAND(v2);
     if (s == "OR") resE = v1E.operatorOR(v2);
     return resE;
 }
-
 
 Numerique Controleur::managePileOpeExprAndNum(Numerique v1, Expression v2,QString s, Numerique res)
 {
@@ -1306,15 +1311,21 @@ Numerique Controleur::managePileOpeExprAndNum(Numerique v1, Expression v2,QStrin
     return res;
 }
 
-
 void Controleur::commande(const QString& c)
 {
     QString s;
     int i=0, j=0;
     while(i < (c.length()))
     {
+        while(c[i] == ' ')
+        {
+            i++;
+        }
+        j = i;
         if (c[i] != '\'')
         {
+            if((c[i] == '<' || c[i] == '>') && c[i+1] == '=')
+                i+= 2;
             while(i < (c.length()-1) && !estUnOperateurBinaire(c[i]) && c[i]!=' ')
             {
                 i++;
@@ -1327,6 +1338,7 @@ void Controleur::commande(const QString& c)
             {
                 i++;
             }
+
         }
         else
         {
@@ -1335,11 +1347,10 @@ void Controleur::commande(const QString& c)
             {
                 i++;
             }
-            //if(i == c.length()-1)
-            //{
-                i++;
-            //}
-            if(estUnOperateurBinaire(c[i]) && i == j)
+
+            i++;
+
+            if(i < c.length()-1 && estUnOperateurBinaire(c[i]) && i == j)
             {
                 i++;
             }
@@ -1368,6 +1379,7 @@ void Controleur::commande(const QString& c)
             Litterale& e=expMng.addLitterale(res);
             expAff.push(e);
         }
+
         else if(estUnEntier(s))
         {
             expAff.push(expMng.addLitterale(s.toInt()));
@@ -1379,6 +1391,7 @@ void Controleur::commande(const QString& c)
         else if(estUneExpression(s))
         {
             s=s.mid(1,s.length()-2);
+            s = RemoveSpaces(s);
             expAff.push(expMng.addLitterale(s));
         }
 
@@ -1505,120 +1518,124 @@ void Controleur::commande(const QString& c)
 
                 if (expAff.taille() >= 1)
                 {
-                    try{
-                    //double v1=expAff.top().getValue();
-                    Numerique v1=dynamic_cast<Numerique&>(expAff.top());
-                    expMng.removeLitterale(expAff.top());
-                    expAff.pop();
-                    //double res;
-                    Numerique res(0);// on initialise res a zero
-
-
-                    if (s == "NEG") res = v1.operatorNEG();
-                    if (s == "NUM")
+                    if(expAff.top().getType()=="Numerique")
                     {
-                        if(v1.getTypeIm() == "null" || (v1.getTypeRe() == "entier" || v1.getTypeRe() == "rationnel" ))
+                        try
                         {
-                            res = v1.operatorNUM();
-                        }
+                            //double v1=expAff.top().getValue();
+                            Numerique v1=dynamic_cast<Numerique&>(expAff.top());
+                            expMng.removeLitterale(expAff.top());
+                            expAff.pop();
+                            //double res;
+                            Numerique res(0);// on initialise res a zero
 
-                        else
+
+                            if (s == "NEG") res = v1.operatorNEG();
+                            if (s == "NUM")
+                            {
+                                if(v1.getTypeIm() == "null" || (v1.getTypeRe() == "entier" || v1.getTypeRe() == "rationnel" ))
+                                {
+                                    res = v1.operatorNUM();
+                                }
+
+                                else
+                                {
+                                    expAff.setMessage("Erreur : la litterale n'est ni entiere ni rationnelle");
+                                    res = v1;
+                                }
+                            }
+                            if (s == "DEN")
+                            {
+                                if(v1.getTypeIm() == "null" || (v1.getTypeRe() == "entier" || v1.getTypeRe() == "rationnel" ))
+                                {
+                                    res = v1.operatorDEN();
+                                }
+
+                                else
+                                {
+                                    expAff.setMessage("Erreur : la litterale n'est ni entiere ni rationnelle");
+                                    res = v1;
+                                }
+                            }
+                            if (s == "RE")
+                            {
+                                if(v1.getTypeIm() != "null")
+                                {
+                                    res = v1.operatorRE();
+                                }
+
+                                else
+                                {
+                                    expAff.setMessage("Erreur : la litterale n'est pas complexe");
+                                    res = v1;
+                                }
+                            }
+                            if (s == "IM")
+                            {
+                                if(v1.getTypeIm() != "null")
+                                {
+                                    res = v1.operatorIM();
+                                }
+
+                                else
+                                {
+                                    expAff.setMessage("Erreur : la litterale n'est pas complexe");
+                                    res = v1;
+                                }
+                            }
+                            if (s== "DUP")
+                            {
+                                res= v1;
+                                Litterale& l=expMng.addLitterale(res);
+                                expAff.push(l);
+                            }
+                            if (s== "DROP")
+                            {
+                                i++;
+                                j = i;
+                                continue;
+                            }
+                            if (s == "NOT")
+                            {
+                                res=v1.operatorNOT();
+                            }
+                            Litterale& e=expMng.addLitterale(res);
+
+                            expAff.push(e);
+                        }
+                        catch(std::bad_cast& e) { expAff.setMessage(e.what()); }
+                    }
+                    else if(expAff.top().getType()=="Expression")
+                    {
+                        try
                         {
-                            expAff.setMessage("Erreur : la litterale n'est ni entiere ni rationnelle");
-                            res = v1;
+
+                            Expression v1=dynamic_cast<Expression&>(expAff.top());
+                            expMng.removeLitterale(expAff.top());
+                            expAff.pop();
+
+                            Expression res("");// on initialise res a zero
+
+
+                            if (s == "NEG") res = v1.operatorNEG();
+                            if (s== "DUP")
+                            {
+                                res= v1;
+                                Litterale& l=expMng.addLitterale(res);
+                                expAff.push(l);
+                            }
+                            if (s== "DROP")
+                            {
+                                i++;
+                                j = i;
+                                continue;
+                            }
+                            if (s == "NOT") res = v1.operatorNOT();
+                            Litterale& e=expMng.addLitterale(res);
+
+                            expAff.push(e);
                         }
-                    }
-                    if (s == "DEN")
-                    {
-                        if(v1.getTypeIm() == "null" || (v1.getTypeRe() == "entier" || v1.getTypeRe() == "rationnel" ))
-                        {
-                            res = v1.operatorDEN();
-                        }
-
-                        else
-                        {
-                            expAff.setMessage("Erreur : la litterale n'est ni entiere ni rationnelle");
-                            res = v1;
-                        }
-                    }
-                    if (s == "RE")
-                    {
-                        if(v1.getTypeIm() != "null")
-                        {
-                            res = v1.operatorRE();
-                        }
-
-                        else
-                        {
-                            expAff.setMessage("Erreur : la litterale n'est pas complexe");
-                            res = v1;
-                        }
-                    }
-                    if (s == "IM")
-                    {
-                        if(v1.getTypeIm() != "null")
-                        {
-                            res = v1.operatorIM();
-                        }
-
-                        else
-                        {
-                            expAff.setMessage("Erreur : la litterale n'est pas complexe");
-                            res = v1;
-                        }
-                    }
-                    if (s== "DUP")
-                    {
-                        res= v1;
-                        Litterale& l=expMng.addLitterale(res);
-                        expAff.push(l);
-                    }
-                    if (s== "DROP")
-                    {
-                        i++;
-                        j = i;
-                        continue;
-                    }
-                    if (s == "NOT")
-                    {
-                        res=v1.operatorNOT();
-                    }
-                    Litterale& e=expMng.addLitterale(res);
-
-                    expAff.push(e);
-                    }
-                    catch(std::bad_cast& e) { expAff.setMessage(e.what()); }
-
-                    try{
-
-                    Expression v1=dynamic_cast<Expression&>(expAff.top());
-                    expMng.removeLitterale(expAff.top());
-                    expAff.pop();
-
-                    Expression res("");// on initialise res a zero
-
-
-                    if (s == "NEG") res = v1.operatorNEG();
-                    if (s== "DUP")
-                    {
-                        res= v1;
-                        Litterale& l=expMng.addLitterale(res);
-                        expAff.push(l);
-                    }
-                    if (s== "DROP")
-                    {
-                        i++;
-                        j = i;
-                        continue;
-                    }
-                    if (s == "NOT") res = v1.operatorNOT();
-                    Litterale& e=expMng.addLitterale(res);
-
-                    expAff.push(e);
-                    }
-                    catch(std::bad_cast& e)
-                    {
-                    expAff.setMessage(e.what());
+                        catch(std::bad_cast& e)  {expAff.setMessage(e.what());}
                     }
                 }
                 else
