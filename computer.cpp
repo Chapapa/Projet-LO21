@@ -1317,11 +1317,13 @@ void Controleur::commande(const QString& c)
     int i=0, j=0;
     while(i < (c.length()))
     {
-        while(c[i] == ' ')
+        while(c[i] == ' ' && c[i+1] >= '0' && c[i+1] <= '9')
         {
             i++;
         }
         j = i;
+        if(c[i] == '-')
+            i++;
         if (c[i] != '\'')
         {
             if((c[i] == '<' || c[i] == '>') && c[i+1] == '=')
