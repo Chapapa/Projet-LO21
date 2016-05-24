@@ -1639,7 +1639,7 @@ void Controleur::commande(const QString& c)
             {
                 i++;
             }
-            else if(estUnOperateurBinaire(c[i]) && i == j)
+            else if(i < (c.length()-1) && estUnOperateurBinaire(c[i]) && i == j)
             {
                 i++;
             }
