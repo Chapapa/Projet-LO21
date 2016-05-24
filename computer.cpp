@@ -1,6 +1,290 @@
 #include "computer.h"
 #include <algorithm>
 
+Expression Expression::operator<=(const Expression& e)
+{
+    int i=0;
+    bool priorite=true;
+    while(i < (exp.length()))
+    {
+        if(exp[i]== '(')
+        {
+            while(i < (exp.length()) && exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (exp[i] == '+' || exp[i] == '-' || exp[i] == '*' || exp[i] == '/' )
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+
+    while(i < (e.exp.length()))
+    {
+        if(e.exp[i]== '(')
+        {
+            while(i < (e.exp.length()) && e.exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (e.exp[i] == '+' || e.exp[i] == '-' || e.exp[i] == '*' || e.exp[i] == '/')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+    QString res;
+    if (priorite)
+       res=exp+"<="+e.exp;
+    else
+        res= "("+exp+")<=("+e.exp+")";
+    return Expression(res);
+}
+
+Expression Expression::operator>=(const Expression& e)
+{
+    int i=0;
+    bool priorite=true;
+    while(i < (exp.length()))
+    {
+        if(exp[i]== '(')
+        {
+            while(i < (exp.length()) && exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (exp[i] == '+' || exp[i] == '-' || exp[i] == '*' || exp[i] == '/' )
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+
+    while(i < (e.exp.length()))
+    {
+        if(e.exp[i]== '(')
+        {
+            while(i < (e.exp.length()) && e.exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (e.exp[i] == '+' || e.exp[i] == '-' || e.exp[i] == '*' || e.exp[i] == '/')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+    QString res;
+    if (priorite)
+       res=exp+">="+e.exp;
+    else
+        res= "("+exp+")>=("+e.exp+")";
+    return Expression(res);
+}
+
+Expression Expression::operator<(const Expression& e)
+{
+    int i=0;
+    bool priorite=true;
+    while(i < (exp.length()))
+    {
+        if(exp[i]== '(')
+        {
+            while(i < (exp.length()) && exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (exp[i] == '+' || exp[i] == '-' || exp[i] == '*' || exp[i] == '/' )
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+
+    while(i < (e.exp.length()))
+    {
+        if(e.exp[i]== '(')
+        {
+            while(i < (e.exp.length()) && e.exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (e.exp[i] == '+' || e.exp[i] == '-' || e.exp[i] == '*' || e.exp[i] == '/')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+    QString res;
+    if (priorite)
+       res=exp+"<"+e.exp;
+    else
+        res= "("+exp+")<("+e.exp+")";
+    return Expression(res);
+}
+
+Expression Expression::operator>(const Expression& e)
+{
+    int i=0;
+    bool priorite=true;
+    while(i < (exp.length()))
+    {
+        if(exp[i]== '(')
+        {
+            while(i < (exp.length()) && exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (exp[i] == '+' || exp[i] == '-' || exp[i] == '*' || exp[i] == '/' )
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+
+    while(i < (e.exp.length()))
+    {
+        if(e.exp[i]== '(')
+        {
+            while(i < (e.exp.length()) && e.exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (e.exp[i] == '+' || e.exp[i] == '-' || e.exp[i] == '*' || e.exp[i] == '/')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+    QString res;
+    if (priorite)
+       res=exp+">"+e.exp;
+    else
+        res= "("+exp+")>("+e.exp+")";
+    return Expression(res);
+}
+
+Expression Expression::operator!=(const Expression& e)
+{
+
+    int i=0;
+    bool priorite=true;
+    while(i < (exp.length()))
+    {
+        if(exp[i]== '(')
+        {
+            while(i < (exp.length()) && exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (exp[i] == '+' || exp[i] == '-' || exp[i] == '*' || exp[i] == '/' || exp[i] == '<' || exp[i] == '>' || exp[i] == '<=' || exp[i] == '>=')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+
+    while(i < (e.exp.length()))
+    {
+        if(e.exp[i]== '(')
+        {
+            while(i < (e.exp.length()) && e.exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (e.exp[i] == '+' || e.exp[i] == '-' || e.exp[i] == '*' || e.exp[i] == '/' || e.exp[i] == '<' || e.exp[i] == '>' || e.exp[i] == '<=' || e.exp[i] == '>=')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+    QString res;
+    if (priorite)
+       res=exp+"!="+e.exp;
+    else
+        res= "("+exp+")!=("+e.exp+")";
+    return Expression(res);
+}
+
+
+Expression Expression::operator==(const Expression& e)
+{
+
+    int i=0;
+    bool priorite=true;
+    while(i < (exp.length()))
+    {
+        if(exp[i]== '(')
+        {
+            while(i < (exp.length()) && exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (exp[i] == '+' || exp[i] == '-' || exp[i] == '*' || exp[i] == '/' || exp[i] == '<' || exp[i] == '>' || exp[i] == '<=' || exp[i] == '>=')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+
+    while(i < (e.exp.length()))
+    {
+        if(e.exp[i]== '(')
+        {
+            while(i < (e.exp.length()) && e.exp[i]!= ')')
+                i++;
+        }
+        else
+        {
+            if (e.exp[i] == '+' || e.exp[i] == '-' || e.exp[i] == '*' || e.exp[i] == '/' || e.exp[i] == '<' || e.exp[i] == '>' || e.exp[i] == '<=' || e.exp[i] == '>=')
+            {
+                priorite=false;
+                break;
+            }
+            i++;
+        }
+    }
+    QString res;
+    if (priorite)
+       res=exp+"=="+e.exp;
+    else
+        res= "("+exp+")==("+e.exp+")";
+    return Expression(res);
+}
 
 Expression Expression::operatorAND(const Expression& e)
 {
@@ -170,7 +454,7 @@ Expression Expression::operator$(const Expression& e)
         }
         else
         {
-            if (exp[i] == '+' || exp[i] == '-' || exp[i] == '*' || exp[i] == '/')
+            if (e.exp[i] == '+' || e.exp[i] == '-' || e.exp[i] == '*' || e.exp[i] == '/')
             {
                 priorite=false;
                 break;
@@ -182,7 +466,7 @@ Expression Expression::operator$(const Expression& e)
     if (priorite)
        res=exp+"$"+e.exp;
     else
-        res= "("+exp+"$"+e.exp+")";
+        res= "("+exp+")$("+e.exp+")";
     return Expression(res);
 }
 
@@ -1236,6 +1520,12 @@ Expression Controleur::manageLogicOpeNumAndExpr(Expression v1, Expression v2E, Q
 {
     if (s == "AND") res = v1.operatorAND(v2E);
     if (s == "OR") res = v1.operatorOR(v2E);
+    if (s == "==") res = v1.operator==(v2E);
+    if (s == "!=") res = v1.operator!=(v2E);
+    if (s == "<=") res = v1.operator<=(v2E);
+    if (s == ">=") res = v1.operator>=(v2E);
+    if (s == "<") res = v1.operator<(v2E);
+    if (s == ">") res = v1.operator>(v2E);
     return res;
 }
 
@@ -1264,6 +1554,13 @@ Expression Controleur::manageLogicOpeExprAndExpr(Expression v1, Expression v2, Q
 {
     if (s == "AND") res = v1.operatorAND(v2);
     if (s == "OR") res = v1.operatorOR(v2);
+    if (s == "==") res = v1.operator==(v2);
+    if (s == "!=") res = v1.operator!=(v2);
+    if (s == "<=") res = v1.operator<=(v2);
+    if (s == ">=") res = v1.operator>=(v2);
+    if (s == "<") res = v1.operator<(v2);
+    if (s == ">") res = v1.operator>(v2);
+
     return res;
 }
 
@@ -1294,6 +1591,12 @@ Expression Controleur::manageLogicOpeExprAndNum(Expression v1E, Expression v2, Q
 {
     if (s == "AND") resE = v1E.operatorAND(v2);
     if (s == "OR") resE = v1E.operatorOR(v2);
+    if (s == "==") resE = v1E.operator==(v2);
+    if (s == "!=") resE = v1E.operator!=(v2);
+    if (s == "<=") resE = v1E.operator<=(v2);
+    if (s == ">=") resE = v1E.operator>=(v2);
+    if (s == "<") resE = v1E.operator<(v2);
+    if (s == ">") resE = v1E.operator>(v2);
     return resE;
 }
 
