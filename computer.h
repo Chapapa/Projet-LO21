@@ -29,6 +29,22 @@ public:
     //virtual double getValue() const=0;
 };
 
+class Atome : public Litterale
+{
+    QString nom;
+    QString exp;
+public:
+    Atome(QString nom, QString exp);
+
+};
+
+class Programme : public Litterale
+{
+    QString prog;
+public:
+    Programme(QString prog);
+};
+
 class Expression : public Litterale
 {
     QString exp;

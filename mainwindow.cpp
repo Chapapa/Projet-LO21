@@ -67,7 +67,6 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     EditerProg = menuEdition->addAction("Editer les programmes stockés");
 
 
-
     connect(AfficherGraphicPad, SIGNAL(triggered()), this, SLOT(toggleGraphicPad()));
     connect(ActiverSons, SIGNAL(triggered()), this, SLOT(toggleBeep()));
 

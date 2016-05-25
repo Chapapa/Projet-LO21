@@ -1813,8 +1813,6 @@ void Controleur::commande(const QString& c, bool beep)
                                 resE = manageNumOpeExprAndNum(v1E, v2, s, resE);
                                 resE = manageLogicOpeExprAndNum(v1E, v2, s, resE);
 
-
-
                                 Litterale& e=expMng.addLitterale(resE);
                                 expAff.push(e);
                             }
