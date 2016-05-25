@@ -8,10 +8,10 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     pile= new Pile();
     vuePile= new QTableWidget(pile->getNbItemsToAffiche(),1,this);
     commande= new QLineEdit(this);
-//    options = new QComboBox(this);
+    tbar = new QToolBar(this);
 
     couche= new QVBoxLayout;
-//    couche->addWidget(options);
+    couche->addWidget(tbar);
     couche->addWidget(message);
     couche->addWidget(vuePile);
     couche->addWidget(commande);
@@ -37,7 +37,7 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
 
     vuePile->setVerticalHeaderLabels(nombres);
 
-   //ne pas ecrire dans vuepile
+    //ne pas ecrire dans vuepile
     vuePile->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     connect(commande,SIGNAL(returnPressed()),this,SLOT(getNextCommande()));
@@ -45,16 +45,33 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
 
     for(unsigned int i=0;i<pile->getNbItemsToAffiche();i++)
         vuePile->setItem(i,0, new QTableWidgetItem(""));
-/*
-    // Barre d'options
 
-    options->addItem("Afficher le clavier Graphique");
-    options->addItem("Desactiver les sons d'erreur");
-    options->addItem("Edition des variables stockées");
-    options->addItem("Edition des programmes stockés");
-    options->addItem("Paramètres du calculateur");
-    couche->addWidget(options);
-*/
+
+    // Barre d'options
+    menuOptions = new QMenu(this);
+    menuEdition = new QMenu(this);
+
+    tbar->addWidget(menuOptions);
+    tbar->addWidget(menuEdition);
+
+    AfficherGraphicPad = menuOptions->addAction("Activer/Desactiver le clavier Graphique");
+    AfficherGraphicPad->setCheckable(true);
+    AfficherGraphicPad->setChecked(true);
+    ActiverSons = menuOptions->addAction("Activer/Desactiver les sons d'erreur");
+    beep = true;
+    ActiverSons->setCheckable(true);
+    ActiverSons->setChecked(true);
+    ParamCalc = menuOptions->addAction("Paramètres du calculateur");
+
+    EditerVar = menuEdition->addAction("Editer les variables stockées");
+    EditerProg = menuEdition->addAction("Editer les programmes stockés");
+
+
+
+    connect(AfficherGraphicPad, SIGNAL(triggered()), this, SLOT(toggleGraphicPad()));
+    connect(ActiverSons, SIGNAL(triggered()), this, SLOT(toggleBeep()));
+
+
 
     // Graphic Pad
 
@@ -176,6 +193,55 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     QObject::connect( this, SIGNAL(textChanged(QString)), &label, SLOT(setText(QString)) );
 }
 
+
+void QComputer::toggleBeep()
+{
+    beep = !beep;
+}
+
+void QComputer::toggleGraphicPad()
+{
+    if(plus->isHidden())
+    {
+        zero->show();
+        un->show();
+        deux->show();
+        trois->show();
+        quatre->show();
+        cinq->show();
+        six->show();
+        sept->show();
+        huit->show();
+        neuf->show();
+        point->show();
+        plus->show();
+        moins->show();
+        fois->show();
+        sur->show();
+        entree->show();
+    }
+    else
+    {
+        zero->hide();
+        un->hide();
+        deux->hide();
+        trois->hide();
+        quatre->hide();
+        cinq->hide();
+        six->hide();
+        sept->hide();
+        huit->hide();
+        neuf->hide();
+        point->hide();
+        plus->hide();
+        moins->hide();
+        fois->hide();
+        sur->hide();
+        entree->hide();
+    }
+
+}
+
 const QString QComputer::text() const
 {
     return commande->text();
@@ -217,7 +283,7 @@ void QComputer::refresh()
 void QComputer::getNextCommande()
 {
     pile->setMessage("");
-    controleur->commande(commande->text());
+    controleur->commande(commande->text(), beep);
     commande->clear();
 }
 

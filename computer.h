@@ -5,6 +5,7 @@
 #include <QTextStream>
 #include <QObject>
 #include <QDebug>
+#include <windows.h>
 using namespace std;
 
 class ComputerException
@@ -300,9 +301,9 @@ class Controleur
     Pile& expAff;
 public:
     Controleur(LitteraleManager& m, Pile& v):expMng(m), expAff(v){}
-    void commande(const QString& c);
-    Numerique manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res);
-    Numerique manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res);
+    void commande(const QString& c, bool beep);
+    Numerique manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep);
+    Numerique manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep);
     Numerique managePileOpeNumAndNum(Numerique v1, Numerique v2,QString s, Numerique res);
     Expression manageNumOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res);
     Expression manageLogicOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res);

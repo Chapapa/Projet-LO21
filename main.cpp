@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <windows.h>
 #include "mainwindow.h"
 
 int main(int argc, char* argv[]){

@@ -1359,7 +1359,7 @@ bool estUnRationnel(const QString c, QString s, int i)
     return false;
 }
 
-Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res)
+Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep)
 {
     if (s == "+") res = v1 + v2;
     if (s == "-") res = v1 - v2;
@@ -1368,6 +1368,8 @@ Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString 
     {
         if(v2.getTypeIm() != "null" || v1.getTypeIm() != "null")
         {
+            if(beep)
+                Beep(500,500);
             expAff.setMessage("Erreur : au moins une litterale est deja complexe");
             Litterale& l=expMng.addLitterale(v1);
             expAff.push(l);
@@ -1385,6 +1387,8 @@ Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString 
             res = v1 / v2;
         else
         {
+            if(beep)
+                Beep(500,500);
             expAff.setMessage("Erreur : division par zéro");
             res = v1;
         }
@@ -1398,6 +1402,8 @@ Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString 
 
         else
         {
+            if(beep)
+                Beep(500,500);
             expAff.setMessage("Erreur : au moins une litterale n'est pas entiere");
             Litterale& l=expMng.addLitterale(v1);
             expAff.push(l);
@@ -1413,6 +1419,8 @@ Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString 
 
         else
         {
+            if(beep)
+                Beep(500,500);
             expAff.setMessage("Erreur : au moins une litterale n'est pas entiere");
             Litterale& l=expMng.addLitterale(v1);
             expAff.push(l);
@@ -1422,7 +1430,7 @@ Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString 
     return res;
 }
 
-Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res)
+Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep)
 {
     if (s == "==")
     {
@@ -1438,6 +1446,8 @@ Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QStrin
             res=v1>=v2;
        else
        {
+           if(beep)
+               Beep(500,500);
            expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
            Litterale& l=expMng.addLitterale(v1);
            expAff.push(l);
@@ -1451,6 +1461,8 @@ Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QStrin
             res=v1<=v2;
        else
        {
+           if(beep)
+               Beep(500,500);
            expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
            Litterale& l=expMng.addLitterale(v1);
            expAff.push(l);
@@ -1464,6 +1476,8 @@ Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QStrin
             res=v1>v2;
        else
        {
+           if(beep)
+               Beep(500,500);
            expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
            Litterale& l=expMng.addLitterale(v1);
            expAff.push(l);
@@ -1477,6 +1491,8 @@ Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QStrin
             res=v1<v2;
        else
        {
+           if(beep)
+               Beep(500,500);
            expAff.setMessage("Erreur : on ne peut pas comparer les complexes");
            Litterale& l=expMng.addLitterale(v1);
            expAff.push(l);
@@ -1614,7 +1630,7 @@ Numerique Controleur::managePileOpeExprAndNum(Numerique v1, Expression v2,QStrin
     return res;
 }
 
-void Controleur::commande(const QString& c)
+void Controleur::commande(const QString& c, bool beep)
 {
     QString s;
     int i=0, j=0;
@@ -1722,11 +1738,11 @@ void Controleur::commande(const QString& c)
                             Numerique res(0);// on initialise res a zero
 
 
-                            res = manageNumOpeNumAndNum(v1, v2, s, res);
+                            res = manageNumOpeNumAndNum(v1, v2, s, res, beep);
 
                             res = managePileOpeNumAndNum(v1, v2, s, res);
 
-                            res = manageLogicOpeNumAndNum(v1, v2, s, res);
+                            res = manageLogicOpeNumAndNum(v1, v2, s, res, beep);
 
                             Litterale& e=expMng.addLitterale(res);
 
@@ -1809,12 +1825,19 @@ void Controleur::commande(const QString& c)
                     }// else v2 expression
 
                 } //try
-                catch(std::bad_cast& e) { expAff.setMessage(e.what()); }
+                catch(std::bad_cast& e)
+                {
+                    if(beep)
+                        Beep(500,500);
+                    expAff.setMessage(e.what());
+                }
 
 
             }// taille>=2
             else
             {
+                if(beep)
+                    Beep(500,500);
                 expAff.setMessage("Erreur : pas assez d'arguments");
             }
         }
@@ -1845,6 +1868,8 @@ void Controleur::commande(const QString& c)
 
                                 else
                                 {
+                                    if(beep)
+                                        Beep(500,500);
                                     expAff.setMessage("Erreur : la litterale n'est ni entiere ni rationnelle");
                                     res = v1;
                                 }
@@ -1858,6 +1883,8 @@ void Controleur::commande(const QString& c)
 
                                 else
                                 {
+                                    if(beep)
+                                        Beep(500,500);
                                     expAff.setMessage("Erreur : la litterale n'est ni entiere ni rationnelle");
                                     res = v1;
                                 }
@@ -1871,6 +1898,8 @@ void Controleur::commande(const QString& c)
 
                                 else
                                 {
+                                    if(beep)
+                                        Beep(500,500);
                                     expAff.setMessage("Erreur : la litterale n'est pas complexe");
                                     res = v1;
                                 }
@@ -1884,6 +1913,8 @@ void Controleur::commande(const QString& c)
 
                                 else
                                 {
+                                    if(beep)
+                                        Beep(500,500);
                                     expAff.setMessage("Erreur : la litterale n'est pas complexe");
                                     res = v1;
                                 }
@@ -1908,7 +1939,12 @@ void Controleur::commande(const QString& c)
 
                             expAff.push(e);
                         }
-                        catch(std::bad_cast& e) { expAff.setMessage(e.what()); }
+                        catch(std::bad_cast& e)
+                        {
+                            if(beep)
+                                Beep(500,500);
+                            expAff.setMessage(e.what());
+                        }
                     }
                     else if(expAff.top().getType()=="Expression")
                     {
@@ -1940,11 +1976,18 @@ void Controleur::commande(const QString& c)
 
                             expAff.push(e);
                         }
-                        catch(std::bad_cast& e)  {expAff.setMessage(e.what());}
+                        catch(std::bad_cast& e)
+                        {
+                            if(beep)
+                                Beep(500,500);
+                            expAff.setMessage(e.what());
+                        }
                     }
                 }
                 else
                 {
+                    if(beep)
+                        Beep(500,500);
                     expAff.setMessage("Erreur : pas assez d'arguments");
                 }
         }
@@ -1960,8 +2003,12 @@ void Controleur::commande(const QString& c)
             }
         }
 
-        else expAff.setMessage("Erreur : commande inconnue");
-
+        else
+        {
+            if(beep)
+                Beep(500,500);
+            expAff.setMessage("Erreur : commande inconnue");
+        }
         i++;
         j = i;
     }

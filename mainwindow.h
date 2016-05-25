@@ -35,17 +35,36 @@ private:
 #include <QSignalMapper>
 #include <QLabel>
 #include <QComboBox>
+#include <QToolBar>
+#include <QMenu>
+#include <QAction>
+#include <QMainWindow>
+#include <QString>
+#include <QIcon>
+#include <windows.h>
 #include "computer.h"
 
 class QComputer : public QWidget{
     Q_OBJECT
+    //Main view
     QLineEdit* message;
     QTableWidget* vuePile;
     QLineEdit* commande;
     QVBoxLayout* couche;
-//    QComboBox* options;
     Pile* pile;
     Controleur* controleur;
+    QWidget* test;
+    //Toolbar
+    QToolBar *tbar;
+    QMenu *menuEdition;
+    QMenu *menuOptions;
+    QAction *AfficherGraphicPad;
+    QAction *ActiverSons;
+    QAction *ParamCalc;
+    QAction *EditerVar;
+    QAction *EditerProg;
+
+    //Graphic pad
     QHBoxLayout* layout1;
     QHBoxLayout *layout2;
     QHBoxLayout *layout3;
@@ -70,10 +89,13 @@ class QComputer : public QWidget{
     QPushButton* fois;
     QPushButton* sur;
     QPushButton* entree;
+    bool beep;
 public:
     explicit QComputer(QWidget *parent = 0);
     const QString text() const;
 public slots:
+    void toggleBeep();
+    void toggleGraphicPad();
     void refresh();
     void getNextCommande();
     void setText(const QString &text);
