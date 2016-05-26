@@ -1,6 +1,26 @@
 #include "computer.h"
 #include <algorithm>
 
+Litterale& Atome::getLitterale() const
+{
+        if (exp==nullptr) throw ComputerException("Atome : tentative d'acces a une Litterale inexistante");
+        return *exp;
+}
+
+Atome Expression::operatorSTO(Litterale& l)
+{
+    if (l.getType()=="Numerique")
+    {
+        Numerique n=dynamic_cast<Numerique&>(l);
+        return Atome(exp,new Numerique(n));
+    }
+    if (l.getType()=="Expression")
+    {
+        Expression n=dynamic_cast<Expression&>(l);
+        return Atome(exp,new Expression(n));
+    }
+}
+
 Expression Expression::operator<=(const Expression& e)
 {
     int i=0;
@@ -1180,6 +1200,13 @@ Litterale& LitteraleManager::addLitterale(Expression &v)
     return *exps[nb-1];
 }
 
+Litterale& LitteraleManager::addLitterale(Atome &v)
+{
+    if (nb==nbMax) agrandissementCapacite();
+    exps[nb++]=new Atome(v);// appel au constructeur de recopie
+    return *exps[nb-1];
+}
+
 Litterale& LitteraleManager::addLitterale(int v)
 {
     if (nb==nbMax) agrandissementCapacite();
@@ -1301,6 +1328,7 @@ bool estUnOperateurBinaire(const QString s)
     if (s=="<=") return true;
     if (s==">") return true;
     if (s=="<") return true;
+     if (s=="STO") return true;
     return false;
 }
 
@@ -1314,6 +1342,7 @@ bool estUnOperateurUnaire(const QString s)
     if (s=="DUP") return true;
     if (s=="DROP") return true;
     if (s=="NOT") return true;
+    if (s=="FORGET") return true;
     return false;
 }
 
@@ -1630,6 +1659,24 @@ Numerique Controleur::managePileOpeExprAndNum(Numerique v1, Expression v2,QStrin
     return res;
 }
 
+Atome Controleur::manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s, Atome res)
+{
+    if (s == "STO")
+    {
+        res=v2.operatorSTO(v1);
+    }
+    return res;
+}
+
+Atome Controleur::manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString s, Atome res)
+{
+    if (s == "STO")
+    {
+        res=v2.operatorSTO(v1);
+    }
+    return res;
+}
+
 void Controleur::commande(const QString& c, bool beep)
 {
     QString s;
@@ -1781,6 +1828,29 @@ void Controleur::commande(const QString& c, bool beep)
                             expMng.removeLitterale(expAff.top());
                             expAff.pop();
 
+                            if (s=="STO")
+                            {
+                                Atome resA("");
+                                if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()))
+                                {
+                                    resA = manageAtomeOpeExprAndExpr(v1, v2,s, resA);
+                                    Litterale& e=expMng.addLitterale(resA);
+
+                                    expAff.push(e);
+                                }
+                                else
+                                {
+                                    expAff.setMessage("L'identificateur ne peut pas correspondre a un operateur");
+                                    Litterale& e=expMng.addLitterale(v1);
+
+                                    expAff.push(e);
+                                }
+                                i++;
+                                j = i;
+
+                                continue;
+                            }
+
                             Expression res("");// on initialise res a zero
 
                             res = manageNumOpeExprAndExpr(v1, v2, s, res);
@@ -1801,6 +1871,29 @@ void Controleur::commande(const QString& c, bool beep)
                             expAff.pop();
 
                             Numerique res(0);
+
+                            if (s=="STO")
+                            {
+                                Atome resA("");
+                                if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()))
+                                {
+                                    resA = manageAtomeOpeNumAndExpr(v1, v2,s, resA);
+                                    Litterale& e=expMng.addLitterale(resA);
+
+                                    expAff.push(e);
+                                }
+                                else
+                                {
+                                    expAff.setMessage("L'identificateur ne peut pas correspondre a un operateur ");
+                                    Litterale& e=expMng.addLitterale(v1);
+
+                                    expAff.push(e);
+                                }
+                                i++;
+                                j = i;
+                                //expAff.setMessage(resA.getLitterale().toString());
+                                continue;
+                            }
 
                             if (s == "SWAP")
                             {
@@ -1973,6 +2066,33 @@ void Controleur::commande(const QString& c, bool beep)
                             Litterale& e=expMng.addLitterale(res);
 
                             expAff.push(e);
+                        }
+                        catch(std::bad_cast& e)
+                        {
+                            if(beep)
+                                Beep(500,500);
+                            expAff.setMessage(e.what());
+                        }
+                    }
+                    else if(expAff.top().getType()=="Atome")
+                    {
+                        try
+                        {
+
+                            Atome v1=dynamic_cast<Atome&>(expAff.top());
+                            expMng.removeLitterale(expAff.top());
+                            expAff.pop();
+
+
+                            Atome res("");// on initialise res a zero
+                            if (s == "FORGET") res = v1.operatorFORGET();
+
+
+                            Litterale& e=expMng.addLitterale(res);
+                            expAff.push(e);
+
+
+
                         }
                         catch(std::bad_cast& e)
                         {

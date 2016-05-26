@@ -29,20 +29,30 @@ public:
     //virtual double getValue() const=0;
 };
 
-class Atome : public Litterale
-{
-    QString nom;
-    QString exp;
-public:
-    Atome(QString nom, QString exp);
-
-};
 
 class Programme : public Litterale
 {
     QString prog;
 public:
     Programme(QString prog);
+};
+
+class Atome : public Litterale
+{
+    QString nom;
+    Litterale* exp;
+public:
+    Atome(QString nom, Litterale* exp=nullptr):nom(nom),exp(exp),Litterale("Atome"){}
+    void setLitterale(Litterale& e) { exp=&e; }
+    Atome operatorFORGET(){ exp=0; return *this; }
+    Litterale& getLitterale() const;
+    QString toString()const {
+        QString res=nom;
+        return res;
+    }
+
+
+
 };
 
 class Expression : public Litterale
@@ -73,7 +83,10 @@ public :
     Expression operator<(const Expression& n);
     Expression operator>(const Expression& n);
     //Expression operatorEVAL();
+    Atome operatorSTO(Litterale& l); //A completer pour les programmes + tester si identificateur deja utilisé
 };
+
+
 
 class Numerique : public Litterale
 {
@@ -183,6 +196,7 @@ public:
     Litterale& addLitterale(Expression & v);
     Litterale& addLitterale(QString v);
     Litterale& addLitterale(Numerique& v);
+    Litterale& addLitterale(Atome& v);
     Litterale& addLitterale(int v);
     Litterale& addLitterale(double v);
 
@@ -330,6 +344,9 @@ public:
     Expression manageNumOpeExprAndNum(Expression v1, Expression v2E,QString s, Expression res);
     Expression manageLogicOpeExprAndNum(Expression v1, Expression v2E,QString s, Expression res);
     Numerique managePileOpeExprAndNum(Numerique v1, Expression v2,QString s, Numerique res);
+
+    Atome manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s, Atome res);
+    Atome manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString s, Atome res);
 
 };
 
