@@ -37,6 +37,7 @@ Atome Expression::operatorSTO(Litterale& l)
         Expression n=dynamic_cast<Expression&>(l);
         return Atome(exp,new Expression(n));
     }
+    return NULL;
 }
 
 Expression Expression::operator<=(const Expression& e)
@@ -1257,6 +1258,20 @@ void LitteraleManager::removeLitterale(Litterale& e)
     nb--;
 }
 
+void LitteraleManager::undo()
+{
+    exps = lastState;
+    nb = lastNb;
+    nbMax = lastNbMax;
+}
+
+void LitteraleManager::updateLastState()
+{
+    lastState = exps;
+    lastNb = nb;
+    lastNbMax = nbMax;
+}
+
 LitteraleManager::~LitteraleManager()
 {
     for(unsigned int i=0; i<nb; i++) delete exps[i];
@@ -1307,6 +1322,19 @@ void Pile::affiche(QTextStream& f) const
     f<<"---------------------------------------------\n";
 }
 
+void Pile::undo()
+{
+    items = lastState;
+    nb = lastNb;
+    nbMax = lastNbMax;
+}
+
+void Pile::updateLastState()
+{
+    lastState = items;
+    lastNb = nb;
+    lastNbMax = nbMax;
+}
 
 Pile::~Pile()
 {
@@ -1367,6 +1395,7 @@ bool estUnOperateurUnaire(const QString s)
 bool estUnOperateurSansArg(const QString s)
 {
     if (s=="CLEAR") return true;
+    if (s=="UNDO") return true;
     return false;
 }
 
@@ -1695,75 +1724,424 @@ Atome Controleur::manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString
     return res;
 }
 
-void Controleur::commande(const QString& c, bool beep)
+void decompCommande(const QString& c,int &i, int &j)
+{
+    while(c[i] == ' ' && c[i+1] >= '0' && c[i+1] <= '9')
+    {
+        i++;
+    }
+    j = i;
+    if(i < (c.length()-1) && c[i] == '-')
+        i++;
+    if (i < (c.length()-1) && c[i] != '\'')
+    {
+        if((c[i] == '<' || c[i] == '>') && c[i+1] == '=')
+            i+= 2;
+        while(i < (c.length()-1) && !estUnOperateurBinaire(c[i]) && c[i]!=' ')
+        {
+            i++;
+        }
+        if(i == c.length()-1)
+        {
+            i++;
+        }
+        else if(i < (c.length()-1) && estUnOperateurBinaire(c[i]) && i == j)
+        {
+            i++;
+        }
+
+    }
+    else
+    {
+        i++;
+        while(i < (c.length()-1) && c[i]!='\'')
+        {
+            i++;
+        }
+
+        i++;
+
+        if(i < c.length()-1 && estUnOperateurBinaire(c[i]) && i == j)
+        {
+            i++;
+        }
+    }
+}
+
+void Controleur::getRationnel(QString s, int &i, int &j, const QString& c)
+{
+    Numerique v1(s.toInt());
+    i++;
+    j = i;
+    while(i < (c.length()-1) && !estUnOperateurBinaire(c[i]) && c[i]!=' ')
+    {
+        i++;
+    }
+    if(i == c.length()-1)
+    {
+        i++;
+    }
+    s = c.mid(j,i-j);
+    Numerique v2 = s.toInt();
+    Numerique res(v1.getNumReel(), v2.getNumReel());
+    Litterale& e=expMng.addLitterale(res);
+    expAff.push(e);
+}
+
+void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
+{
+    try
+    {
+
+        if(expAff.top().getType()=="Numerique") // La premier littérale saisie est numérique
+        {
+            Numerique v2=dynamic_cast<Numerique&>(expAff.top());
+            expMng.removeLitterale(expAff.top());
+            expAff.pop();
+
+            if(expAff.top().getType()=="Numerique") // La deuxième littérale saisie est numérique
+            {
+                Numerique v1=dynamic_cast<Numerique&>(expAff.top());
+                expMng.removeLitterale(expAff.top());
+                expAff.pop();
+
+                Numerique res(0);// on initialise res a zero
+
+
+                res = manageNumOpeNumAndNum(v1, v2, s, res, beep);
+
+                res = managePileOpeNumAndNum(v1, v2, s, res);
+
+                res = manageLogicOpeNumAndNum(v1, v2, s, res, beep);
+
+                Litterale& e=expMng.addLitterale(res);
+
+                expAff.push(e);
+            } // if v1 Numerique
+            else if(expAff.top().getType()=="Expression") // La deuxième littérale saisie est une expression
+            {
+                Expression v1=dynamic_cast<Expression&>(expAff.top());
+                expMng.removeLitterale(expAff.top());
+                expAff.pop();
+
+                Expression res("");
+
+                res = managePileOpeNumAndExpr(v1, v2,s, res);
+
+                Expression v2E=v2.toString();
+
+                res = manageNumOpeNumAndExpr(v1, v2E, s, res);
+
+                res = manageLogicOpeNumAndExpr(v1, v2E, s, res);
+
+                Litterale& e=expMng.addLitterale(res);
+
+                expAff.push(e);
+            }// else v1 expression
+
+        }//if v2 Numerique
+        else if(expAff.top().getType()=="Expression") // La première littérale saisie est une expression
+        {
+            Expression v2=dynamic_cast<Expression&>(expAff.top());
+            expMng.removeLitterale(expAff.top());
+            expAff.pop();
+            if(expAff.top().getType()=="Expression") // La deuxième littérale saisie est une expression
+            {
+                Expression v1=dynamic_cast<Expression&>(expAff.top());
+                expMng.removeLitterale(expAff.top());
+                expAff.pop();
+
+                if (s=="STO")
+                {
+                    Atome resA("");
+                    if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
+                    {
+                        resA = manageAtomeOpeExprAndExpr(v1, v2,s, resA);
+                        Litterale& e=expMng.addLitterale(resA);
+
+                        expAff.push(e);
+                    }
+                    else
+                    {
+                        expAff.setMessage("L'identificateur ne peut pas correspondre a un operateur et doit etre un atome");
+                        Litterale& e=expMng.addLitterale(v1);
+
+                        expAff.push(e);
+                    }
+                    i++;
+                    j = i;
+                    return;
+                }
+
+                Expression res("");// on initialise res a zero
+
+                res = manageNumOpeExprAndExpr(v1, v2, s, res);
+
+                res = manageLogicOpeExprAndExpr(v1, v2, s, res);
+
+                res = managePileOpeExprAndExpr(v1, v2, s, res);
+
+                Litterale& e=expMng.addLitterale(res);
+
+                expAff.push(e);
+            }//if v1 expression
+
+            else if(expAff.top().getType()=="Numerique") // La deuxième littérale saisie est numérique
+            {
+                Numerique v1=dynamic_cast<Numerique&>(expAff.top());
+                expMng.removeLitterale(expAff.top());
+                expAff.pop();
+
+                Numerique res(0);
+
+                if (s=="STO")
+                {
+                    Atome resA("");
+                    if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
+                    {
+                        resA = manageAtomeOpeNumAndExpr(v1, v2,s, resA);
+                        Litterale& e=expMng.addLitterale(resA);
+
+                        expAff.push(e);
+                    }
+                    else
+                    {
+                        expAff.setMessage("L'identificateur ne peut pas correspondre a un operateur et doit etre un atome ");
+                        Litterale& e=expMng.addLitterale(v1);
+
+                        expAff.push(e);
+                    }
+                    i++;
+                    j = i;
+                    //expAff.setMessage(resA.getLitterale().toString());
+                    return;
+                }
+
+                if (s == "SWAP")
+                {
+                    res = managePileOpeExprAndNum(v1, v2, s, res);
+                }
+                else
+                {
+                    Expression v1E=v1.toString();
+                    Expression resE("");
+                    resE = manageNumOpeExprAndNum(v1E, v2, s, resE);
+                    resE = manageLogicOpeExprAndNum(v1E, v2, s, resE);
+
+                    Litterale& e=expMng.addLitterale(resE);
+                    expAff.push(e);
+                }
+
+
+            }//if v1 Numerique
+
+        }// else v2 expression
+    } //try
+    catch(std::bad_cast& e)
+    {
+        if(beep)
+            Beep(500,500);
+        expAff.setMessage(e.what());
+    }
+
+
+}
+
+
+void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
+{
+    if(expAff.top().getType()=="Numerique")
+    {
+        try
+        {
+            //double v1=expAff.top().getValue();
+            Numerique v1=dynamic_cast<Numerique&>(expAff.top());
+            expMng.removeLitterale(expAff.top());
+            expAff.pop();
+            //double res;
+            Numerique res(0);// on initialise res a zero
+
+
+            if (s == "NEG") res = v1.operatorNEG();
+            if (s == "NUM")
+            {
+                if(v1.getTypeIm() == "null" || (v1.getTypeRe() == "entier" || v1.getTypeRe() == "rationnel" ))
+                {
+                    res = v1.operatorNUM();
+                }
+
+                else
+                {
+                    if(beep)
+                        Beep(500,500);
+                    expAff.setMessage("Erreur : la litterale n'est ni entiere ni rationnelle");
+                    res = v1;
+                }
+            }
+            if (s == "DEN")
+            {
+                if(v1.getTypeIm() == "null" || (v1.getTypeRe() == "entier" || v1.getTypeRe() == "rationnel" ))
+                {
+                    res = v1.operatorDEN();
+                }
+
+                else
+                {
+                    if(beep)
+                        Beep(500,500);
+                    expAff.setMessage("Erreur : la litterale n'est ni entiere ni rationnelle");
+                    res = v1;
+                }
+            }
+            if (s == "RE")
+            {
+                if(v1.getTypeIm() != "null")
+                {
+                    res = v1.operatorRE();
+                }
+
+                else
+                {
+                    if(beep)
+                        Beep(500,500);
+                    expAff.setMessage("Erreur : la litterale n'est pas complexe");
+                    res = v1;
+                }
+            }
+            if (s == "IM")
+            {
+                if(v1.getTypeIm() != "null")
+                {
+                    res = v1.operatorIM();
+                }
+
+                else
+                {
+                    if(beep)
+                        Beep(500,500);
+                    expAff.setMessage("Erreur : la litterale n'est pas complexe");
+                    res = v1;
+                }
+            }
+            if (s== "DUP")
+            {
+                res= v1;
+                Litterale& l=expMng.addLitterale(res);
+                expAff.push(l);
+            }
+            if (s== "DROP")
+            {
+                i++;
+                j = i;
+                return;
+            }
+            if (s == "NOT")
+            {
+                res=v1.operatorNOT();
+            }
+            Litterale& e=expMng.addLitterale(res);
+
+            expAff.push(e);
+        }
+        catch(std::bad_cast& e)
+        {
+            if(beep)
+                Beep(500,500);
+            expAff.setMessage(e.what());
+        }
+    }
+    else if(expAff.top().getType()=="Expression")
+    {
+        try
+        {
+
+            Expression v1=dynamic_cast<Expression&>(expAff.top());
+            expMng.removeLitterale(expAff.top());
+            expAff.pop();
+
+            Expression res("");// on initialise res a zero
+
+
+            if (s == "NEG") res = v1.operatorNEG();
+            if (s== "DUP")
+            {
+                res= v1;
+                Litterale& l=expMng.addLitterale(res);
+                expAff.push(l);
+            }
+            if (s== "DROP")
+            {
+                i++;
+                j = i;
+                return;
+            }
+            if (s == "NOT") res = v1.operatorNOT();
+            Litterale& e=expMng.addLitterale(res);
+
+            expAff.push(e);
+        }
+        catch(std::bad_cast& e)
+        {
+            if(beep)
+                Beep(500,500);
+            expAff.setMessage(e.what());
+        }
+    }
+    else if(expAff.top().getType()=="Atome")
+    {
+        try
+        {
+
+            Atome v1=dynamic_cast<Atome&>(expAff.top());
+            expMng.removeLitterale(expAff.top());
+            expAff.pop();
+
+
+            Atome res("");// on initialise res a zero
+            if (s == "FORGET") res = v1.operatorFORGET();
+
+
+            Litterale& e=expMng.addLitterale(res);
+            expAff.push(e);
+
+
+
+        }
+        catch(std::bad_cast& e)
+        {
+            if(beep)
+                Beep(500,500);
+            expAff.setMessage(e.what());
+        }
+    }
+}
+
+
+
+void Controleur::commande(const QString& c, bool beepOption)
 {
     QString s;
     int i=0, j=0;
     while(i < (c.length()))
     {
-        while(c[i] == ' ' && c[i+1] >= '0' && c[i+1] <= '9')
-        {
-            i++;
-        }
-        j = i;
-        if(c[i] == '-')
-            i++;
-        if (c[i] != '\'')
-        {
-            if((c[i] == '<' || c[i] == '>') && c[i+1] == '=')
-                i+= 2;
-            while(i < (c.length()-1) && !estUnOperateurBinaire(c[i]) && c[i]!=' ')
-            {
-                i++;
-            }
-            if(i == c.length()-1)
-            {
-                i++;
-            }
-            else if(i < (c.length()-1) && estUnOperateurBinaire(c[i]) && i == j)
-            {
-                i++;
-            }
+        decompCommande(c, i, j); // détermine les i et j pour décomposer la commande reçue à chaque itération de la boucle
 
-        }
-        else
-        {
-            i++;
-            while(i < (c.length()-1) && c[i]!='\'')
-            {
-                i++;
-            }
-
-            i++;
-
-            if(i < c.length()-1 && estUnOperateurBinaire(c[i]) && i == j)
-            {
-                i++;
-            }
-        }
         if(i-j != 0)
             s = c.mid(j,i-j);
         else
             s = c.mid(j, 1);
+        if(s == "LASTOP")
+            s = lastOpe;
+
+        if(s != "UNDO")
+        {
+            expMng.updateLastState();
+            expAff.updateLastState();
+        }
 
         if(i < c.length()-1 && estUnRationnel(c, s, i))
         {
-            Numerique v1(s.toInt());
-            i++;
-            j = i;
-            while(i < (c.length()-1) && !estUnOperateurBinaire(c[i]) && c[i]!=' ')
-            {
-                i++;
-            }
-            if(i == c.length()-1)
-            {
-                i++;
-            }
-            s = c.mid(j,i-j);
-            Numerique v2 = s.toInt();
-            Numerique res(v1.getNumReel(), v2.getNumReel());
-            Litterale& e=expMng.addLitterale(res);
-            expAff.push(e);
+            getRationnel(s, i, j, c);
         }
 
         else if(estUnEntier(s))
@@ -1780,372 +2158,62 @@ void Controleur::commande(const QString& c, bool beep)
             s = RemoveSpaces(s);
             expAff.push(expMng.addLitterale(s));
         }
-
         else if(estUnOperateurBinaire(s))
         {
             if (expAff.taille() >= 2)
             {
-                try
-                {
-
-                    if(expAff.top().getType()=="Numerique") // La premier littérale saisie est numérique
-                    {
-                        Numerique v2=dynamic_cast<Numerique&>(expAff.top());
-                        expMng.removeLitterale(expAff.top());
-                        expAff.pop();
-
-                        if(expAff.top().getType()=="Numerique") // La deuxième littérale saisie est numérique
-                        {
-                            Numerique v1=dynamic_cast<Numerique&>(expAff.top());
-                            expMng.removeLitterale(expAff.top());
-                            expAff.pop();
-
-                            Numerique res(0);// on initialise res a zero
-
-
-                            res = manageNumOpeNumAndNum(v1, v2, s, res, beep);
-
-                            res = managePileOpeNumAndNum(v1, v2, s, res);
-
-                            res = manageLogicOpeNumAndNum(v1, v2, s, res, beep);
-
-                            Litterale& e=expMng.addLitterale(res);
-
-                            expAff.push(e);
-                        } // if v1 Numerique
-                        else if(expAff.top().getType()=="Expression") // La deuxième littérale saisie est une expression
-                        {
-                            Expression v1=dynamic_cast<Expression&>(expAff.top());
-                            expMng.removeLitterale(expAff.top());
-                            expAff.pop();
-
-                            Expression res("");
-
-                            res = managePileOpeNumAndExpr(v1, v2,s, res);
-
-                            Expression v2E=v2.toString();
-
-                            res = manageNumOpeNumAndExpr(v1, v2E, s, res);
-
-                            res = manageLogicOpeNumAndExpr(v1, v2E, s, res);
-
-                            Litterale& e=expMng.addLitterale(res);
-
-                            expAff.push(e);
-                        }// else v1 expression
-
-                    }//if v2 Numerique
-                    else if(expAff.top().getType()=="Expression") // La première littérale saisie est une expression
-                    {
-                        Expression v2=dynamic_cast<Expression&>(expAff.top());
-                        expMng.removeLitterale(expAff.top());
-                        expAff.pop();
-                        if(expAff.top().getType()=="Expression") // La deuxième littérale saisie est une expression
-                        {
-                            Expression v1=dynamic_cast<Expression&>(expAff.top());
-                            expMng.removeLitterale(expAff.top());
-                            expAff.pop();
-
-                            if (s=="STO")
-                            {
-                                Atome resA("");
-                                if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
-                                {
-                                    resA = manageAtomeOpeExprAndExpr(v1, v2,s, resA);
-                                    Litterale& e=expMng.addLitterale(resA);
-
-                                    expAff.push(e);
-                                }
-                                else
-                                {
-                                    expAff.setMessage("L'identificateur ne peut pas correspondre a un operateur et doit etre un atome");
-                                    Litterale& e=expMng.addLitterale(v1);
-
-                                    expAff.push(e);
-                                }
-                                i++;
-                                j = i;
-
-                                continue;
-                            }
-
-                            Expression res("");// on initialise res a zero
-
-                            res = manageNumOpeExprAndExpr(v1, v2, s, res);
-
-                            res = manageLogicOpeExprAndExpr(v1, v2, s, res);
-
-                            res = managePileOpeExprAndExpr(v1, v2, s, res);
-
-                            Litterale& e=expMng.addLitterale(res);
-
-                            expAff.push(e);
-                        }//if v1 expression
-
-                        else if(expAff.top().getType()=="Numerique") // La deuxième littérale saisie est numérique
-                        {
-                            Numerique v1=dynamic_cast<Numerique&>(expAff.top());
-                            expMng.removeLitterale(expAff.top());
-                            expAff.pop();
-
-                            Numerique res(0);
-
-                            if (s=="STO")
-                            {
-                                Atome resA("");
-                                if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
-                                {
-                                    resA = manageAtomeOpeNumAndExpr(v1, v2,s, resA);
-                                    Litterale& e=expMng.addLitterale(resA);
-
-                                    expAff.push(e);
-                                }
-                                else
-                                {
-                                    expAff.setMessage("L'identificateur ne peut pas correspondre a un operateur et doit etre un atome ");
-                                    Litterale& e=expMng.addLitterale(v1);
-
-                                    expAff.push(e);
-                                }
-                                i++;
-                                j = i;
-                                //expAff.setMessage(resA.getLitterale().toString());
-                                continue;
-                            }
-
-                            if (s == "SWAP")
-                            {
-                                res = managePileOpeExprAndNum(v1, v2, s, res);
-                            }
-                            else
-                            {
-                                Expression v1E=v1.toString();
-                                Expression resE("");
-                                resE = manageNumOpeExprAndNum(v1E, v2, s, resE);
-                                resE = manageLogicOpeExprAndNum(v1E, v2, s, resE);
-
-                                Litterale& e=expMng.addLitterale(resE);
-                                expAff.push(e);
-                            }
-
-
-                        }//if v1 Numerique
-
-                    }// else v2 expression
-
-                } //try
-                catch(std::bad_cast& e)
-                {
-                    if(beep)
-                        Beep(500,500);
-                    expAff.setMessage(e.what());
-                }
-
-
+                manageBinOpe(beepOption, s, i, j); // Gère toutes les opérations à effectuer avec l'opérateur binaire reçu
             }// taille>=2
-            else
+            else //Manque d'opérandes
             {
-                if(beep)
+                if(beepOption)
+                    Beep(500,500); // Provoque un bip d'une demi seconde si l'option est activée
+                expAff.setMessage("Erreur : pas assez d'arguments");
+            }
+            lastOpe = s;
+        }
+        else if(estUnOperateurUnaire(s))
+        {
+            if (expAff.taille() >= 1)
+            {
+                manageUnOpe(beepOption, s, i, j); // Gère toutes les opérations à effectuer avec l'opérateur unaire reçu
+            }
+            else // Pas d'opérande
+            {
+                if(beepOption)
                     Beep(500,500);
                 expAff.setMessage("Erreur : pas assez d'arguments");
             }
-        }
-        else if(estUnOperateurUnaire(s))
-            {
-
-                if (expAff.taille() >= 1)
-                {
-                    if(expAff.top().getType()=="Numerique")
-                    {
-                        try
-                        {
-                            //double v1=expAff.top().getValue();
-                            Numerique v1=dynamic_cast<Numerique&>(expAff.top());
-                            expMng.removeLitterale(expAff.top());
-                            expAff.pop();
-                            //double res;
-                            Numerique res(0);// on initialise res a zero
-
-
-                            if (s == "NEG") res = v1.operatorNEG();
-                            if (s == "NUM")
-                            {
-                                if(v1.getTypeIm() == "null" || (v1.getTypeRe() == "entier" || v1.getTypeRe() == "rationnel" ))
-                                {
-                                    res = v1.operatorNUM();
-                                }
-
-                                else
-                                {
-                                    if(beep)
-                                        Beep(500,500);
-                                    expAff.setMessage("Erreur : la litterale n'est ni entiere ni rationnelle");
-                                    res = v1;
-                                }
-                            }
-                            if (s == "DEN")
-                            {
-                                if(v1.getTypeIm() == "null" || (v1.getTypeRe() == "entier" || v1.getTypeRe() == "rationnel" ))
-                                {
-                                    res = v1.operatorDEN();
-                                }
-
-                                else
-                                {
-                                    if(beep)
-                                        Beep(500,500);
-                                    expAff.setMessage("Erreur : la litterale n'est ni entiere ni rationnelle");
-                                    res = v1;
-                                }
-                            }
-                            if (s == "RE")
-                            {
-                                if(v1.getTypeIm() != "null")
-                                {
-                                    res = v1.operatorRE();
-                                }
-
-                                else
-                                {
-                                    if(beep)
-                                        Beep(500,500);
-                                    expAff.setMessage("Erreur : la litterale n'est pas complexe");
-                                    res = v1;
-                                }
-                            }
-                            if (s == "IM")
-                            {
-                                if(v1.getTypeIm() != "null")
-                                {
-                                    res = v1.operatorIM();
-                                }
-
-                                else
-                                {
-                                    if(beep)
-                                        Beep(500,500);
-                                    expAff.setMessage("Erreur : la litterale n'est pas complexe");
-                                    res = v1;
-                                }
-                            }
-                            if (s== "DUP")
-                            {
-                                res= v1;
-                                Litterale& l=expMng.addLitterale(res);
-                                expAff.push(l);
-                            }
-                            if (s== "DROP")
-                            {
-                                i++;
-                                j = i;
-                                continue;
-                            }
-                            if (s == "NOT")
-                            {
-                                res=v1.operatorNOT();
-                            }
-                            Litterale& e=expMng.addLitterale(res);
-
-                            expAff.push(e);
-                        }
-                        catch(std::bad_cast& e)
-                        {
-                            if(beep)
-                                Beep(500,500);
-                            expAff.setMessage(e.what());
-                        }
-                    }
-                    else if(expAff.top().getType()=="Expression")
-                    {
-                        try
-                        {
-
-                            Expression v1=dynamic_cast<Expression&>(expAff.top());
-                            expMng.removeLitterale(expAff.top());
-                            expAff.pop();
-
-                            Expression res("");// on initialise res a zero
-
-
-                            if (s == "NEG") res = v1.operatorNEG();
-                            if (s== "DUP")
-                            {
-                                res= v1;
-                                Litterale& l=expMng.addLitterale(res);
-                                expAff.push(l);
-                            }
-                            if (s== "DROP")
-                            {
-                                i++;
-                                j = i;
-                                continue;
-                            }
-                            if (s == "NOT") res = v1.operatorNOT();
-                            Litterale& e=expMng.addLitterale(res);
-
-                            expAff.push(e);
-                        }
-                        catch(std::bad_cast& e)
-                        {
-                            if(beep)
-                                Beep(500,500);
-                            expAff.setMessage(e.what());
-                        }
-                    }
-                    else if(expAff.top().getType()=="Atome")
-                    {
-                        try
-                        {
-
-                            Atome v1=dynamic_cast<Atome&>(expAff.top());
-                            expMng.removeLitterale(expAff.top());
-                            expAff.pop();
-
-
-                            Atome res("");// on initialise res a zero
-                            if (s == "FORGET") res = v1.operatorFORGET();
-
-
-                            Litterale& e=expMng.addLitterale(res);
-                            expAff.push(e);
-
-
-
-                        }
-                        catch(std::bad_cast& e)
-                        {
-                            if(beep)
-                                Beep(500,500);
-                            expAff.setMessage(e.what());
-                        }
-                    }
-                }
-                else
-                {
-                    if(beep)
-                        Beep(500,500);
-                    expAff.setMessage("Erreur : pas assez d'arguments");
-                }
+            lastOpe = s;
         }
         else if(estUnOperateurSansArg(s))
         {
+
             if (s == "CLEAR")
             {
-                while(!expAff.estVide())
+                while(!expAff.estVide()) //vide la pile
                 {
                     expMng.removeLitterale(expAff.top());
                     expAff.pop();
                 }
             }
+            if(s == "UNDO")
+            {
+                expAff.undo();
+                expMng.undo();
+            }
+            lastOpe = s;
         }
 
         else
         {
-            if(beep)
+            if(beepOption)
                 Beep(500,500);
             expAff.setMessage("Erreur : commande inconnue");
         }
         i++;
         j = i;
     }
+
+
 }

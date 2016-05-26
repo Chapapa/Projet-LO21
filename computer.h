@@ -174,8 +174,11 @@ public:
 class LitteraleManager
 {
     Litterale** exps;
+    Litterale** lastState;
     unsigned int nb;
+    unsigned int lastNb;
     unsigned int nbMax;
+    unsigned int lastNbMax;
     void agrandissementCapacite();
     LitteraleManager():exps(nullptr),nb(0),nbMax(0){}
     ~LitteraleManager();
@@ -199,6 +202,9 @@ public:
     Litterale& addLitterale(Atome& v);
     Litterale& addLitterale(int v);
     Litterale& addLitterale(double v);
+
+    void undo();
+    void updateLastState();
 
     void removeLitterale(Litterale& e);
     static LitteraleManager& getInstance();
@@ -275,14 +281,19 @@ class Pile : public QObject
     Q_OBJECT
 
     Item* items;
+    Item* lastState;
     unsigned int nb;
+    unsigned int lastNb;
     unsigned int nbMax;
+    unsigned int lastNbMax;
     QString message;
     void agrandissementCapacite();
     unsigned int nbAffiche;
 public:
     Pile():items(nullptr),nb(0),nbMax(0),message(""),nbAffiche(4){}
     ~Pile();
+    void undo();
+    void updateLastState();
     void push(Litterale& e);
     void pop();
     bool estVide() const { return nb==0; }
@@ -329,9 +340,16 @@ class Controleur
 {
     LitteraleManager& expMng;
     Pile& expAff;
+    QString lastOpe;
 public:
     Controleur(LitteraleManager& m, Pile& v):expMng(m), expAff(v){}
     void commande(const QString& c, bool beep);
+
+    void getRationnel(QString s, int &i, int &j, const QString& c);
+
+    void manageBinOpe(bool beep, QString s, int &i, int &j);
+    void manageUnOpe(bool beep, QString s, int &i, int &j);
+
     Numerique manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep);
     Numerique manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep);
     Numerique managePileOpeNumAndNum(Numerique v1, Numerique v2,QString s, Numerique res);

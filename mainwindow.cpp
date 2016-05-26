@@ -283,6 +283,7 @@ void QComputer::getNextCommande()
 {
     pile->setMessage("");
     controleur->commande(commande->text(), beep);
+    refresh();
     commande->clear();
 }
 
