@@ -355,6 +355,6 @@ bool estUnOperateurUnaire(const QString s);
 bool estUnNombre(const QString s);
 bool estUneExpression(const QString s);
 bool estUnOperateurSansArg(const QString s);
-
+bool estUnIndentificateur(const Expression& e);
 
 #endif

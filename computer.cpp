@@ -1,6 +1,24 @@
 #include "computer.h"
 #include <algorithm>
 
+bool estUnIndentificateur(const Expression& e)
+{
+    int i=0;
+    QString s=e.getExp();
+    if (s[i] >= 'A' && s[i] <= 'Z')
+    {
+         while (i<(e.getExp().length()))
+         {
+             if((s[i] < 'A' && s[i] > 'Z') || (s[i] < '0' && s[i] > '9'))
+                 return false;
+             i++;
+         }
+         return true;
+    }
+    return false;
+
+}
+
 Litterale& Atome::getLitterale() const
 {
         if (exp==nullptr) throw ComputerException("Atome : tentative d'acces a une Litterale inexistante");
@@ -1831,7 +1849,7 @@ void Controleur::commande(const QString& c, bool beep)
                             if (s=="STO")
                             {
                                 Atome resA("");
-                                if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()))
+                                if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
                                 {
                                     resA = manageAtomeOpeExprAndExpr(v1, v2,s, resA);
                                     Litterale& e=expMng.addLitterale(resA);
@@ -1840,7 +1858,7 @@ void Controleur::commande(const QString& c, bool beep)
                                 }
                                 else
                                 {
-                                    expAff.setMessage("L'identificateur ne peut pas correspondre a un operateur");
+                                    expAff.setMessage("L'identificateur ne peut pas correspondre a un operateur et doit etre un atome");
                                     Litterale& e=expMng.addLitterale(v1);
 
                                     expAff.push(e);
@@ -1875,7 +1893,7 @@ void Controleur::commande(const QString& c, bool beep)
                             if (s=="STO")
                             {
                                 Atome resA("");
-                                if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()))
+                                if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
                                 {
                                     resA = manageAtomeOpeNumAndExpr(v1, v2,s, resA);
                                     Litterale& e=expMng.addLitterale(resA);
@@ -1884,7 +1902,7 @@ void Controleur::commande(const QString& c, bool beep)
                                 }
                                 else
                                 {
-                                    expAff.setMessage("L'identificateur ne peut pas correspondre a un operateur ");
+                                    expAff.setMessage("L'identificateur ne peut pas correspondre a un operateur et doit etre un atome ");
                                     Litterale& e=expMng.addLitterale(v1);
 
                                     expAff.push(e);
