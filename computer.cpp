@@ -37,6 +37,11 @@ Atome Expression::operatorSTO(Litterale& l)
         Expression n=dynamic_cast<Expression&>(l);
         return Atome(exp,new Expression(n));
     }
+    if (l.getType()=="Programme")
+    {
+        Programme n=dynamic_cast<Programme&>(l);
+        return Atome(exp,new Programme(n));
+    }
     return NULL;
 }
 
@@ -1205,10 +1210,31 @@ void LitteraleManager::agrandissementCapacite()
     delete old;
 }
 
-Litterale& LitteraleManager::addLitterale(QString v)
+Litterale& LitteraleManager::addLitteraleE(QString v)
 {
     if (nb==nbMax) agrandissementCapacite();
     exps[nb++]=new Expression(v);
+    return *exps[nb-1];
+}
+
+Litterale& LitteraleManager::addLitteraleA(QString v)
+{
+    if (nb==nbMax) agrandissementCapacite();
+    exps[nb++]=new Atome(v);
+    return *exps[nb-1];
+}
+
+Litterale& LitteraleManager::addLitteraleP(QString v)
+{
+    if (nb==nbMax) agrandissementCapacite();
+    exps[nb++]=new Programme(v);
+    return *exps[nb-1];
+}
+
+Litterale& LitteraleManager::addLitterale(Programme& v)
+{
+    if (nb==nbMax) agrandissementCapacite();
+    exps[nb++]=new Programme(v);
     return *exps[nb-1];
 }
 
@@ -1356,6 +1382,13 @@ bool estUneExpression(const QString s)
     return false;
 }
 
+bool estUnProgramme(QString s)
+{
+    if( s[0]=='[' && s[s.length()-1]==']' )
+        return true;
+    return false;
+}
+
 bool estUnOperateurBinaire(const QString s)
 {
     if (s=="+") return true;
@@ -1389,6 +1422,7 @@ bool estUnOperateurUnaire(const QString s)
     if (s=="DROP") return true;
     if (s=="NOT") return true;
     if (s=="FORGET") return true;
+    if (s=="EVAL") return true;
     return false;
 }
 
@@ -1724,6 +1758,15 @@ Atome Controleur::manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString
     return res;
 }
 
+Atome Controleur::manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString s, Atome res)
+{
+    if (s == "STO")
+    {
+        res=v2.operatorSTO(v1);
+    }
+    return res;
+}
+
 void decompCommande(const QString& c,int &i, int &j)
 {
     while(c[i] == ' ' && c[i+1] >= '0' && c[i+1] <= '9')
@@ -1733,7 +1776,7 @@ void decompCommande(const QString& c,int &i, int &j)
     j = i;
     if(i < (c.length()-1) && c[i] == '-')
         i++;
-    if (i < (c.length()-1) && c[i] != '\'')
+    if (i < (c.length()-1) && c[i] != '\'' && c[i] != '[')
     {
         if((c[i] == '<' || c[i] == '>') && c[i+1] == '=')
             i+= 2;
@@ -1751,12 +1794,33 @@ void decompCommande(const QString& c,int &i, int &j)
         }
 
     }
-    else
+    else if (c[i] == '\'')
     {
         i++;
         while(i < (c.length()-1) && c[i]!='\'')
         {
             i++;
+        }
+
+        i++;
+
+        if(i < c.length()-1 && estUnOperateurBinaire(c[i]) && i == j)
+        {
+            i++;
+        }
+    }
+    else if (c[i] == '[')
+    {
+        i++;
+        int cpt=1;// compteur de [
+        while(i < (c.length()-1) /*&& c[i]!=']'*/ && cpt!=0)
+        {
+            i++;
+            if (c[i] == '[')
+                cpt++;
+            if (c[i] == ']')
+                cpt--;
+
         }
 
         i++;
@@ -1935,6 +1999,36 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
             }//if v1 Numerique
 
+            else if(expAff.top().getType()=="Programme")
+            {
+                Programme v1=dynamic_cast<Programme&>(expAff.top());
+                expMng.removeLitterale(expAff.top());
+                expAff.pop();
+
+                if (s=="STO")
+                {
+                    Atome resA("");
+                    if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
+                    {
+                        resA = manageAtomeOpePrgmAndExpr(v1, v2,s, resA);
+                        Litterale& e=expMng.addLitterale(resA);
+
+                        expAff.push(e);
+                    }
+                    else
+                    {
+                        expAff.setMessage("L'identificateur ne peut pas correspondre a un operateur et doit etre un atome ");
+                        Litterale& e=expMng.addLitterale(v1);
+
+                        expAff.push(e);
+                    }
+                    i++;
+                    j = i;
+                    //expAff.setMessage(resA.getLitterale().toString());
+                    return;
+                }
+            }
+
         }// else v2 expression
     } //try
     catch(std::bad_cast& e)
@@ -1949,7 +2043,7 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
 
 void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
-{
+{    
     if(expAff.top().getType()=="Numerique")
     {
         try
@@ -2114,6 +2208,120 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
             expAff.setMessage(e.what());
         }
     }
+    else if(expAff.top().getType()=="Programme")
+    {
+        try
+        {
+
+            Programme v1=dynamic_cast<Programme&>(expAff.top());
+            expMng.removeLitterale(expAff.top());
+            expAff.pop();
+
+
+            if (s == "EVAL")
+            {
+                //commande(v1.getProg(),false);
+                QString str;
+                int i=0, j=0;
+                QString c=v1.getProg();
+                while(i < (c.length()))
+                {
+                    decompCommande(c, i, j); // détermine les i et j pour décomposer la commande reçue à chaque itération de la boucle
+
+                    if(i-j != 0)
+                        str = c.mid(j,i-j);
+                    else
+                        str = c.mid(j, 1);
+                    if(str == "LASTOP")
+                        str = lastOpe;
+
+                    if(str != "UNDO")
+                    {
+                        expMng.updateLastState();
+                        expAff.updateLastState();
+                    }
+
+                    if(i < c.length()-1 && estUnRationnel(c, str, i))
+                    {
+                        getRationnel(str, i, j, c);
+                    }
+
+                    else if(estUnEntier(str))
+                    {
+                        expAff.push(expMng.addLitterale(str.toInt()));
+                    }
+
+                    else if(estUnReel(str))
+                        expAff.push(expMng.addLitterale(str.toDouble()));
+
+                    else if(estUneExpression(str))
+                    {
+                        str=str.mid(1,str.length()-2);
+                        str = RemoveSpaces(str);
+                        expAff.push(expMng.addLitteraleE(str));
+                    }
+                    else if(estUnProgramme(str))
+                    {
+                        str=str.mid(1,str.length()-2);
+                        expAff.push(expMng.addLitteraleP(str));
+                    }
+                    else if(estUnOperateurBinaire(str))
+                    {
+                        if (expAff.taille() >= 2)
+                        {
+                            manageBinOpe(false, str, i, j); // Gère toutes les opérations à effectuer avec l'opérateur binaire reçu
+                        }// taille>=2
+                        else //Manque d'opérandes
+                        {
+                            expAff.setMessage("Erreur : pas assez d'arguments");
+                        }
+                        lastOpe = str;
+                    }
+                    else if(estUnOperateurUnaire(str))
+                    {
+                        if (expAff.taille() >= 1)
+                        {
+                            manageUnOpe(false, str, i, j); // Gère toutes les opérations à effectuer avec l'opérateur unaire reçu
+                        }
+                        else // Pas d'opérande
+                        {
+                            expAff.setMessage("Erreur : pas assez d'arguments");
+                        }
+                        lastOpe = str;
+                    }
+                    else if(estUnOperateurSansArg(str))
+                    {
+
+                        if (str == "CLEAR")
+                        {
+                            while(!expAff.estVide()) //vide la pile
+                            {
+                                expMng.removeLitterale(expAff.top());
+                                expAff.pop();
+                            }
+                        }
+                        if(str == "UNDO")
+                        {
+                            expAff.undo();
+                            expMng.undo();
+                        }
+                        lastOpe = str;
+                    }
+
+                    else
+                    {
+                        expAff.setMessage("Erreur : commande inconnue");
+                    }
+                    i++;
+                    j = i;
+                }
+            }
+        }
+        catch(std::bad_cast& e)
+        {
+            expAff.setMessage(e.what());
+        }
+    }
 }
 
 
@@ -2156,7 +2364,12 @@ void Controleur::commande(const QString& c, bool beepOption)
         {
             s=s.mid(1,s.length()-2);
             s = RemoveSpaces(s);
-            expAff.push(expMng.addLitterale(s));
+            expAff.push(expMng.addLitteraleE(s));
+        }
+        else if(estUnProgramme(s))
+        {
+            s=s.mid(1,s.length()-2);
+            expAff.push(expMng.addLitteraleP(s));
         }
         else if(estUnOperateurBinaire(s))
         {
@@ -2204,7 +2417,6 @@ void Controleur::commande(const QString& c, bool beepOption)
             }
             lastOpe = s;
         }
-
         else
         {
             if(beepOption)

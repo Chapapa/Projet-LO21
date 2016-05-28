@@ -30,11 +30,19 @@ public:
 };
 
 
+// gestion espace tabulation retour chariot non faite
+// pour EVAL ne pas mettre d'espace apres [ et avant ]
 class Programme : public Litterale
 {
     QString prog;
 public:
-    Programme(QString prog);
+    Programme(QString p):prog(p),Litterale("Programme"){}
+    QString getProg() const{return prog;}
+    QString toString()const {
+        QString res= "["+prog+"]";
+        return res;
+    }
+
 };
 
 class Atome : public Litterale
@@ -83,7 +91,7 @@ public :
     Expression operator<(const Expression& n);
     Expression operator>(const Expression& n);
     //Expression operatorEVAL();
-    Atome operatorSTO(Litterale& l); //A completer pour les programmes + tester si identificateur deja utilisé
+    Atome operatorSTO(Litterale& l); //tester si identificateur deja utilisé
 };
 
 
@@ -197,9 +205,12 @@ public:
 
     //faire template methode
     Litterale& addLitterale(Expression & v);
-    Litterale& addLitterale(QString v);
+    Litterale& addLitteraleE(QString v);
+    Litterale& addLitteraleP(QString v);
+    Litterale& addLitteraleA(QString v);
     Litterale& addLitterale(Numerique& v);
     Litterale& addLitterale(Atome& v);
+    Litterale& addLitterale(Programme& v);
     Litterale& addLitterale(int v);
     Litterale& addLitterale(double v);
 
@@ -365,6 +376,7 @@ public:
 
     Atome manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s, Atome res);
     Atome manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString s, Atome res);
+    Atome manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString s, Atome res);
 
 };
 
@@ -372,6 +384,7 @@ bool estUnOperateurBinaire(const QString s);
 bool estUnOperateurUnaire(const QString s);
 bool estUnNombre(const QString s);
 bool estUneExpression(const QString s);
+bool estUnProgramme(QString s);
 bool estUnOperateurSansArg(const QString s);
 bool estUnIndentificateur(const Expression& e);
 
