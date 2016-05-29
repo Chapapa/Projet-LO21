@@ -19,6 +19,8 @@ bool estUnIndentificateur(const Expression& e)
 
 }
 
+
+
 Litterale& Atome::getLitterale() const
 {
         if (exp==nullptr) throw ComputerException("Atome : tentative d'acces a une Litterale inexistante");
@@ -1210,6 +1212,18 @@ void LitteraleManager::agrandissementCapacite()
     delete old;
 }
 
+void LitteraleManager::agrandissementCapaciteLast()
+{
+    Litterale** newtab=new Litterale*[(lastNbMax+1)*2];
+    for(unsigned int i=0; i<lastNb; i++) newtab[i]=lastState[i];
+    Litterale**  old=lastState;
+    lastState=newtab;
+    lastNbMax=(lastNbMax+1)*2;
+    if(old != nullptr)
+        delete old;
+}
+
+
 Litterale& LitteraleManager::addLitteraleE(QString v)
 {
     if (nb==nbMax) agrandissementCapacite();
@@ -1231,27 +1245,6 @@ Litterale& LitteraleManager::addLitteraleP(QString v)
     return *exps[nb-1];
 }
 
-Litterale& LitteraleManager::addLitterale(Programme& v)
-{
-    if (nb==nbMax) agrandissementCapacite();
-    exps[nb++]=new Programme(v);
-    return *exps[nb-1];
-}
-
-Litterale& LitteraleManager::addLitterale(Expression &v)
-{
-    if (nb==nbMax) agrandissementCapacite();
-    exps[nb++]=new Expression(v);// appel au constructeur de recopie
-    return *exps[nb-1];
-}
-
-Litterale& LitteraleManager::addLitterale(Atome &v)
-{
-    if (nb==nbMax) agrandissementCapacite();
-    exps[nb++]=new Atome(v);// appel au constructeur de recopie
-    return *exps[nb-1];
-}
-
 Litterale& LitteraleManager::addLitterale(int v)
 {
     if (nb==nbMax) agrandissementCapacite();
@@ -1266,12 +1259,6 @@ Litterale& LitteraleManager::addLitterale(double v)
     return *exps[nb-1];
 }
 
-Litterale& LitteraleManager::addLitterale(Numerique &v)
-{
-    if (nb==nbMax) agrandissementCapacite();
-    exps[nb++]=new Numerique(v);// appel au constructeur de recopie
-    return *exps[nb-1];
-}
 
 void LitteraleManager::removeLitterale(Litterale& e)
 {
@@ -1284,18 +1271,79 @@ void LitteraleManager::removeLitterale(Litterale& e)
     nb--;
 }
 
-void LitteraleManager::undo()
+void LitteraleManager::removeLitteraleLast(Litterale& e)
 {
-    exps = lastState;
-    nb = lastNb;
-    nbMax = lastNbMax;
+    unsigned int i=0;
+    while(i<lastNb && lastState[i]!=&e) i++;
+    if (i==lastNb) throw ComputerException("elimination d'une Litterale inexistante");
+    delete lastState[i];
+    i++;
+    while(i<lastNb) { lastState[i-1]=lastState[i]; i++; }
+    lastNb--;
 }
 
-void LitteraleManager::updateLastState()
+void LitteraleManager::undoRedo(Pile& p)
 {
-    lastState = exps;
-    lastNb = nb;
-    lastNbMax = nbMax;
+    for(unsigned int i = 0; i < nb; i++)
+    {
+        removeLitteraleLast(p.top());
+        p.pop();
+    }
+    Iterator it;
+    it = getIterator();
+    while(!it.isDone())
+    {
+        if (nb==nbMax)
+        {
+            agrandissementCapacite();
+        }
+        if(it.current().getType() == "Numerique")
+        {
+            Litterale& e=addLitterale(dynamic_cast<Numerique&>(it.current()));
+            p.push(e);
+        }
+        else if(it.current().getType() == "Expression")
+        {
+            Litterale& e=addLitterale(dynamic_cast<Expression&>(it.current()));
+            p.push(e);
+        }
+        else if(it.current().getType() == "Atome")
+        {
+            Litterale& e=addLitterale(dynamic_cast<Atome&>(it.current()));
+            p.push(e);
+        }
+        else if(it.current().getType() == "Programme")
+        {
+            Litterale& e=addLitterale(dynamic_cast<Programme&>(it.current()));
+            p.push(e);
+        }
+    }
+}
+
+void LitteraleManager::updateLastState(Pile& p)
+{
+    for(unsigned int i = 0; i < lastNb; i++)
+    {
+        removeLitteraleLast(p.topLast());
+        p.popLast();
+    }
+    Iterator it;
+    it = getIterator();
+    while(!it.isDone())
+    {
+        if (lastNb==lastNbMax)
+        {
+            agrandissementCapaciteLast();
+        }
+        if(it.current().getType() == "Numerique")
+            p.pushLast(addLitteraleLast(dynamic_cast<Numerique&>(it.current())));
+        else if(it.current().getType() == "Expression")
+            p.pushLast(addLitteraleLast(dynamic_cast<Expression&>(it.current())));
+        else if(it.current().getType() == "Atome")
+            p.pushLast(addLitteraleLast(dynamic_cast<Atome&>(it.current())));
+        else if(it.current().getType() == "Programme")
+            p.pushLast(addLitteraleLast(dynamic_cast<Programme&>(it.current())));
+    }
 }
 
 LitteraleManager::~LitteraleManager()
@@ -1329,11 +1377,24 @@ void Pile::push(Litterale& e)
     modificationEtat();
 }
 
+void Pile::pushLast(Litterale& e)
+{
+    if (lastNb==lastNbMax) agrandissementCapacite();
+    lastState[lastNb].setLitterale(e);
+    lastNb++;
+}
+
 void Pile::pop()
 {
     nb--;
     items[nb].raz();
     modificationEtat();
+}
+
+void Pile::popLast()
+{
+    lastNb--;
+    lastState[lastNb].raz();
 }
 
 void Pile::affiche(QTextStream& f) const
@@ -1348,19 +1409,6 @@ void Pile::affiche(QTextStream& f) const
     f<<"---------------------------------------------\n";
 }
 
-void Pile::undo()
-{
-    items = lastState;
-    nb = lastNb;
-    nbMax = lastNbMax;
-}
-
-void Pile::updateLastState()
-{
-    lastState = items;
-    lastNb = nb;
-    lastNbMax = nbMax;
-}
 
 Pile::~Pile()
 {
@@ -1369,9 +1417,14 @@ Pile::~Pile()
 
 Litterale& Pile::top() const
 {
-
     if (nb==0) throw ComputerException("aucune Litterale sur la pile");
     return items[nb-1].getLitterale();
+}
+
+Litterale& Pile::topLast() const
+{
+    if (lastNb==0) throw ComputerException("aucune Litterale sur la pile");
+    return lastState[lastNb-1].getLitterale();
 }
 
 
@@ -1430,7 +1483,13 @@ bool estUnOperateurSansArg(const QString s)
 {
     if (s=="CLEAR") return true;
     if (s=="UNDO") return true;
+    if (s=="REDO") return true;
     return false;
+}
+
+bool estUnOperateur(const QString s)
+{
+    return(estUnOperateurBinaire(s) || estUnOperateurSansArg(s) || estUnOperateurUnaire(s));
 }
 
 bool estUnEntier(const QString s)
@@ -2041,7 +2100,6 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
 }
 
-
 void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
 {    
     if(expAff.top().getType()=="Numerique")
@@ -2232,13 +2290,10 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
                         str = c.mid(j,i-j);
                     else
                         str = c.mid(j, 1);
-                    if(str == "LASTOP")
-                        str = lastOpe;
 
                     if(str != "UNDO")
                     {
-                        expMng.updateLastState();
-                        expAff.updateLastState();
+                        expMng.updateLastState(expAff);
                     }
 
                     if(i < c.length()-1 && estUnRationnel(c, str, i))
@@ -2275,7 +2330,7 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
                         {
                             expAff.setMessage("Erreur : pas assez d'arguments");
                         }
-                        lastOpe = str;
+
                     }
                     else if(estUnOperateurUnaire(str))
                     {
@@ -2287,7 +2342,7 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
                         {
                             expAff.setMessage("Erreur : pas assez d'arguments");
                         }
-                        lastOpe = str;
+
                     }
                     else if(estUnOperateurSansArg(str))
                     {
@@ -2302,10 +2357,9 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
                         }
                         if(str == "UNDO")
                         {
-                            expAff.undo();
-                            expMng.undo();
+                            expMng.undoRedo(expAff);
                         }
-                        lastOpe = str;
+
                     }
 
                     else
@@ -2325,7 +2379,6 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
 }
 
 
-
 void Controleur::commande(const QString& c, bool beepOption)
 {
     QString s;
@@ -2341,10 +2394,9 @@ void Controleur::commande(const QString& c, bool beepOption)
         if(s == "LASTOP")
             s = lastOpe;
 
-        if(s != "UNDO")
+        if(estUnOperateur(s))
         {
-            expMng.updateLastState();
-            expAff.updateLastState();
+            //expMng.updateLastState(expAff);
         }
 
         if(i < c.length()-1 && estUnRationnel(c, s, i))
@@ -2362,13 +2414,13 @@ void Controleur::commande(const QString& c, bool beepOption)
 
         else if(estUneExpression(s))
         {
-            s=s.mid(1,s.length()-2);
+            s = s.mid(1,s.length()-2);
             s = RemoveSpaces(s);
             expAff.push(expMng.addLitteraleE(s));
         }
         else if(estUnProgramme(s))
         {
-            s=s.mid(1,s.length()-2);
+            s = s.mid(1,s.length()-2);
             expAff.push(expMng.addLitteraleP(s));
         }
         else if(estUnOperateurBinaire(s))
@@ -2410,10 +2462,9 @@ void Controleur::commande(const QString& c, bool beepOption)
                     expAff.pop();
                 }
             }
-            if(s == "UNDO")
+            if(s == "UNDO" || s == "REDO")
             {
-                expAff.undo();
-                expMng.undo();
+                //expMng.undoRedo(expAff);
             }
             lastOpe = s;
         }
