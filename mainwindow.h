@@ -53,7 +53,14 @@ class QComputer : public QWidget{
     QVBoxLayout* couche;
     Pile* pile;
     Controleur* controleur;
-    QWidget* test;
+
+    //Paramètres du calculateur
+    QWidget* fenetreParamCalc;
+    QVBoxLayout* paramCalc;
+    QHBoxLayout* nbVuesPile;
+    QLabel* nbVuesPileLabel;
+    QLineEdit* getNbVuesPile;
+
     //Toolbar
     QToolBar *tbar;
     QMenu *menuEdition;
@@ -72,7 +79,7 @@ class QComputer : public QWidget{
     QVBoxLayout *layout5;
     QVBoxLayout *layoutG;
     QHBoxLayout *layoutB;
-    QVBoxLayout *layout;
+    QVBoxLayout *layoutCalc;
     QPushButton* zero;
     QPushButton* un;
     QPushButton* deux;
@@ -93,12 +100,15 @@ class QComputer : public QWidget{
 public:
     explicit QComputer(QWidget *parent = 0);
     const QString text() const;
+    void remakeCalc();
 public slots:
     void toggleBeep();
     void toggleGraphicPad();
     void refresh();
     void getNextCommande();
     void setText(const QString &text);
+    void changeNbViews();
+    void toggleParamCalcView();
 signals:
     void textChanged(const QString &text);
 private slots:

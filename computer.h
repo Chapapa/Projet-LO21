@@ -220,7 +220,7 @@ public:
     Litterale& top() const;
     Litterale& topLast() const;
 
-    void setNbItemsToAffiche(unsigned int n) { nb=n; }
+    void setNbItemsToAffiche(unsigned int n) { nbAffiche=n; }
     unsigned int getNbItemsToAffiche() const { return nbAffiche; }
 
     void setMessage(const QString& m) { message=m; modificationEtat(); }

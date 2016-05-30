@@ -46,6 +46,18 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     for(unsigned int i=0;i<pile->getNbItemsToAffiche();i++)
         vuePile->setItem(i,0, new QTableWidgetItem(""));
 
+    // Paramètres du calculateur
+    fenetreParamCalc = new QWidget;
+    paramCalc = new QVBoxLayout(fenetreParamCalc);
+    nbVuesPile = new QHBoxLayout(fenetreParamCalc);
+    nbVuesPileLabel = new QLabel(fenetreParamCalc);
+    getNbVuesPile = new QLineEdit(fenetreParamCalc);
+    nbVuesPileLabel->setText("Nombre d'items à afficher:");
+    nbVuesPile->addWidget(nbVuesPileLabel);
+    nbVuesPile->addWidget(getNbVuesPile);
+    paramCalc->addLayout(nbVuesPile);
+    connect(getNbVuesPile,SIGNAL(returnPressed()),this,SLOT(changeNbViews()));
+
 
     // Barre d'options
     menuOptions = new QMenu(this);
@@ -68,6 +80,7 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
 
 
     connect(AfficherGraphicPad, SIGNAL(triggered()), this, SLOT(toggleGraphicPad()));
+    connect(ParamCalc, SIGNAL(triggered()), this, SLOT(toggleParamCalcView()));
     connect(ActiverSons, SIGNAL(triggered()), this, SLOT(toggleBeep()));
 
 
@@ -144,9 +157,9 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     layoutB->addLayout(layoutG);
     layoutB->addLayout(layout5);
 
-    layout = new QVBoxLayout;
-    layout->addLayout(layoutB);
-    couche->addLayout(layout);
+    layoutCalc = new QVBoxLayout;
+    layoutCalc->addLayout(layoutB);
+    couche->addLayout(layoutCalc);
     setLayout(couche);
 
     QSignalMapper *mapper = new QSignalMapper( this );
@@ -192,6 +205,124 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     QObject::connect( this, SIGNAL(textChanged(QString)), &label, SLOT(setText(QString)) );
 }
 
+
+void QComputer::changeNbViews()
+{
+    pile->setNbItemsToAffiche(getNbVuesPile->text().toInt());
+    //Destruction de la vue pour en créer une avec le bon nombre de lignes d'affichage
+    couche->removeWidget(vuePile);
+    delete vuePile;
+    vuePile = new QTableWidget(pile->getNbItemsToAffiche(),1,this);
+    vuePile->horizontalHeader()->setVisible(false);
+    vuePile->horizontalHeader()->setStretchLastSection(true);
+    QStringList nombres;
+    for (unsigned int i= pile->getNbItemsToAffiche(); i>0; i--)
+    {
+        QString str=QString::number(i);
+        str+=":";
+        nombres<<str;
+    }
+
+    vuePile->setVerticalHeaderLabels(nombres);
+
+    //ne pas ecrire dans vuepile
+    vuePile->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    for(unsigned int i=0;i<pile->getNbItemsToAffiche();i++)
+        vuePile->setItem(i,0, new QTableWidgetItem(""));
+    remakeCalc();
+    refresh();
+    getNbVuesPile->clear();
+}
+
+void QComputer::remakeCalc()
+{
+    couche->removeWidget(commande);
+
+    layout1->removeWidget(un);
+    layout1->removeWidget(deux);
+    layout1->removeWidget(trois);
+
+    layout2->removeWidget(quatre);
+    layout2->removeWidget(cinq);
+    layout2->removeWidget(six);
+
+    layout3->removeWidget(sept);
+    layout3->removeWidget(huit);
+    layout3->removeWidget(neuf);
+
+
+    layout4->removeWidget(zero);
+    layout4->removeWidget(point);
+
+    layout5->removeWidget(plus);
+    layout5->removeWidget(moins);
+    layout5->removeWidget(fois);
+    layout5->removeWidget(sur);
+    layout5->removeWidget(entree);
+
+    delete layout1;
+    delete layout2;
+    delete layout3;
+    delete layout4;
+    delete layout5;
+    delete layoutG;
+    delete layoutB;
+    delete layoutCalc;
+
+    couche->addWidget(vuePile);
+    couche->addWidget(commande);
+
+    layout1 = new QHBoxLayout;
+    layout1->addWidget(un);
+    layout1->addWidget(deux);
+    layout1->addWidget(trois);
+
+    layout2 = new QHBoxLayout;
+    layout2->addWidget(quatre);
+    layout2->addWidget(cinq);
+    layout2->addWidget(six);
+
+    layout3 = new QHBoxLayout;
+    layout3->addWidget(sept);
+    layout3->addWidget(huit);
+    layout3->addWidget(neuf);
+
+    layout4 = new QHBoxLayout;
+    layout4->addWidget(zero);
+    layout4->addWidget(point);
+
+
+    layout5 = new QVBoxLayout;
+    entree->setDefault(true);
+    layout5->addWidget(plus);
+    layout5->addWidget(moins);
+    layout5->addWidget(fois);
+    layout5->addWidget(sur);
+    layout5->addWidget(entree);
+
+    layoutG = new QVBoxLayout;
+    layoutG->addLayout(layout1);
+    layoutG->addLayout(layout2);
+    layoutG->addLayout(layout3);
+    layoutG->addLayout(layout4);
+
+    layoutB = new QHBoxLayout;
+    layoutB->addLayout(layoutG);
+    layoutB->addLayout(layout5);
+
+    layoutCalc = new QVBoxLayout;
+    layoutCalc->addLayout(layoutB);
+    couche->addLayout(layoutCalc);
+}
+
+void QComputer::toggleParamCalcView()
+{
+    if(fenetreParamCalc->isHidden())
+        fenetreParamCalc->show();
+    else
+        fenetreParamCalc->hide();
+}
 
 void QComputer::toggleBeep()
 {
