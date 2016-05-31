@@ -197,28 +197,24 @@ class Pile : public QObject
     Q_OBJECT
 
     Item* items;
-    Item* lastState;
     unsigned int nb;
-    unsigned int lastNb;
     unsigned int nbMax;
-    unsigned int lastNbMax;
     QString message;
     void agrandissementCapacite();
     unsigned int nbAffiche;
 public:
-    Pile():items(nullptr),lastState(nullptr),nb(0),nbMax(0),lastNb(0),lastNbMax(0),message(""),nbAffiche(4){}
+    Pile():items(nullptr),nb(0),nbMax(0),message(""),nbAffiche(4){}
     ~Pile();
-    void undoRedo();
-    void updateLastState();
+
+    void setNbItems(unsigned int n) {nb = n;}
+    unsigned int getNbItems() {return nb;}
+
     void push(Litterale& e);
-    void pushLast(Litterale& e);
     void pop();
-    void popLast();
     bool estVide() const { return nb==0; }
     unsigned int taille() const { return nb; }
     void affiche(QTextStream& f) const;
     Litterale& top() const;
-    Litterale& topLast() const;
 
     void setNbItemsToAffiche(unsigned int n) { nbAffiche=n; }
     unsigned int getNbItemsToAffiche() const { return nbAffiche; }
@@ -261,14 +257,10 @@ signals:
 class LitteraleManager
 {
     Litterale** exps;
-    Litterale** lastState;
     unsigned int nb;
-    unsigned int lastNb;
     unsigned int nbMax;
-    unsigned int lastNbMax;
     void agrandissementCapacite();
-    void agrandissementCapaciteLast();
-    LitteraleManager():exps(nullptr),lastState(nullptr),nb(0),nbMax(0),lastNb(0),lastNbMax(0){}
+
     ~LitteraleManager();
     LitteraleManager(const LitteraleManager& m);
     LitteraleManager& operator=(const LitteraleManager& m);
@@ -282,9 +274,8 @@ class LitteraleManager
     };
     static Handler handler;
 public:
-
+    LitteraleManager():exps(nullptr),nb(0),nbMax(0){}
     //faire template methode
-
     Litterale& addLitteraleE(QString v);
     Litterale& addLitteraleP(QString v);
     Litterale& addLitteraleA(QString v);
@@ -298,20 +289,7 @@ public:
         return *exps[nb-1];
     }
 
-    template <class T>
-    Litterale& addLitteraleLast(T v)
-    {
-        if (lastNb==lastNbMax) agrandissementCapacite();
-        lastState[lastNb++]=new T(v);// appel au constructeur de recopie
-        return *lastState[lastNb-1];
-    }
-
-    void undoRedo(Pile& p);
-    void updateLastState(Pile& p);
-
     void removeLitterale(Litterale& e);
-    void removeLitteraleLast(Litterale& e);
-    static LitteraleManager& getInstance();
     static void libererInstance();
     class Iterator
     {
@@ -369,14 +347,52 @@ public:
     const_iterator end() const { return const_iterator(exps+nb); }
 };
 
+class Controleur;
+
+class Memento
+{
+  public:
+    //Memento():lm(*(new LitteraleManager)), p(*(new Pile)),lastOpe(""){}
+    Memento(LitteraleManager& lm1,Pile& p1, QString lo): lm(*(new LitteraleManager)), p(*(new Pile))
+    {
+        lastOpe = lo;
+        LitteraleManager::Iterator itL = lm1.getIterator();
+        unsigned int nb = 0;
+        for(Pile::iterator it=p1.begin(); it!=p1.end() && nb<p1.getNbItems();++it)
+        {
+            if(itL.current().getType() == "Numerique")
+                p.push(lm.addLitterale(dynamic_cast<Numerique&>(itL.current())));
+            else if(itL.current().getType() == "Expression")
+                p.push(lm.addLitterale(dynamic_cast<Expression&>(itL.current())));
+            else if(itL.current().getType() == "Atome")
+                p.push(lm.addLitterale(dynamic_cast<Atome&>(itL.current())));
+            else if(itL.current().getType() == "Programme")
+                p.push(lm.addLitterale(dynamic_cast<Programme&>(itL.current())));
+            itL.next();
+            nb++;
+        }
+    }
+  private:
+    friend class Controleur;
+    LitteraleManager& lm;
+    Pile& p;
+    QString lastOpe;
+};
+
 class Controleur
 {
     LitteraleManager& expMng;
     Pile& expAff;
     QString lastOpe;
+    //Memento
+    Memento* undo;
+    Memento* redo;
 public:
-    Controleur(LitteraleManager& m, Pile& v):expMng(m), expAff(v){}
+    Controleur(LitteraleManager& m, Pile& v):expMng(m), expAff(v),lastOpe(""), undo(nullptr), redo(nullptr){}
     void commande(const QString& c, bool beep);
+
+    void undoCommand();
+    void redoCommand();
 
     void getRationnel(QString s, int &i, int &j, const QString& c);
 
@@ -400,8 +416,41 @@ public:
     Atome manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString s, Atome res);
     Atome manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString s, Atome res);
 
+    Memento *createMemento()
+    {
+        return new Memento(expMng, expAff,lastOpe);
+    }
+    void reinstateMemento(Memento *mem)
+    {
+        expAff.setNbItemsToAffiche(mem->p.getNbItemsToAffiche());
+        lastOpe = mem->lastOpe;
+
+        while(!expAff.estVide())
+        {
+            expMng.removeLitterale(expAff.top());
+            expAff.pop();
+        }
+        LitteraleManager::Iterator itL = mem->lm.getIterator();
+        unsigned int nb=0;
+        for(Pile::iterator it=mem->p.begin(); it!=mem->p.end() && nb<mem->p.getNbItemsToAffiche();++it)
+        {
+            if(itL.current().getType() == "Numerique")
+                expAff.push(expMng.addLitterale(dynamic_cast<Numerique&>(itL.current())));
+            else if(itL.current().getType() == "Expression")
+                expAff.push(expMng.addLitterale(dynamic_cast<Expression&>(itL.current())));
+            else if(itL.current().getType() == "Atome")
+                expAff.push(expMng.addLitterale(dynamic_cast<Atome&>(itL.current())));
+            else if(itL.current().getType() == "Programme")
+                expAff.push(expMng.addLitterale(dynamic_cast<Programme&>(itL.current())));
+            itL.next();
+            nb++;
+        }
+    }
+
 };
 
+
+bool estUnOperateur(const QString s);
 bool estUnOperateurBinaire(const QString s);
 bool estUnOperateurUnaire(const QString s);
 bool estUnNombre(const QString s);
@@ -409,5 +458,52 @@ bool estUneExpression(const QString s);
 bool estUnProgramme(QString s);
 bool estUnOperateurSansArg(const QString s);
 bool estUnIndentificateur(const Expression& e);
-
+/*
+class Command
+{
+public:
+    typedef void(Controleur::*Action)();
+    Command(Controleur *receiver, Action action)
+    {
+        _receiver = receiver;
+        _action = action;
+    }
+    virtual void execute()
+    {
+        _mementoList[_numCommands] = _receiver->createMemento();
+        _commandList[_numCommands] = this;
+        if (_numCommands > _highWater)
+            _highWater = _numCommands;
+        _numCommands++;
+        (_receiver->*_action)();
+    }
+    static void undo()
+    {
+        if (_numCommands == 0)
+        {
+            return ;
+        }
+        _commandList[_numCommands - 1]->_receiver->reinstateMemento
+                (_mementoList[_numCommands - 1]);
+        _numCommands--;
+    }
+    void static redo()
+    {
+        if (_numCommands > _highWater)
+        {
+            return ;
+        }
+        (_commandList[_numCommands]->_receiver->*(_commandList[_numCommands]
+          ->_action))();
+        _numCommands++;
+    }
+  protected:
+    Controleur *_receiver;
+    Action _action;
+    static Command *_commandList[20];
+    static Memento *_mementoList[20];
+    static int _numCommands;
+    static int _highWater;
+};
+*/
 #endif

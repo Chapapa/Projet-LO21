@@ -16,8 +16,7 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     couche->addWidget(vuePile);
     couche->addWidget(commande);
 
-
-    controleur= new Controleur(LitteraleManager::getInstance(),*pile);
+    controleur= new Controleur(*(new LitteraleManager),*pile);
 
     setWindowTitle("UTComputer");
     message->setReadOnly(true);

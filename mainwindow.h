@@ -54,6 +54,9 @@ class QComputer : public QWidget{
     Pile* pile;
     Controleur* controleur;
 
+
+
+
     //Paramètres du calculateur
     QWidget* fenetreParamCalc;
     QVBoxLayout* paramCalc;

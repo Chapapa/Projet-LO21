@@ -1141,11 +1141,6 @@ void Numerique::setRationnelIm(int n,int d)
 LitteraleManager::Handler LitteraleManager::handler=LitteraleManager::Handler();
 
 
-LitteraleManager& LitteraleManager::getInstance()
-{
-    if (handler.instance==nullptr) handler.instance=new LitteraleManager;
-    return *handler.instance;
-}
 
 void LitteraleManager::libererInstance()
 {
@@ -1212,16 +1207,6 @@ void LitteraleManager::agrandissementCapacite()
     delete old;
 }
 
-void LitteraleManager::agrandissementCapaciteLast()
-{
-    Litterale** newtab=new Litterale*[(lastNbMax+1)*2];
-    for(unsigned int i=0; i<lastNb; i++) newtab[i]=lastState[i];
-    Litterale**  old=lastState;
-    lastState=newtab;
-    lastNbMax=(lastNbMax+1)*2;
-    if(old != nullptr)
-        delete old;
-}
 
 
 Litterale& LitteraleManager::addLitteraleE(QString v)
@@ -1271,55 +1256,7 @@ void LitteraleManager::removeLitterale(Litterale& e)
     nb--;
 }
 
-void LitteraleManager::removeLitteraleLast(Litterale& e)
-{
-    unsigned int i=0;
-    while(i<lastNb && lastState[i]!=&e) i++;
-    if (i==lastNb) throw ComputerException("elimination d'une Litterale inexistante");
-    delete lastState[i];
-    i++;
-    while(i<lastNb) { lastState[i-1]=lastState[i]; i++; }
-    lastNb--;
-}
-
-void LitteraleManager::undoRedo(Pile& p)
-{
-    for(unsigned int i = 0; i < nb; i++)
-    {
-        removeLitteraleLast(p.top());
-        p.pop();
-    }
-    Iterator it;
-    it = getIterator();
-    while(!it.isDone())
-    {
-        if (nb==nbMax)
-        {
-            agrandissementCapacite();
-        }
-        if(it.current().getType() == "Numerique")
-        {
-            Litterale& e=addLitterale(dynamic_cast<Numerique&>(it.current()));
-            p.push(e);
-        }
-        else if(it.current().getType() == "Expression")
-        {
-            Litterale& e=addLitterale(dynamic_cast<Expression&>(it.current()));
-            p.push(e);
-        }
-        else if(it.current().getType() == "Atome")
-        {
-            Litterale& e=addLitterale(dynamic_cast<Atome&>(it.current()));
-            p.push(e);
-        }
-        else if(it.current().getType() == "Programme")
-        {
-            Litterale& e=addLitterale(dynamic_cast<Programme&>(it.current()));
-            p.push(e);
-        }
-    }
-}
-
+/*
 void LitteraleManager::updateLastState(Pile& p)
 {
     for(unsigned int i = 0; i < lastNb; i++)
@@ -1344,7 +1281,7 @@ void LitteraleManager::updateLastState(Pile& p)
         else if(it.current().getType() == "Programme")
             p.pushLast(addLitteraleLast(dynamic_cast<Programme&>(it.current())));
     }
-}
+}*/
 
 LitteraleManager::~LitteraleManager()
 {
@@ -1377,24 +1314,12 @@ void Pile::push(Litterale& e)
     modificationEtat();
 }
 
-void Pile::pushLast(Litterale& e)
-{
-    if (lastNb==lastNbMax) agrandissementCapacite();
-    lastState[lastNb].setLitterale(e);
-    lastNb++;
-}
 
 void Pile::pop()
 {
     nb--;
     items[nb].raz();
     modificationEtat();
-}
-
-void Pile::popLast()
-{
-    lastNb--;
-    lastState[lastNb].raz();
 }
 
 void Pile::affiche(QTextStream& f) const
@@ -1420,13 +1345,6 @@ Litterale& Pile::top() const
     if (nb==0) throw ComputerException("aucune Litterale sur la pile");
     return items[nb-1].getLitterale();
 }
-
-Litterale& Pile::topLast() const
-{
-    if (lastNb==0) throw ComputerException("aucune Litterale sur la pile");
-    return lastState[lastNb-1].getLitterale();
-}
-
 
 bool estUneExpression(const QString s)
 {
@@ -1958,7 +1876,6 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
                 res = manageLogicOpeNumAndExpr(v1, v2E, s, res);
 
                 Litterale& e=expMng.addLitterale(res);
-
                 expAff.push(e);
             }// else v1 expression
 
@@ -2293,7 +2210,7 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
 
                     if(str != "UNDO")
                     {
-                        expMng.updateLastState(expAff);
+
                     }
 
                     if(i < c.length()-1 && estUnRationnel(c, str, i))
@@ -2357,7 +2274,7 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
                         }
                         if(str == "UNDO")
                         {
-                            expMng.undoRedo(expAff);
+
                         }
 
                     }
@@ -2379,6 +2296,22 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
 }
 
 
+void Controleur::undoCommand()
+{
+    if(redo)
+        delete redo;
+    redo = new Memento(expMng, expAff, lastOpe);
+    reinstateMemento(undo);
+}
+
+
+void Controleur::redoCommand()
+{
+    reinstateMemento(redo);
+}
+
+
+
 void Controleur::commande(const QString& c, bool beepOption)
 {
     QString s;
@@ -2396,7 +2329,13 @@ void Controleur::commande(const QString& c, bool beepOption)
 
         if(estUnOperateur(s))
         {
-            //expMng.updateLastState(expAff);
+            lastOpe = s;
+            if(s != "UNDO")
+            {
+                if(undo)
+                    delete undo;
+                undo = new Memento(expMng, expAff, lastOpe);
+            }
         }
 
         if(i < c.length()-1 && estUnRationnel(c, s, i))
@@ -2435,7 +2374,6 @@ void Controleur::commande(const QString& c, bool beepOption)
                     Beep(500,500); // Provoque un bip d'une demi seconde si l'option est activée
                 expAff.setMessage("Erreur : pas assez d'arguments");
             }
-            lastOpe = s;
         }
         else if(estUnOperateurUnaire(s))
         {
@@ -2449,7 +2387,6 @@ void Controleur::commande(const QString& c, bool beepOption)
                     Beep(500,500);
                 expAff.setMessage("Erreur : pas assez d'arguments");
             }
-            lastOpe = s;
         }
         else if(estUnOperateurSansArg(s))
         {
@@ -2462,11 +2399,14 @@ void Controleur::commande(const QString& c, bool beepOption)
                     expAff.pop();
                 }
             }
-            if(s == "UNDO" || s == "REDO")
+            if(s == "UNDO" && undo != nullptr)
             {
-                //expMng.undoRedo(expAff);
+                undoCommand();
             }
-            lastOpe = s;
+            if(s == "REDO" && redo != nullptr)
+            {
+                redoCommand();
+            }
         }
         else
         {
@@ -2474,8 +2414,10 @@ void Controleur::commande(const QString& c, bool beepOption)
                 Beep(500,500);
             expAff.setMessage("Erreur : commande inconnue");
         }
+
         i++;
         j = i;
+
     }
 
 
