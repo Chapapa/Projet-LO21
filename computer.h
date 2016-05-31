@@ -52,6 +52,7 @@ class Atome : public Litterale
 public:
     Atome(QString nom, Litterale* exp=nullptr):nom(nom),exp(exp),Litterale("Atome"){}
     void setLitterale(Litterale& e) { exp=&e; }
+    QString getNom() const { return nom;}
     Atome operatorFORGET(){ exp=0; return *this; }
     Litterale& getLitterale() const;
     QString toString()const {
@@ -59,9 +60,8 @@ public:
         return res;
     }
 
-
-
 };
+
 
 class Expression : public Litterale
 {
@@ -275,7 +275,6 @@ class LitteraleManager
     static Handler handler;
 public:
     LitteraleManager():exps(nullptr),nb(0),nbMax(0){}
-    //faire template methode
     Litterale& addLitteraleE(QString v);
     Litterale& addLitteraleP(QString v);
     Litterale& addLitteraleA(QString v);
@@ -291,6 +290,7 @@ public:
 
     void removeLitterale(Litterale& e);
     static void libererInstance();
+
     class Iterator
     {
         friend class LitteraleManager;
@@ -422,8 +422,28 @@ class Controleur
     //Memento
     Memento* undo;
     Memento* redo;
+
+    // tableau de maj et memoire des atomes
+    Atome ** atomes;
+    unsigned int nb;
+    unsigned int nbMax;
+    void agrandissementCapacite();
+
 public:
-    Controleur(LitteraleManager& m, Pile& v):expMng(m), expAff(v),lastOpe(""), undo(nullptr), redo(nullptr){}
+
+   /*~Controleur();*/
+   Atome& addAtome(Atome v)
+    {
+        if (nb==nbMax) agrandissementCapacite();
+        atomes[nb++]=new Atome(v);// appel au constructeur de recopie
+        return *atomes[nb-1];
+    }
+   void removeAtome(Atome& e);
+
+   int chercherAtome(QString s);
+   Atome& operator[](int i){return *atomes[i];}
+
+    Controleur(LitteraleManager& m, Pile& v):expMng(m), expAff(v),lastOpe(""), undo(nullptr), redo(nullptr),nb(0),nbMax(0), atomes(nullptr){}
     void commande(const QString& c, bool beep);
 
     void undoCommand();

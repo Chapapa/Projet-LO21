@@ -1346,6 +1346,41 @@ Litterale& Pile::top() const
     return items[nb-1].getLitterale();
 }
 
+int Controleur::chercherAtome(QString s)
+{
+    for(int i=nb-1; i>=0; i--)
+    {
+        if ((*atomes[i]).getType()=="Atome")
+        {
+            Atome a=dynamic_cast<Atome&>(*atomes[i]);
+            if (a.getNom()==s)
+                return i;
+        }
+    }
+    return -1;
+}
+
+void Controleur::agrandissementCapacite()
+{
+    Atome** newtab=new Atome*[(nbMax+1)*2];
+    for(unsigned int i=0; i<nb; i++) newtab[i]=atomes[i];
+    Atome**  old=atomes;
+    atomes=newtab;
+    nbMax=(nbMax+1)*2;
+    delete[] old;
+}
+
+void Controleur::removeAtome(Atome& e)
+{
+    unsigned int i=0;
+    while(i<nb && atomes[i]!=&e) i++;
+    if (i==nb) throw ComputerException("elimination d'une Litterale inexistante");
+    delete atomes[i];
+    i++;
+    while(i<nb) { atomes[i-1]=atomes[i]; i++; }
+    nb--;
+}
+
 bool estUneExpression(const QString s)
 {
     if( s[0]=='\'' && s[s.length()-1]=='\'' )
@@ -1724,6 +1759,7 @@ Atome Controleur::manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s
     {
         res=v2.operatorSTO(v1);
     }
+    addAtome(res);
     return res;
 }
 
@@ -1733,6 +1769,7 @@ Atome Controleur::manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString
     {
         res=v2.operatorSTO(v1);
     }
+    addAtome(res);
     return res;
 }
 
@@ -1742,6 +1779,7 @@ Atome Controleur::manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString
     {
         res=v2.operatorSTO(v1);
     }
+    addAtome(res);
     return res;
 }
 
@@ -2022,6 +2060,57 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
 void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
 {    
+    if(expAff.top().getType()=="Atome")
+    {
+        try
+        {
+
+            Atome v1=dynamic_cast<Atome&>(expAff.top());
+            expMng.removeLitterale(expAff.top());
+            expAff.pop();
+
+
+            Atome res("");// on initialise res a zero
+            if (s == "FORGET")
+            {
+                res = v1.operatorFORGET();
+                removeAtome(v1);
+                Litterale& e=expMng.addLitterale(res);
+                expAff.push(e);
+            }
+            else
+            {
+                if (v1.getLitterale().getType()=="Numerique")
+                {
+                    Numerique n=dynamic_cast<Numerique&>(v1.getLitterale());
+                    expAff.push(expMng.addLitterale(n));
+                }
+                if (v1.getLitterale().getType()=="Programme")
+                {
+                    Programme p=dynamic_cast<Programme&>(v1.getLitterale());
+                    expAff.push(expMng.addLitterale(p));
+
+                }
+                if (v1.getLitterale().getType()=="Expression")
+                {
+                    Expression p=dynamic_cast<Expression&>(v1.getLitterale());
+                    expAff.push(expMng.addLitterale(p));
+
+                }
+            }
+
+
+
+        }
+        catch(std::bad_cast& e)
+        {
+            if(beep)
+                Beep(500,500);
+            expAff.setMessage(e.what());
+        }
+    }
+
+
     if(expAff.top().getType()=="Numerique")
     {
         try
@@ -2159,33 +2248,7 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
             expAff.setMessage(e.what());
         }
     }
-    else if(expAff.top().getType()=="Atome")
-    {
-        try
-        {
 
-            Atome v1=dynamic_cast<Atome&>(expAff.top());
-            expMng.removeLitterale(expAff.top());
-            expAff.pop();
-
-
-            Atome res("");// on initialise res a zero
-            if (s == "FORGET") res = v1.operatorFORGET();
-
-
-            Litterale& e=expMng.addLitterale(res);
-            expAff.push(e);
-
-
-
-        }
-        catch(std::bad_cast& e)
-        {
-            if(beep)
-                Beep(500,500);
-            expAff.setMessage(e.what());
-        }
-    }
     else if(expAff.top().getType()=="Programme")
     {
         try
@@ -2431,6 +2494,30 @@ void Controleur::commande(const QString& c, bool beepOption)
         {
             s = s.mid(1,s.length()-2);
             expAff.push(expMng.addLitteraleP(s));
+        }
+        else if(estUnIndentificateur(s) && !estUnOperateur(s))
+        {
+            if (chercherAtome(s)== -1)// n'existe pas
+            {
+                Expression e(s);
+                expAff.push(expMng.addLitteraleE(s));
+            }
+            else if (chercherAtome(s)!= -1)// existe deja
+            {
+                Atome a=dynamic_cast<Atome&>(*atomes[chercherAtome(s)]);
+                if (a.getLitterale().getType()=="Numerique")
+                {
+                    Numerique n=dynamic_cast<Numerique&>(a.getLitterale());
+                    expAff.push(expMng.addLitterale(n));
+                }
+                if (a.getLitterale().getType()=="Programme")
+                {
+                    Programme p=dynamic_cast<Programme&>(a.getLitterale());
+                    expAff.push(expMng.addLitterale(p));
+
+                }
+            }
+
         }
         else if(estUnOperateurBinaire(s))
         {
