@@ -296,7 +296,8 @@ public:
         friend class LitteraleManager;
         Litterale** currentExp;
         unsigned int nbRemain;
-        Iterator(Litterale** u, unsigned nb):currentExp(u),nbRemain(nb){}
+        unsigned int start;
+        Iterator(Litterale** u, unsigned nb):currentExp(u),nbRemain(nb), start(nb){}
     public:
         Iterator():currentExp(nullptr),nbRemain(0){}
         bool isDone() const { return nbRemain==0; }
@@ -306,6 +307,13 @@ public:
                 throw ComputerException("error, next on an iterator which is done");
             nbRemain--;
             currentExp++;
+        }
+        void previous()
+        {
+            if (nbRemain == start)
+                throw ComputerException("error, previous on an iterator which is at start");
+            nbRemain++;
+            currentExp--;
         }
         Litterale& current() const
         {
@@ -352,9 +360,9 @@ class Controleur;
 class Memento
 {
   public:
-    //Memento():lm(*(new LitteraleManager)), p(*(new Pile)),lastOpe(""){}
     Memento(LitteraleManager& lm1,Pile& p1, QString lo): lm(*(new LitteraleManager)), p(*(new Pile))
     {
+        p.setNbItemsToAffiche(p1.getNbItemsToAffiche());
         lastOpe = lo;
         LitteraleManager::Iterator itL = lm1.getIterator();
         unsigned int nb = 0;
@@ -372,6 +380,33 @@ class Memento
             nb++;
         }
     }
+    Memento operator=(Memento* mem)
+    {
+        p.setNbItemsToAffiche(mem->p.getNbItemsToAffiche());
+        lastOpe = mem->lastOpe;
+
+        while(!p.estVide())
+        {
+            lm.removeLitterale(p.top());
+            p.pop();
+        }
+        LitteraleManager::Iterator itL = mem->lm.getIterator();
+        unsigned int nb=0;
+        for(Pile::iterator it=mem->p.begin(); it!=mem->p.end() && nb<mem->p.getNbItemsToAffiche();++it)
+        {
+            if(itL.current().getType() == "Numerique")
+                p.push(lm.addLitterale(dynamic_cast<Numerique&>(itL.current())));
+            else if(itL.current().getType() == "Expression")
+                p.push(lm.addLitterale(dynamic_cast<Expression&>(itL.current())));
+            else if(itL.current().getType() == "Atome")
+                p.push(lm.addLitterale(dynamic_cast<Atome&>(itL.current())));
+            else if(itL.current().getType() == "Programme")
+                p.push(lm.addLitterale(dynamic_cast<Programme&>(itL.current())));
+            itL.next();
+            nb++;
+        }
+    }
+
   private:
     friend class Controleur;
     LitteraleManager& lm;
@@ -394,10 +429,14 @@ public:
     void undoCommand();
     void redoCommand();
 
+    void updateUndo();
+    void updateRedo();
+
     void getRationnel(QString s, int &i, int &j, const QString& c);
 
     void manageBinOpe(bool beep, QString s, int &i, int &j);
     void manageUnOpe(bool beep, QString s, int &i, int &j);
+    void manageSansArgOpe(bool beep, QString s, int &i, int &j);
 
     Numerique manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep);
     Numerique manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep);

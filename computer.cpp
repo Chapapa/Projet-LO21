@@ -1402,6 +1402,7 @@ bool estUnOperateurSansArg(const QString s)
     if (s=="CLEAR") return true;
     if (s=="UNDO") return true;
     if (s=="REDO") return true;
+    if (s=="LASTARGS") return true;
     return false;
 }
 
@@ -1746,7 +1747,7 @@ Atome Controleur::manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString
 
 void decompCommande(const QString& c,int &i, int &j)
 {
-    while(c[i] == ' ' && c[i+1] >= '0' && c[i+1] <= '9')
+    while(i < (c.length()-1) && c[i] == ' ')
     {
         i++;
     }
@@ -1771,7 +1772,7 @@ void decompCommande(const QString& c,int &i, int &j)
         }
 
     }
-    else if (c[i] == '\'')
+    else if (i < (c.length()-1) && c[i] == '\'')
     {
         i++;
         while(i < (c.length()-1) && c[i]!='\'')
@@ -1786,7 +1787,7 @@ void decompCommande(const QString& c,int &i, int &j)
             i++;
         }
     }
-    else if (c[i] == '[')
+    else if (i < (c.length()-1) && c[i] == '[')
     {
         i++;
         int cpt=1;// compteur de [
@@ -1894,7 +1895,8 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
                 if (s=="STO")
                 {
                     Atome resA("");
-                    if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
+                    if(!estUnOperateurBinaire(v2.getExp())&& !estUnOperateurUnaire(v2.getExp())&& !estUnOperateurSansArg(v2.getExp())
+                            && estUnIndentificateur(v2))
                     {
                         resA = manageAtomeOpeExprAndExpr(v1, v2,s, resA);
                         Litterale& e=expMng.addLitterale(resA);
@@ -1937,7 +1939,8 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
                 if (s=="STO")
                 {
                     Atome resA("");
-                    if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
+                    if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) &&
+                            !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
                     {
                         resA = manageAtomeOpeNumAndExpr(v1, v2,s, resA);
                         Litterale& e=expMng.addLitterale(resA);
@@ -2201,7 +2204,7 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
                 QString c=v1.getProg();
                 while(i < (c.length()))
                 {
-                    decompCommande(c, i, j); // détermine les i et j pour décomposer la commande reçue à chaque itération de la boucle
+                    decompCommande(c, i, j);// détermine les i et j pour décomposer la commande reçue à chaque itération de la boucle
 
                     if(i-j != 0)
                         str = c.mid(j,i-j);
@@ -2295,6 +2298,63 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
     }
 }
 
+void Controleur::manageSansArgOpe(bool beep, QString s, int &i, int &j)
+{
+    if (s == "CLEAR")
+    {
+        while(!expAff.estVide()) //vide la pile
+        {
+            expMng.removeLitterale(expAff.top());
+            expAff.pop();
+        }
+    }
+    if(s == "UNDO" && undo != nullptr)
+    {
+        undoCommand();
+    }
+    if(s == "REDO" && redo != nullptr)
+    {
+        redoCommand();
+    }
+    if(s == "LASTARGS" && undo != nullptr)
+    {
+        unsigned int nbArgs;
+        if(estUnOperateurBinaire(undo->lastOpe))
+            nbArgs = 2;
+        else if(estUnOperateurUnaire(undo->lastOpe))
+            nbArgs = 1;
+        else if(estUnOperateurSansArg(undo->lastOpe))
+        {
+            if(beep)
+                Beep(500,500);
+            expAff.setMessage("Erreur: Le dernier opérateur utilisé est sans argument");
+        }
+
+        LitteraleManager::Iterator itL = undo->lm.getIterator();
+        unsigned int i = 0;
+        while(!itL.isDone())
+        {
+            i++;
+            itL.next();
+        }
+        itL = undo->lm.getIterator();
+        for(unsigned j = 0;j < i-nbArgs;j++)
+            itL.next();
+
+        for(Pile::iterator it=undo->p.begin();it!=undo->p.end(), nbArgs != 0; nbArgs--, ++it)
+        {
+            if(itL.current().getType() == "Numerique")
+                expAff.push(expMng.addLitterale(dynamic_cast<Numerique&>(itL.current())));
+            else if(itL.current().getType() == "Expression")
+                expAff.push(expMng.addLitterale(dynamic_cast<Expression&>(itL.current())));
+            else if(itL.current().getType() == "Atome")
+                expAff.push(expMng.addLitterale(dynamic_cast<Atome&>(itL.current())));
+            else if(itL.current().getType() == "Programme")
+                expAff.push(expMng.addLitterale(dynamic_cast<Programme&>(itL.current())));
+            itL.next();
+        }
+    }
+}
 
 void Controleur::undoCommand()
 {
@@ -2310,7 +2370,19 @@ void Controleur::redoCommand()
     reinstateMemento(redo);
 }
 
+void Controleur::updateUndo()
+{
+    if(undo)
+        delete undo;
+    undo = new Memento(expMng, expAff, lastOpe);
+}
 
+void Controleur::updateRedo()
+{
+    if(redo)
+        delete redo;
+    redo = new Memento(expMng, expAff, lastOpe);
+}
 
 void Controleur::commande(const QString& c, bool beepOption)
 {
@@ -2330,11 +2402,9 @@ void Controleur::commande(const QString& c, bool beepOption)
         if(estUnOperateur(s))
         {
             lastOpe = s;
-            if(s != "UNDO")
+            if(s != "UNDO" && s != "LASTARGS")
             {
-                if(undo)
-                    delete undo;
-                undo = new Memento(expMng, expAff, lastOpe);
+                updateUndo();
             }
         }
 
@@ -2390,23 +2460,7 @@ void Controleur::commande(const QString& c, bool beepOption)
         }
         else if(estUnOperateurSansArg(s))
         {
-
-            if (s == "CLEAR")
-            {
-                while(!expAff.estVide()) //vide la pile
-                {
-                    expMng.removeLitterale(expAff.top());
-                    expAff.pop();
-                }
-            }
-            if(s == "UNDO" && undo != nullptr)
-            {
-                undoCommand();
-            }
-            if(s == "REDO" && redo != nullptr)
-            {
-                redoCommand();
-            }
+            manageSansArgOpe(beepOption, s, i, j);
         }
         else
         {
