@@ -422,6 +422,7 @@ class Controleur
     //Memento
     Memento* undo;
     Memento* redo;
+    Memento* lastArgs;
 
     // tableau de maj et memoire des atomes
     Atome ** atomes;
@@ -443,20 +444,23 @@ public:
    int chercherAtome(QString s);
    Atome& operator[](int i){return *atomes[i];}
 
-    Controleur(LitteraleManager& m, Pile& v):expMng(m), expAff(v),lastOpe(""), undo(nullptr), redo(nullptr),nb(0),nbMax(0), atomes(nullptr){}
+    Controleur(LitteraleManager& m, Pile& v):expMng(m), expAff(v),lastOpe(""),
+        undo(nullptr), redo(nullptr), lastArgs(nullptr),nb(0),nbMax(0), atomes(nullptr){}
     void commande(const QString& c, bool beep);
 
     void undoCommand();
     void redoCommand();
+    void lastArgsCommand();
 
     void updateUndo();
     void updateRedo();
+    void updateLastArgs();
 
     void getRationnel(QString s, int &i, int &j, const QString& c);
 
     void manageBinOpe(bool beep, QString s, int &i, int &j);
     void manageUnOpe(bool beep, QString s, int &i, int &j);
-    void manageSansArgOpe(bool beep, QString s, int &i, int &j);
+    void manageSansArgOpe(bool beep, QString s/*, int &i, int &j*/);
 
     Numerique manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep);
     Numerique manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep);
@@ -517,52 +521,4 @@ bool estUneExpression(const QString s);
 bool estUnProgramme(QString s);
 bool estUnOperateurSansArg(const QString s);
 bool estUnIndentificateur(const Expression& e);
-/*
-class Command
-{
-public:
-    typedef void(Controleur::*Action)();
-    Command(Controleur *receiver, Action action)
-    {
-        _receiver = receiver;
-        _action = action;
-    }
-    virtual void execute()
-    {
-        _mementoList[_numCommands] = _receiver->createMemento();
-        _commandList[_numCommands] = this;
-        if (_numCommands > _highWater)
-            _highWater = _numCommands;
-        _numCommands++;
-        (_receiver->*_action)();
-    }
-    static void undo()
-    {
-        if (_numCommands == 0)
-        {
-            return ;
-        }
-        _commandList[_numCommands - 1]->_receiver->reinstateMemento
-                (_mementoList[_numCommands - 1]);
-        _numCommands--;
-    }
-    void static redo()
-    {
-        if (_numCommands > _highWater)
-        {
-            return ;
-        }
-        (_commandList[_numCommands]->_receiver->*(_commandList[_numCommands]
-          ->_action))();
-        _numCommands++;
-    }
-  protected:
-    Controleur *_receiver;
-    Action _action;
-    static Command *_commandList[20];
-    static Memento *_mementoList[20];
-    static int _numCommands;
-    static int _highWater;
-};
-*/
 #endif

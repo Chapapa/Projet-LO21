@@ -2361,7 +2361,7 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
     }
 }
 
-void Controleur::manageSansArgOpe(bool beep, QString s, int &i, int &j)
+void Controleur::manageSansArgOpe(bool beep, QString s/*, int &i, int &j*/)
 {
     if (s == "CLEAR")
     {
@@ -2379,42 +2379,44 @@ void Controleur::manageSansArgOpe(bool beep, QString s, int &i, int &j)
     {
         redoCommand();
     }
-    if(s == "LASTARGS" && undo != nullptr)
+    if(s == "LASTARGS" && lastArgs != nullptr)
     {
         unsigned int nbArgs;
-        if(estUnOperateurBinaire(undo->lastOpe))
+        if(estUnOperateurBinaire(lastArgs->lastOpe))
             nbArgs = 2;
-        else if(estUnOperateurUnaire(undo->lastOpe))
+        else if(estUnOperateurUnaire(lastArgs->lastOpe))
             nbArgs = 1;
-        else if(estUnOperateurSansArg(undo->lastOpe))
+        else if(estUnOperateurSansArg(lastArgs->lastOpe))
         {
             if(beep)
                 Beep(500,500);
             expAff.setMessage("Erreur: Le dernier opérateur utilisé est sans argument");
         }
-
-        LitteraleManager::Iterator itL = undo->lm.getIterator();
-        unsigned int i = 0;
-        while(!itL.isDone())
+        if(nbArgs!=0)
         {
-            i++;
-            itL.next();
-        }
-        itL = undo->lm.getIterator();
-        for(unsigned j = 0;j < i-nbArgs;j++)
-            itL.next();
+            LitteraleManager::Iterator itL = lastArgs->lm.getIterator();
+            unsigned int i = 0;
+            while(!itL.isDone())
+            {
+                i++;
+                itL.next();
+            }
+            itL = lastArgs->lm.getIterator();
+            for(unsigned j = 0;j < i-nbArgs;j++)
+                itL.next();
 
-        for(Pile::iterator it=undo->p.begin();it!=undo->p.end(), nbArgs != 0; nbArgs--, ++it)
-        {
-            if(itL.current().getType() == "Numerique")
-                expAff.push(expMng.addLitterale(dynamic_cast<Numerique&>(itL.current())));
-            else if(itL.current().getType() == "Expression")
-                expAff.push(expMng.addLitterale(dynamic_cast<Expression&>(itL.current())));
-            else if(itL.current().getType() == "Atome")
-                expAff.push(expMng.addLitterale(dynamic_cast<Atome&>(itL.current())));
-            else if(itL.current().getType() == "Programme")
-                expAff.push(expMng.addLitterale(dynamic_cast<Programme&>(itL.current())));
-            itL.next();
+            for(Pile::iterator it=lastArgs->p.begin();it!=lastArgs->p.end(), nbArgs != 0; nbArgs--, ++it)
+            {
+                if(itL.current().getType() == "Numerique")
+                    expAff.push(expMng.addLitterale(dynamic_cast<Numerique&>(itL.current())));
+                else if(itL.current().getType() == "Expression")
+                    expAff.push(expMng.addLitterale(dynamic_cast<Expression&>(itL.current())));
+                else if(itL.current().getType() == "Atome")
+                    expAff.push(expMng.addLitterale(dynamic_cast<Atome&>(itL.current())));
+                else if(itL.current().getType() == "Programme")
+                    expAff.push(expMng.addLitterale(dynamic_cast<Programme&>(itL.current())));
+                itL.next();
+            }
         }
     }
 }
@@ -2433,6 +2435,11 @@ void Controleur::redoCommand()
     reinstateMemento(redo);
 }
 
+void Controleur::lastArgsCommand()
+{
+
+}
+
 void Controleur::updateUndo()
 {
     if(undo)
@@ -2446,6 +2453,14 @@ void Controleur::updateRedo()
         delete redo;
     redo = new Memento(expMng, expAff, lastOpe);
 }
+
+void Controleur::updateLastArgs()
+{
+    if(lastArgs)
+        delete lastArgs;
+    lastArgs = new Memento(expMng, expAff, lastOpe);
+}
+
 
 void Controleur::commande(const QString& c, bool beepOption)
 {
@@ -2465,9 +2480,13 @@ void Controleur::commande(const QString& c, bool beepOption)
         if(estUnOperateur(s))
         {
             lastOpe = s;
-            if(s != "UNDO" && s != "LASTARGS")
+            if(s != "UNDO")
             {
                 updateUndo();
+            }
+            if(s != "LASTARGS")
+            {
+                updateLastArgs();
             }
         }
 
@@ -2547,7 +2566,7 @@ void Controleur::commande(const QString& c, bool beepOption)
         }
         else if(estUnOperateurSansArg(s))
         {
-            manageSansArgOpe(beepOption, s, i, j);
+            manageSansArgOpe(beepOption, s/*, i, j*/);
         }
         else
         {
