@@ -52,6 +52,8 @@ class QComputer : public QWidget{
     QLineEdit* commande;
     QVBoxLayout* couche;
     Pile* pile;
+    Pile* pVarEdit;
+    Pile* pProgEdit;
     Controleur* controleur;
 
 
@@ -63,6 +65,11 @@ class QComputer : public QWidget{
     QHBoxLayout* nbVuesPile;
     QLabel* nbVuesPileLabel;
     QLineEdit* getNbVuesPile;
+
+    //Vue sur les variables stockées
+    QWidget* fenetreVarStockees;
+    QTableWidget* vueVarStockees;
+
 
     //Toolbar
     QToolBar *tbar;
@@ -104,6 +111,8 @@ public:
     explicit QComputer(QWidget *parent = 0);
     const QString text() const;
     void remakeCalc();
+    void updateEditVar();
+    void changeNbViewsVarEdit();
 public slots:
     void toggleBeep();
     void toggleGraphicPad();
@@ -112,6 +121,7 @@ public slots:
     void setText(const QString &text);
     void changeNbViews();
     void toggleParamCalcView();
+    void toggleEditerVarView();
 signals:
     void textChanged(const QString &text);
 private slots:

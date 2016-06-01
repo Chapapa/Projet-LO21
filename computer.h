@@ -380,32 +380,6 @@ class Memento
             nb++;
         }
     }
-    Memento operator=(Memento* mem)
-    {
-        p.setNbItemsToAffiche(mem->p.getNbItemsToAffiche());
-        lastOpe = mem->lastOpe;
-
-        while(!p.estVide())
-        {
-            lm.removeLitterale(p.top());
-            p.pop();
-        }
-        LitteraleManager::Iterator itL = mem->lm.getIterator();
-        unsigned int nb=0;
-        for(Pile::iterator it=mem->p.begin(); it!=mem->p.end() && nb<mem->p.getNbItemsToAffiche();++it)
-        {
-            if(itL.current().getType() == "Numerique")
-                p.push(lm.addLitterale(dynamic_cast<Numerique&>(itL.current())));
-            else if(itL.current().getType() == "Expression")
-                p.push(lm.addLitterale(dynamic_cast<Expression&>(itL.current())));
-            else if(itL.current().getType() == "Atome")
-                p.push(lm.addLitterale(dynamic_cast<Atome&>(itL.current())));
-            else if(itL.current().getType() == "Programme")
-                p.push(lm.addLitterale(dynamic_cast<Programme&>(itL.current())));
-            itL.next();
-            nb++;
-        }
-    }
 
   private:
     friend class Controleur;
@@ -423,7 +397,6 @@ class Controleur
     Memento* undo;
     Memento* redo;
     Memento* lastArgs;
-
     // tableau de maj et memoire des atomes
     Atome ** atomes;
     unsigned int nb;
@@ -433,16 +406,16 @@ class Controleur
 public:
 
    /*~Controleur();*/
-   Atome& addAtome(Atome v)
+    Atome& addAtome(Atome v)
     {
         if (nb==nbMax) agrandissementCapacite();
         atomes[nb++]=new Atome(v);// appel au constructeur de recopie
         return *atomes[nb-1];
     }
-   void removeAtome(Atome& e);
+    void removeAtome(Atome& e);
 
-   int chercherAtome(QString s);
-   Atome& operator[](int i){return *atomes[i];}
+    int chercherAtome(QString s);
+    Atome& operator[](int i){return *atomes[i];}
 
     Controleur(LitteraleManager& m, Pile& v):expMng(m), expAff(v),lastOpe(""),
         undo(nullptr), redo(nullptr), lastArgs(nullptr),nb(0),nbMax(0), atomes(nullptr){}

@@ -6,6 +6,7 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
 
     message= new QLineEdit(this);
     pile= new Pile();
+    pVarEdit = new Pile();
     vuePile= new QTableWidget(pile->getNbItemsToAffiche(),1,this);
     commande= new QLineEdit(this);
     tbar = new QToolBar(this);
@@ -47,6 +48,9 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
 
     // Paramètres du calculateur
     fenetreParamCalc = new QWidget;
+    fenetreParamCalc->setWindowTitle("Paramètres du calculateur");
+    fenetreParamCalc->setFixedHeight(200);
+    fenetreParamCalc->setFixedWidth(400);
     paramCalc = new QVBoxLayout(fenetreParamCalc);
     nbVuesPile = new QHBoxLayout(fenetreParamCalc);
     nbVuesPileLabel = new QLabel(fenetreParamCalc);
@@ -56,6 +60,18 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     nbVuesPile->addWidget(getNbVuesPile);
     paramCalc->addLayout(nbVuesPile);
     connect(getNbVuesPile,SIGNAL(returnPressed()),this,SLOT(changeNbViews()));
+
+    // Vue sur les variables stockées
+    fenetreVarStockees = new QWidget;
+    fenetreVarStockees->setWindowTitle("Editeur de variables");
+    fenetreVarStockees->setFixedHeight(200);
+    fenetreVarStockees->setFixedWidth(400);
+    vueVarStockees = new QTableWidget(1, 1,fenetreVarStockees);
+    vueVarStockees->horizontalHeader()->setVisible(false);
+    vueVarStockees->horizontalHeader()->setStretchLastSection(true);
+    QStringList nbs;
+    nbs<<"1:";
+    vueVarStockees->setVerticalHeaderLabels(nbs);
 
 
     // Barre d'options
@@ -81,7 +97,7 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     connect(AfficherGraphicPad, SIGNAL(triggered()), this, SLOT(toggleGraphicPad()));
     connect(ParamCalc, SIGNAL(triggered()), this, SLOT(toggleParamCalcView()));
     connect(ActiverSons, SIGNAL(triggered()), this, SLOT(toggleBeep()));
-
+    connect(EditerVar, SIGNAL(triggered()), this, SLOT(toggleEditerVarView()));
 
 
     // Graphic Pad
@@ -234,6 +250,31 @@ void QComputer::changeNbViews()
     getNbVuesPile->clear();
 }
 
+void QComputer::changeNbViewsVarEdit()
+{
+    //Destruction de la vue pour en créer une avec le bon nombre de lignes d'affichage
+    couche->removeWidget(vueVarStockees);
+    delete vueVarStockees;
+    vueVarStockees = new QTableWidget(pVarEdit->getNbItemsToAffiche(),1,this);
+    vueVarStockees->horizontalHeader()->setVisible(false);
+    vueVarStockees->horizontalHeader()->setStretchLastSection(true);
+    QStringList nombres;
+    for (unsigned int i= pVarEdit->getNbItemsToAffiche(); i>0; i--)
+    {
+        QString str=QString::number(i);
+        str+=":";
+        nombres<<str;
+    }
+
+    vueVarStockees->setVerticalHeaderLabels(nombres);
+
+    //ne pas ecrire dans vuepile
+    vueVarStockees->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
+    for(unsigned int i=0;i<pVarEdit->getNbItemsToAffiche();i++)
+        vueVarStockees->setItem(i,0, new QTableWidgetItem(""));
+}
+
 void QComputer::remakeCalc()
 {
     couche->removeWidget(commande);
@@ -323,6 +364,14 @@ void QComputer::toggleParamCalcView()
         fenetreParamCalc->hide();
 }
 
+void QComputer::toggleEditerVarView()
+{
+    if(fenetreVarStockees->isHidden())
+        fenetreVarStockees->show();
+    else
+        fenetreVarStockees->hide();
+}
+
 void QComputer::toggleBeep()
 {
     beep = !beep;
@@ -407,6 +456,39 @@ void QComputer::refresh()
         vuePile->item(pile->getNbItemsToAffiche()-nb-1,0)->setText((*it).toString());
         nb++;
     }
+    //updateEditVar();
+
+}
+
+void QComputer::updateEditVar()
+{
+    /*LitteraleManager::Iterator itL = controleur->varEdit->lm.getIterator();
+    unsigned int i = 0;
+    while(!itL.isDone())
+    {
+        if(itL.current().getType() == "Atome")
+            i++;
+        itL.next();
+    }
+
+    if(controleur->varEdit)
+        delete controleur->varEdit;
+    controleur->varEdit = new Memento(controleur->expMng, controleur->expAff, controleur->lastOpe);
+
+    controleur->varEdit->p.setNbItemsToAffiche(i);
+    changeNbViewsVarEdit();
+
+    for(unsigned int i=0; i<controleur->varEdit->p.getNbItemsToAffiche();++i)
+        vueVarStockees->item(i,0)->setText("");
+    itL = controleur->varEdit->lm.getIterator();
+    unsigned int nb=0;
+    for(Pile::iterator it=controleur->varEdit->p.begin(); it!=controleur->varEdit->p.end() && nb<pile->getNbItemsToAffiche();++it)
+    {
+        if(itL.current().getType() == "Atome")
+            vueVarStockees->item(controleur->varEdit->p.nb-nb-1,0)->setText((*it).toString());
+        itL.next();
+        nb++;
+    }*/
 }
 
 void QComputer::getNextCommande()
