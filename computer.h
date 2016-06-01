@@ -53,7 +53,7 @@ public:
     Atome(QString nom, Litterale* exp=nullptr):nom(nom),exp(exp),Litterale("Atome"){}
     void setLitterale(Litterale& e) { exp=&e; }
     QString getNom() const { return nom;}
-    Atome operatorFORGET(){ exp=0; return *this; }
+    //Atome operatorFORGET(){ exp=nullptr; return *this; }
     Litterale& getLitterale() const;
     QString toString()const {
         QString res=nom;
@@ -91,7 +91,8 @@ public :
     Expression operator<(const Expression& n);
     Expression operator>(const Expression& n);
     //Expression operatorEVAL();
-    Atome operatorSTO(Litterale& l); //tester si identificateur deja utilisé
+    Atome operatorSTO(Litterale& l);
+
 };
 
 
@@ -282,6 +283,7 @@ public:
     Litterale& addLitterale(double v);
     template <class T>
     Litterale& addLitterale(T v)
+
     {
         if (nb==nbMax) agrandissementCapacite();
         exps[nb++]=new T(v);// appel au constructeur de recopie

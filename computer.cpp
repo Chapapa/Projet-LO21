@@ -1937,8 +1937,8 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
                             && estUnIndentificateur(v2))
                     {
                         resA = manageAtomeOpeExprAndExpr(v1, v2,s, resA);
-                        Litterale& e=expMng.addLitterale(resA);
-
+                        //Litterale& e=expMng.addLitterale(resA);
+                        Litterale& e=expMng.addLitterale(v1);
                         expAff.push(e);
                     }
                     else
@@ -1981,7 +1981,8 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
                             !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
                     {
                         resA = manageAtomeOpeNumAndExpr(v1, v2,s, resA);
-                        Litterale& e=expMng.addLitterale(resA);
+                        //Litterale& e=expMng.addLitterale(resA);
+                        Litterale& e=expMng.addLitterale(v1);
 
                         expAff.push(e);
                     }
@@ -2028,7 +2029,8 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
                     if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
                     {
                         resA = manageAtomeOpePrgmAndExpr(v1, v2,s, resA);
-                        Litterale& e=expMng.addLitterale(resA);
+                        //Litterale& e=expMng.addLitterale(resA.getLitterale());
+                        Litterale& e=expMng.addLitterale(v1);
 
                         expAff.push(e);
                     }
@@ -2060,7 +2062,7 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
 void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
 {    
-    if(expAff.top().getType()=="Atome")
+    /*if(expAff.top().getType()=="Atome")
     {
         try
         {
@@ -2108,7 +2110,7 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
                 Beep(500,500);
             expAff.setMessage(e.what());
         }
-    }
+    }*/
 
 
     if(expAff.top().getType()=="Numerique")
@@ -2236,9 +2238,34 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
                 j = i;
                 return;
             }
+
+
+            if (s == "FORGET")
+            {
+                Atome resA("");
+                if(estUnIndentificateur(v1.getExp()) && !estUnOperateur(v1.getExp()))
+                {
+                    int ind=chercherAtome(v1.getExp());
+                    if( ind == -1)// n'existe pas
+                    {
+                        expAff.setMessage("L'expression ne correspond pas a un identificateur");
+                        Litterale& e=expMng.addLitterale(v1);
+                        expAff.push(e);
+
+                    }
+                    else // existe
+                    {
+                        removeAtome(*atomes[ind]);
+
+                    }
+                }
+
+                 return;
+            }
+
+
             if (s == "NOT") res = v1.operatorNOT();
             Litterale& e=expMng.addLitterale(res);
-
             expAff.push(e);
         }
         catch(std::bad_cast& e)
