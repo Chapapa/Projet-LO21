@@ -106,6 +106,7 @@ class QComputer : public QWidget{
     QPushButton* fois;
     QPushButton* sur;
     QPushButton* entree;
+    QPushButton* correction;
     bool beep;
 public:
     explicit QComputer(QWidget *parent = 0);
@@ -122,6 +123,9 @@ public slots:
     void changeNbViews();
     void toggleParamCalcView();
     void toggleEditerVarView();
+
+    void backspace();
+
 signals:
     void textChanged(const QString &text);
 private slots:

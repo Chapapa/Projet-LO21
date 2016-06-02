@@ -399,7 +399,7 @@ class Controleur
     Memento* undo;
     Memento* redo;
     Memento* lastArgs;
-    // tableau de maj et memoire des atomes
+    // tableau pour maj et sauvegarde des atomes
     Atome ** atomes;
     unsigned int nb;
     unsigned int nbMax;
@@ -407,6 +407,7 @@ class Controleur
 
 public:
 
+    unsigned int getNb(){return nb;}
    /*~Controleur();*/
     Atome& addAtome(Atome v)
     {

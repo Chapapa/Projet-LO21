@@ -69,9 +69,12 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     vueVarStockees = new QTableWidget(1, 1,fenetreVarStockees);
     vueVarStockees->horizontalHeader()->setVisible(false);
     vueVarStockees->horizontalHeader()->setStretchLastSection(true);
+
     QStringList nbs;
     nbs<<"1:";
+
     vueVarStockees->setVerticalHeaderLabels(nbs);
+
 
 
     // Barre d'options
@@ -140,8 +143,13 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     zero->show();
     point = new QPushButton(".", this);
     point->show();
+
+    correction = new QPushButton("Corr", this);
+    correction->show();
+
     layout4->addWidget(zero);
     layout4->addWidget(point);
+    layout4->addWidget(correction);
 
 
     layout5 = new QVBoxLayout;
@@ -195,7 +203,6 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     mapper->setMapping( fois, "*" );
     mapper->setMapping( sur, "/" );
 
-
     connect( zero, SIGNAL(clicked()), mapper, SLOT(map()) );
     connect( un, SIGNAL(clicked()), mapper, SLOT(map()) );
     connect( deux, SIGNAL(clicked()), mapper, SLOT(map()) );
@@ -212,6 +219,9 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     connect( fois, SIGNAL(clicked()), mapper, SLOT(map()) );
     connect( sur, SIGNAL(clicked()), mapper, SLOT(map()) );
     connect( entree, SIGNAL(clicked()), this, SLOT(getNextCommande()) );
+
+    connect(correction,SIGNAL(clicked()),this, SLOT( backspace()));
+
 
     connect( mapper, SIGNAL(mapped(QString)), this, SLOT(buttonClicked(QString)) );
     connect( commande, SIGNAL(textChanged(QString)), this, SLOT(setText(QString)) );
@@ -294,6 +304,7 @@ void QComputer::remakeCalc()
 
     layout4->removeWidget(zero);
     layout4->removeWidget(point);
+    layout4->removeWidget(correction);
 
     layout5->removeWidget(plus);
     layout5->removeWidget(moins);
@@ -331,6 +342,7 @@ void QComputer::remakeCalc()
     layout4 = new QHBoxLayout;
     layout4->addWidget(zero);
     layout4->addWidget(point);
+    layout4->addWidget(correction);
 
 
     layout5 = new QVBoxLayout;
@@ -397,6 +409,7 @@ void QComputer::toggleGraphicPad()
         fois->show();
         sur->show();
         entree->show();
+        correction->show();
     }
     else
     {
@@ -416,6 +429,7 @@ void QComputer::toggleGraphicPad()
         fois->hide();
         sur->hide();
         entree->hide();
+        correction->hide();
     }
 
 }
@@ -499,3 +513,10 @@ void QComputer::getNextCommande()
     commande->clear();
 }
 
+void QComputer::backspace()
+{
+    QString s=commande->text().mid(0,commande->text().length()-1);
+    commande->setText( s );
+
+    emit textChanged( commande->text() );
+}
