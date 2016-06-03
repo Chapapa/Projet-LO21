@@ -1,6 +1,55 @@
 #include "computer.h"
 #include <algorithm>
 
+void decompCommande(const QString& c,int &i, int &j);
+QString Programme::toExpr()const
+{
+    QString s;
+    QString exp="";
+    int i=0, j=0;
+    QString p=prog;
+    while(i < (prog.length()))
+    {
+        decompCommande(prog, i, j);
+
+        if(i-j != 0)
+        {
+            s = p.mid(j,i-j);
+            if (s[0]=='[')
+            {
+                Programme temp(s);
+                s=temp.toExpr();
+            }
+            else if (s[0]==']')
+            {
+                return exp;
+            }
+            else
+            {
+
+            if (estUnOperateur(s))
+                exp=exp+" "+s;
+            else
+                exp=exp+" '"+s+"'";
+            }
+        }
+        else
+        {
+            s = p.mid(j,1);
+            if (estUnOperateur(s))
+                exp=exp+" "+s;
+            else
+                exp=exp+" '"+s+"'";
+        }
+
+        i++;
+        j = i;
+
+    }
+    return exp;
+}
+
+
 bool estUnIndentificateur(const Expression& e)
 {
     int i=0;
@@ -1917,6 +1966,19 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
                 Litterale& e=expMng.addLitterale(res);
                 expAff.push(e);
             }// else v1 expression
+            else if(expAff.top().getType()=="Programme")
+            {
+                Programme v1=dynamic_cast<Programme&>(expAff.top());
+                expMng.removeLitterale(expAff.top());
+                expAff.pop();
+
+
+                if (s=="SWAP")
+                {
+                    Programme res("");
+                    managePileOpeT2AndT1(v1, v2,s, res);
+                }
+            }
 
         }//if v2 Numerique
         else if(expAff.top().getType()=="Expression") // La première littérale saisie est une expression
@@ -1924,6 +1986,7 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
             Expression v2=dynamic_cast<Expression&>(expAff.top());
             expMng.removeLitterale(expAff.top());
             expAff.pop();
+
             if(expAff.top().getType()=="Expression") // La deuxième littérale saisie est une expression
             {
                 Expression v1=dynamic_cast<Expression&>(expAff.top());
@@ -2046,9 +2109,96 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
                     //expAff.setMessage(resA.getLitterale().toString());
                     return;
                 }
+                else if (s=="SWAP")
+                {
+                    Programme res("");
+                    managePileOpeT2AndT1(v1, v2,s, res);
+                }
+                else
+                {
+
+                        // transformation programme en expression
+                        QString str=v1.toExpr();
+                        expAff.setMessage(str);
+                        commande(str, true);
+
+                        Expression v3=dynamic_cast<Expression&>(expAff.top());
+                        expMng.removeLitterale(expAff.top());
+                        expAff.pop();
+
+                        Expression res("");// on initialise res a zero
+
+                        res = manageNumOpeExprAndExpr(v3, v2, s, res);
+
+                        res = manageLogicOpeExprAndExpr(v3, v2, s, res);
+
+                        //res = managePileOpeExprAndExpr(v3, v2, s, res);
+
+                        Litterale& e=expMng.addLitterale(res);
+
+                        expAff.push(e);
+
+                }
             }
 
         }// else v2 expression
+        else if(expAff.top().getType()=="Programme")
+        {
+            Programme v2=dynamic_cast<Programme&>(expAff.top());
+            expMng.removeLitterale(expAff.top());
+            expAff.pop();
+
+            if(expAff.top().getType()=="Expression") // La deuxième littérale saisie est une expression
+            {
+
+                Expression v1=dynamic_cast<Expression&>(expAff.top());
+                expMng.removeLitterale(expAff.top());
+                expAff.pop();
+
+                    if (s=="SWAP")
+                    {
+                        Expression res("");
+                        managePileOpeT2AndT1(v1, v2,s, res);
+                    }
+                    else// transformation programme en expression
+                    {
+                        // transformation programme en expression
+                        QString str=v2.toExpr();
+                        expAff.setMessage(str);
+                        commande(str, true);
+
+                        Expression v3=dynamic_cast<Expression&>(expAff.top());
+                        expMng.removeLitterale(expAff.top());
+                        expAff.pop();
+
+                        Expression res("");// on initialise res a zero
+
+                        res = manageNumOpeExprAndExpr(v1, v3, s, res);
+
+                        res = manageLogicOpeExprAndExpr(v1, v3, s, res);
+
+                        //res = managePileOpeExprAndExpr(v1, v3, s, res);
+
+                        Litterale& e=expMng.addLitterale(res);
+
+                        expAff.push(e);
+                    }
+                }
+
+                else if(expAff.top().getType()=="Numerique")
+                {
+                    Numerique v1=dynamic_cast<Numerique&>(expAff.top());
+                    expMng.removeLitterale(expAff.top());
+                    expAff.pop();
+                    if (s=="SWAP")
+                    {
+                        Numerique res(0);
+                        managePileOpeT2AndT1(v1, v2,s, res);
+                    }
+                }
+            }
+
+
     } //try
     catch(std::bad_cast& e)
     {

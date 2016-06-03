@@ -42,6 +42,9 @@ public:
         QString res= "["+prog+"]";
         return res;
     }
+    QString toExpr()const;
+
+
 
 };
 
@@ -455,6 +458,9 @@ public:
     Atome manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString s, Atome res);
     Atome manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString s, Atome res);
 
+    template<class T1, class T2>
+    T1 managePileOpeT2AndT1(T1 v1, T2 v2,QString s, T1 res);
+
     Memento *createMemento()
     {
         return new Memento(expMng, expAff,lastOpe);
@@ -497,4 +503,21 @@ bool estUneExpression(const QString s);
 bool estUnProgramme(QString s);
 bool estUnOperateurSansArg(const QString s);
 bool estUnIndentificateur(const Expression& e);
+
+
+template<class T1, class T2>
+T1 Controleur::managePileOpeT2AndT1(T1 v1, T2 v2,QString s, T1 res)
+{
+    if (s == "SWAP")
+    {
+        res=v1;
+        Litterale& l=expMng.addLitterale(v2);
+        expAff.push(l);
+
+        Litterale& e=expMng.addLitterale(res);
+        expAff.push(e);
+    }
+    return res;
+}
+
 #endif
