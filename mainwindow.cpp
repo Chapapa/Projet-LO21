@@ -66,16 +66,23 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     fenetreVarStockees->setWindowTitle("Editeur de variables");
     fenetreVarStockees->setFixedHeight(200);
     fenetreVarStockees->setFixedWidth(400);
-    vueVarStockees = new QTableWidget(1, 1,fenetreVarStockees);
+    vueVarStockees = new QTableWidget(1, 2,fenetreVarStockees);
     vueVarStockees->horizontalHeader()->setVisible(false);
     vueVarStockees->horizontalHeader()->setStretchLastSection(true);
 
-    QStringList nbs;
-    nbs<<"1:";
 
-    vueVarStockees->setVerticalHeaderLabels(nbs);
-
-
+    // Editeur de programme
+    fenetreEditProg = new QWidget;
+    fenetreEditProg->setWindowTitle("Editeur de programme");
+    fenetreEditProg->setFixedHeight(200);
+    fenetreEditProg->setFixedWidth(400);
+    layoutEditProg = new QHBoxLayout(fenetreEditProg);
+    editProgT = new QTextEdit(fenetreEditProg);
+    appliquer = new QPushButton("Enregistrer", fenetreEditProg);
+    layoutEditProg->addWidget(editProgT);
+    layoutEditProg->addWidget(appliquer);
+    connect(pile, SIGNAL(edit()),this,SLOT(editProg()));
+    connect(appliquer, SIGNAL(pressed()),this,SLOT(updateProg()));
 
     // Barre d'options
     menuOptions = new QMenu(this);
@@ -104,7 +111,32 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
 
 
     // Graphic Pad
+    createGraphicPad();
 
+    connect( commande, SIGNAL(textChanged(QString)), this, SLOT(setText(QString)) );
+    QLabel label;
+    couche->addWidget( &label );
+    QObject::connect( this, SIGNAL(textChanged(QString)), &label, SLOT(setText(QString)) );
+}
+
+void QComputer::updateProg()
+{
+    pile->pop();
+    controleur->commande(editProgT->toPlainText(), beep);
+    refresh();
+}
+
+void QComputer::editProg()
+{
+    editProgT->setText(pile->top().toString());
+    if(fenetreEditProg->isHidden())
+        fenetreEditProg->show();
+    else
+        fenetreEditProg->hide();
+}
+
+void QComputer::createGraphicPad()
+{
     layout1 = new QHBoxLayout;
     un = new QPushButton("1",this);
     un->show();
@@ -224,12 +256,7 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
 
 
     connect( mapper, SIGNAL(mapped(QString)), this, SLOT(buttonClicked(QString)) );
-    connect( commande, SIGNAL(textChanged(QString)), this, SLOT(setText(QString)) );
-    QLabel label;
-    couche->addWidget( &label );
-    QObject::connect( this, SIGNAL(textChanged(QString)), &label, SLOT(setText(QString)) );
 }
-
 
 void QComputer::changeNbViews()
 {
@@ -260,16 +287,16 @@ void QComputer::changeNbViews()
     getNbVuesPile->clear();
 }
 
-void QComputer::changeNbViewsVarEdit()
+void QComputer::changeNbViewsVarEdit(unsigned int nbAtomes)
 {
     //Destruction de la vue pour en créer une avec le bon nombre de lignes d'affichage
     couche->removeWidget(vueVarStockees);
     delete vueVarStockees;
-    vueVarStockees = new QTableWidget(pVarEdit->getNbItemsToAffiche(),1,this);
+    vueVarStockees = new QTableWidget(nbAtomes,2,fenetreVarStockees);
     vueVarStockees->horizontalHeader()->setVisible(false);
     vueVarStockees->horizontalHeader()->setStretchLastSection(true);
     QStringList nombres;
-    for (unsigned int i= pVarEdit->getNbItemsToAffiche(); i>0; i--)
+    for (unsigned int i= nbAtomes; i>0; i--)
     {
         QString str=QString::number(i);
         str+=":";
@@ -281,8 +308,11 @@ void QComputer::changeNbViewsVarEdit()
     //ne pas ecrire dans vuepile
     vueVarStockees->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    for(unsigned int i=0;i<pVarEdit->getNbItemsToAffiche();i++)
+    for(unsigned int i=0;i<nbAtomes;i++)
+    {
         vueVarStockees->setItem(i,0, new QTableWidgetItem(""));
+        vueVarStockees->setItem(i,1, new QTableWidgetItem(""));
+    }
 }
 
 void QComputer::remakeCalc()
@@ -378,6 +408,7 @@ void QComputer::toggleParamCalcView()
 
 void QComputer::toggleEditerVarView()
 {
+    updateEditVar();
     if(fenetreVarStockees->isHidden())
         fenetreVarStockees->show();
     else
@@ -470,39 +501,26 @@ void QComputer::refresh()
         vuePile->item(pile->getNbItemsToAffiche()-nb-1,0)->setText((*it).toString());
         nb++;
     }
-    //updateEditVar();
-
 }
 
 void QComputer::updateEditVar()
 {
-    /*LitteraleManager::Iterator itL = controleur->varEdit->lm.getIterator();
-    unsigned int i = 0;
-    while(!itL.isDone())
+    unsigned int nbAtomes = controleur->getNbAtomes();
+    changeNbViewsVarEdit(nbAtomes);
+
+    for(unsigned int i = 0; i < nbAtomes; i++)
     {
-        if(itL.current().getType() == "Atome")
-            i++;
-        itL.next();
-    }
-
-    if(controleur->varEdit)
-        delete controleur->varEdit;
-    controleur->varEdit = new Memento(controleur->expMng, controleur->expAff, controleur->lastOpe);
-
-    controleur->varEdit->p.setNbItemsToAffiche(i);
-    changeNbViewsVarEdit();
-
-    for(unsigned int i=0; i<controleur->varEdit->p.getNbItemsToAffiche();++i)
         vueVarStockees->item(i,0)->setText("");
-    itL = controleur->varEdit->lm.getIterator();
-    unsigned int nb=0;
-    for(Pile::iterator it=controleur->varEdit->p.begin(); it!=controleur->varEdit->p.end() && nb<pile->getNbItemsToAffiche();++it)
+        vueVarStockees->item(i,1)->setText("");
+    }
+    Atome** tmp2 = controleur->getAtomes();
+
+    for(unsigned int j = 0; j < nbAtomes; j++)
     {
-        if(itL.current().getType() == "Atome")
-            vueVarStockees->item(controleur->varEdit->p.nb-nb-1,0)->setText((*it).toString());
-        itL.next();
-        nb++;
-    }*/
+        vueVarStockees->item(nbAtomes-j-1,0)->setText((**tmp2).toString());
+        vueVarStockees->item(nbAtomes-j-1,1)->setText((**tmp2).getLitterale().toString());
+        tmp2++;
+    }
 }
 
 void QComputer::getNextCommande()

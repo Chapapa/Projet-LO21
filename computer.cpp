@@ -1397,7 +1397,7 @@ Litterale& Pile::top() const
 
 int Controleur::chercherAtome(QString s)
 {
-    for(int i=nb-1; i>=0; i--)
+    for(int i=nbAtomes-1; i>=0; i--)
     {
         if ((*atomes[i]).getType()=="Atome")
         {
@@ -1411,23 +1411,23 @@ int Controleur::chercherAtome(QString s)
 
 void Controleur::agrandissementCapacite()
 {
-    Atome** newtab=new Atome*[(nbMax+1)*2];
-    for(unsigned int i=0; i<nb; i++) newtab[i]=atomes[i];
+    Atome** newtab=new Atome*[(nbAtomesMax+1)*2];
+    for(unsigned int i=0; i<nbAtomes; i++) newtab[i]=atomes[i];
     Atome**  old=atomes;
     atomes=newtab;
-    nbMax=(nbMax+1)*2;
+    nbAtomesMax=(nbAtomesMax+1)*2;
     delete[] old;
 }
 
 void Controleur::removeAtome(Atome& e)
 {
     unsigned int i=0;
-    while(i<nb && atomes[i]!=&e) i++;
-    if (i==nb) throw ComputerException("elimination d'une Litterale inexistante");
+    while(i<nbAtomes && atomes[i]!=&e) i++;
+    if (i==nbAtomes) throw ComputerException("elimination d'une Litterale inexistante");
     delete atomes[i];
     i++;
-    while(i<nb) { atomes[i-1]=atomes[i]; i++; }
-    nb--;
+    while(i<nbAtomes) { atomes[i-1]=atomes[i]; i++; }
+    nbAtomes--;
 }
 
 bool estUneExpression(const QString s)
@@ -1462,7 +1462,7 @@ bool estUnOperateurBinaire(const QString s)
     if (s=="<=") return true;
     if (s==">") return true;
     if (s=="<") return true;
-     if (s=="STO") return true;
+    if (s=="STO") return true;
     return false;
 }
 
@@ -1478,6 +1478,7 @@ bool estUnOperateurUnaire(const QString s)
     if (s=="NOT") return true;
     if (s=="FORGET") return true;
     if (s=="EVAL") return true;
+    if (s=="EDIT") return true;
     return false;
 }
 
@@ -2431,103 +2432,110 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
         try
         {
 
-            Programme v1=dynamic_cast<Programme&>(expAff.top());
-            expMng.removeLitterale(expAff.top());
-            expAff.pop();
-
-
-            if (s == "EVAL")
+            if(s == "EDIT")
             {
-                //commande(v1.getProg(),false);
-                QString str;
-                int i=0, j=0;
-                QString c=v1.getProg();
-                while(i < (c.length()))
+                expAff.edit();
+            }
+            else
+            {
+                Programme v1=dynamic_cast<Programme&>(expAff.top());
+                expMng.removeLitterale(expAff.top());
+                expAff.pop();
+
+
+                if(s == "EVAL")
                 {
-                    decompCommande(c, i, j);// détermine les i et j pour décomposer la commande reçue à chaque itération de la boucle
-
-                    if(i-j != 0)
-                        str = c.mid(j,i-j);
-                    else
-                        str = c.mid(j, 1);
-
-                    if(str != "UNDO")
+                    //commande(v1.getProg(),false);
+                    QString str;
+                    int i=0, j=0;
+                    QString c=v1.getProg();
+                    while(i < (c.length()))
                     {
+                        decompCommande(c, i, j);// détermine les i et j pour décomposer la commande reçue à chaque itération de la boucle
 
-                    }
+                        if(i-j != 0)
+                            str = c.mid(j,i-j);
+                        else
+                            str = c.mid(j, 1);
 
-                    if(i < c.length()-1 && estUnRationnel(c, str, i))
-                    {
-                        getRationnel(str, i, j, c);
-                    }
-
-                    else if(estUnEntier(str))
-                    {
-                        expAff.push(expMng.addLitterale(str.toInt()));
-                    }
-
-                    else if(estUnReel(str))
-                        expAff.push(expMng.addLitterale(str.toDouble()));
-
-                    else if(estUneExpression(str))
-                    {
-                        str=str.mid(1,str.length()-2);
-                        str = RemoveSpaces(str);
-                        expAff.push(expMng.addLitteraleE(str));
-                    }
-                    else if(estUnProgramme(str))
-                    {
-                        str=str.mid(1,str.length()-2);
-                        expAff.push(expMng.addLitteraleP(str));
-                    }
-                    else if(estUnOperateurBinaire(str))
-                    {
-                        if (expAff.taille() >= 2)
+                        if(str != "UNDO")
                         {
-                            manageBinOpe(false, str, i, j); // Gère toutes les opérations à effectuer avec l'opérateur binaire reçu
-                        }// taille>=2
-                        else //Manque d'opérandes
-                        {
-                            expAff.setMessage("Erreur : pas assez d'arguments");
+
                         }
 
-                    }
-                    else if(estUnOperateurUnaire(str))
-                    {
-                        if (expAff.taille() >= 1)
+                        if(i < c.length()-1 && estUnRationnel(c, str, i))
                         {
-                            manageUnOpe(false, str, i, j); // Gère toutes les opérations à effectuer avec l'opérateur unaire reçu
-                        }
-                        else // Pas d'opérande
-                        {
-                            expAff.setMessage("Erreur : pas assez d'arguments");
+                            getRationnel(str, i, j, c);
                         }
 
-                    }
-                    else if(estUnOperateurSansArg(str))
-                    {
-
-                        if (str == "CLEAR")
+                        else if(estUnEntier(str))
                         {
-                            while(!expAff.estVide()) //vide la pile
+                            expAff.push(expMng.addLitterale(str.toInt()));
+                        }
+
+                        else if(estUnReel(str))
+                            expAff.push(expMng.addLitterale(str.toDouble()));
+
+                        else if(estUneExpression(str))
+                        {
+                            str=str.mid(1,str.length()-2);
+                            str = RemoveSpaces(str);
+                            expAff.push(expMng.addLitteraleE(str));
+                        }
+                        else if(estUnProgramme(str))
+                        {
+                            str=str.mid(1,str.length()-2);
+                            expAff.push(expMng.addLitteraleP(str));
+                        }
+                        else if(estUnOperateurBinaire(str))
+                        {
+                            if (expAff.taille() >= 2)
                             {
-                                expMng.removeLitterale(expAff.top());
-                                expAff.pop();
+                                manageBinOpe(false, str, i, j); // Gère toutes les opérations à effectuer avec l'opérateur binaire reçu
+                            }// taille>=2
+                            else //Manque d'opérandes
+                            {
+                                expAff.setMessage("Erreur : pas assez d'arguments");
                             }
+
                         }
-                        if(str == "UNDO")
+                        else if(estUnOperateurUnaire(str))
+                        {
+                            if (expAff.taille() >= 1)
+                            {
+                                manageUnOpe(false, str, i, j); // Gère toutes les opérations à effectuer avec l'opérateur unaire reçu
+                            }
+                            else // Pas d'opérande
+                            {
+                                expAff.setMessage("Erreur : pas assez d'arguments");
+                            }
+
+                        }
+                        else if(estUnOperateurSansArg(str))
                         {
 
+                            if (str == "CLEAR")
+                            {
+                                while(!expAff.estVide()) //vide la pile
+                                {
+                                    expMng.removeLitterale(expAff.top());
+                                    expAff.pop();
+                                }
+                            }
+                            if(str == "UNDO")
+                            {
+
+                            }
+
                         }
 
+                        else
+                        {
+                            expAff.setMessage("Erreur : commande inconnue");
+                        }
+                        i++;
+                        j = i;
                     }
-
-                    else
-                    {
-                        expAff.setMessage("Erreur : commande inconnue");
-                    }
-                    i++;
-                    j = i;
                 }
             }
         }

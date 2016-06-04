@@ -70,6 +70,11 @@ class QComputer : public QWidget{
     QWidget* fenetreVarStockees;
     QTableWidget* vueVarStockees;
 
+    //Editeur de programme
+    QWidget* fenetreEditProg;
+    QHBoxLayout* layoutEditProg;
+    QTextEdit* editProgT;
+    QPushButton* appliquer;
 
     //Toolbar
     QToolBar *tbar;
@@ -113,7 +118,8 @@ public:
     const QString text() const;
     void remakeCalc();
     void updateEditVar();
-    void changeNbViewsVarEdit();
+    void changeNbViewsVarEdit(unsigned int nbAtomes);
+    void createGraphicPad();
 public slots:
     void toggleBeep();
     void toggleGraphicPad();
@@ -123,9 +129,9 @@ public slots:
     void changeNbViews();
     void toggleParamCalcView();
     void toggleEditerVarView();
-
+    void editProg();
     void backspace();
-
+    void updateProg();
 signals:
     void textChanged(const QString &text);
 private slots:

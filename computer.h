@@ -256,6 +256,7 @@ public:
 
 signals:
     void modificationEtat();
+    void edit();
 };
 
 class LitteraleManager
@@ -404,19 +405,20 @@ class Controleur
     Memento* lastArgs;
     // tableau pour maj et sauvegarde des atomes
     Atome ** atomes;
-    unsigned int nb;
-    unsigned int nbMax;
+    unsigned int nbAtomes;
+    unsigned int nbAtomesMax;
     void agrandissementCapacite();
 
 public:
 
-    unsigned int getNb(){return nb;}
+    unsigned int getNbAtomes(){return nbAtomes;}
    /*~Controleur();*/
+    Atome** getAtomes() {return atomes;}
     Atome& addAtome(Atome v)
     {
-        if (nb==nbMax) agrandissementCapacite();
-        atomes[nb++]=new Atome(v);// appel au constructeur de recopie
-        return *atomes[nb-1];
+        if (nbAtomes==nbAtomesMax) agrandissementCapacite();
+        atomes[nbAtomes++]=new Atome(v);// appel au constructeur de recopie
+        return *atomes[nbAtomes-1];
     }
     void removeAtome(Atome& e);
 
@@ -424,7 +426,7 @@ public:
     Atome& operator[](int i){return *atomes[i];}
 
     Controleur(LitteraleManager& m, Pile& v):expMng(m), expAff(v),lastOpe(""),
-        undo(nullptr), redo(nullptr), lastArgs(nullptr),nb(0),nbMax(0), atomes(nullptr){}
+        undo(nullptr), redo(nullptr), lastArgs(nullptr),nbAtomes(0),nbAtomesMax(0), atomes(nullptr){}
     void commande(const QString& c, bool beep);
 
     void undoCommand();
@@ -490,8 +492,7 @@ public:
             itL.next();
             nb++;
         }
-    }
-
+    }   
 };
 
 
