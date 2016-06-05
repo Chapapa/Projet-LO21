@@ -1305,32 +1305,7 @@ void LitteraleManager::removeLitterale(Litterale& e)
     nb--;
 }
 
-/*
-void LitteraleManager::updateLastState(Pile& p)
-{
-    for(unsigned int i = 0; i < lastNb; i++)
-    {
-        removeLitteraleLast(p.topLast());
-        p.popLast();
-    }
-    Iterator it;
-    it = getIterator();
-    while(!it.isDone())
-    {
-        if (lastNb==lastNbMax)
-        {
-            agrandissementCapaciteLast();
-        }
-        if(it.current().getType() == "Numerique")
-            p.pushLast(addLitteraleLast(dynamic_cast<Numerique&>(it.current())));
-        else if(it.current().getType() == "Expression")
-            p.pushLast(addLitteraleLast(dynamic_cast<Expression&>(it.current())));
-        else if(it.current().getType() == "Atome")
-            p.pushLast(addLitteraleLast(dynamic_cast<Atome&>(it.current())));
-        else if(it.current().getType() == "Programme")
-            p.pushLast(addLitteraleLast(dynamic_cast<Programme&>(it.current())));
-    }
-}*/
+
 
 LitteraleManager::~LitteraleManager()
 {
@@ -1810,6 +1785,7 @@ Atome Controleur::manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s
         res=v2.operatorSTO(v1);
     }
     addAtome(res);
+    expAff.atomeAdded();
     return res;
 }
 
@@ -1820,6 +1796,7 @@ Atome Controleur::manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString
         res=v2.operatorSTO(v1);
     }
     addAtome(res);
+    expAff.atomeAdded();
     return res;
 }
 
@@ -1830,6 +1807,7 @@ Atome Controleur::manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString
         res=v2.operatorSTO(v1);
     }
     addAtome(res);
+    expAff.atomeAdded();
     return res;
 }
 

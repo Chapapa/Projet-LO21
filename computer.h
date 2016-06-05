@@ -257,6 +257,7 @@ public:
 signals:
     void modificationEtat();
     void edit();
+    void atomeAdded();
 };
 
 class LitteraleManager

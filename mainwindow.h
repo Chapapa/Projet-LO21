@@ -69,6 +69,19 @@ class QComputer : public QWidget{
     //Vue sur les variables stockées
     QWidget* fenetreVarStockees;
     QTableWidget* vueVarStockees;
+    QHBoxLayout* layoutVar;
+    QVBoxLayout* layoutModifier;
+    QPushButton* modifier[20];
+
+    //Fenetre d'édition d'une variable
+    QWidget* fenetreModifVar;
+    QVBoxLayout* layoutVVar;
+    QVBoxLayout* layoutVGetModifVar;
+    QHBoxLayout* layoutModifVar;
+    QLabel* nomVar;
+    QLabel* valVar;
+    QLineEdit* getNomVar;
+    QLineEdit* getValVar;
 
     //Editeur de programme
     QWidget* fenetreEditProg;
@@ -116,8 +129,6 @@ class QComputer : public QWidget{
 public:
     explicit QComputer(QWidget *parent = 0);
     const QString text() const;
-    void remakeCalc();
-    void updateEditVar();
     void changeNbViewsVarEdit(unsigned int nbAtomes);
     void createGraphicPad();
 public slots:
@@ -132,6 +143,8 @@ public slots:
     void editProg();
     void backspace();
     void updateProg();
+    void updateEditVar();
+    void modifierVar(unsigned int i);
 signals:
     void textChanged(const QString &text);
 private slots:
