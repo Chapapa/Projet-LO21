@@ -510,7 +510,7 @@ bool estUnIndentificateur(const Expression& e);
 template<class T1, class T2>
 T1 Controleur::managePileOpeT2AndT1(T1 v1, T2 v2,QString s, T1 res)
 {
-    if (s == "SWAP")
+    /*if (s == "SWAP")
     {
         res=v1;
         Litterale& l=expMng.addLitterale(v2);
@@ -518,6 +518,17 @@ T1 Controleur::managePileOpeT2AndT1(T1 v1, T2 v2,QString s, T1 res)
 
         Litterale& e=expMng.addLitterale(res);
         expAff.push(e);
+
+
+    }
+    return res;*/
+    if (s == "SWAP")
+    {
+        res=v1;
+        Litterale& l=expMng.addLitterale(v2);
+
+        expAff.push(l);
+
     }
     return res;
 }

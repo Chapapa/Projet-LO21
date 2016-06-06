@@ -1659,7 +1659,7 @@ Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QStrin
     return res;
 }
 
-Numerique Controleur::managePileOpeNumAndNum(Numerique v1, Numerique v2,QString s, Numerique res)
+/*Numerique Controleur::managePileOpeNumAndNum(Numerique v1, Numerique v2,QString s, Numerique res)
 {
     if (s == "SWAP")
     {
@@ -1668,7 +1668,7 @@ Numerique Controleur::managePileOpeNumAndNum(Numerique v1, Numerique v2,QString 
         expAff.push(l);
     }
     return res;
-}
+}*/
 
 Expression Controleur::manageNumOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res)
 {
@@ -1693,7 +1693,7 @@ Expression Controleur::manageLogicOpeNumAndExpr(Expression v1, Expression v2E, Q
     return res;
 }
 
-Expression Controleur::managePileOpeNumAndExpr(Expression v1, Numerique v2,QString s, Expression res)
+/*Expression Controleur::managePileOpeNumAndExpr(Expression v1, Numerique v2,QString s, Expression res)
 {
     if (s == "SWAP")
     {
@@ -1702,7 +1702,7 @@ Expression Controleur::managePileOpeNumAndExpr(Expression v1, Numerique v2,QStri
         expAff.push(l);
     }
     return res;
-}
+}*/
 
 Expression Controleur::manageNumOpeExprAndExpr(Expression v1, Expression v2, QString s, Expression res)
 {
@@ -1728,7 +1728,7 @@ Expression Controleur::manageLogicOpeExprAndExpr(Expression v1, Expression v2, Q
     return res;
 }
 
-Expression Controleur::managePileOpeExprAndExpr(Expression v1, Expression v2,QString s, Expression res)
+/*Expression Controleur::managePileOpeExprAndExpr(Expression v1, Expression v2,QString s, Expression res)
 {
     if (s == "SWAP")
     {
@@ -1740,7 +1740,7 @@ Expression Controleur::managePileOpeExprAndExpr(Expression v1, Expression v2,QSt
     }
     return res;
 }
-
+*/
 Expression Controleur::manageNumOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
 {
     if (s == "+") resE = v1E + v2;
@@ -1764,7 +1764,7 @@ Expression Controleur::manageLogicOpeExprAndNum(Expression v1E, Expression v2, Q
     return resE;
 }
 
-Numerique Controleur::managePileOpeExprAndNum(Numerique v1, Expression v2,QString s, Numerique res)
+/*Numerique Controleur::managePileOpeExprAndNum(Numerique v1, Expression v2,QString s, Numerique res)
 {
     if (s == "SWAP")
     {
@@ -1776,7 +1776,7 @@ Numerique Controleur::managePileOpeExprAndNum(Numerique v1, Expression v2,QStrin
         expAff.push(e);
     }
     return res;
-}
+}*/
 
 Atome Controleur::manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s, Atome res)
 {
@@ -1918,7 +1918,7 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
                 res = manageNumOpeNumAndNum(v1, v2, s, res, beep);
 
-                res = managePileOpeNumAndNum(v1, v2, s, res);
+                res = managePileOpeT2AndT1(v1, v2, s, res);
 
                 res = manageLogicOpeNumAndNum(v1, v2, s, res, beep);
 
@@ -1934,7 +1934,7 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
                 Expression res("");
 
-                res = managePileOpeNumAndExpr(v1, v2,s, res);
+                res = managePileOpeT2AndT1(v1, v2,s, res);
 
                 Expression v2E=v2.toString();
 
@@ -1955,7 +1955,10 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
                 if (s=="SWAP")
                 {
                     Programme res("");
-                    managePileOpeT2AndT1(v1, v2,s, res);
+                    res=managePileOpeT2AndT1(v1, v2,s, res);
+                    Litterale& e=expMng.addLitterale(res);
+
+                    expAff.push(e);
                 }
             }
 
@@ -2001,7 +2004,7 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
                 res = manageLogicOpeExprAndExpr(v1, v2, s, res);
 
-                res = managePileOpeExprAndExpr(v1, v2, s, res);
+                res = managePileOpeT2AndT1(v1, v2, s, res);
 
                 Litterale& e=expMng.addLitterale(res);
 
@@ -2043,7 +2046,10 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
                 if (s == "SWAP")
                 {
-                    res = managePileOpeExprAndNum(v1, v2, s, res);
+                    res = managePileOpeT2AndT1(v1, v2, s, res);
+                    Litterale& e=expMng.addLitterale(res);
+
+                    expAff.push(e);
                 }
                 else
                 {
@@ -2091,7 +2097,10 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
                 else if (s=="SWAP")
                 {
                     Programme res("");
-                    managePileOpeT2AndT1(v1, v2,s, res);
+                    res=managePileOpeT2AndT1(v1, v2,s, res);
+                    Litterale& e=expMng.addLitterale(res);
+
+                    expAff.push(e);
                 }
                 else
                 {
@@ -2137,7 +2146,10 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
                     if (s=="SWAP")
                     {
                         Expression res("");
-                        managePileOpeT2AndT1(v1, v2,s, res);
+                        res=managePileOpeT2AndT1(v1, v2,s, res);
+                        Litterale& e=expMng.addLitterale(res);
+
+                        expAff.push(e);
                     }
                     else// transformation programme en expression
                     {
@@ -2172,7 +2184,24 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
                     if (s=="SWAP")
                     {
                         Numerique res(0);
-                        managePileOpeT2AndT1(v1, v2,s, res);
+                        res=managePileOpeT2AndT1(v1, v2,s, res);
+                        Litterale& e=expMng.addLitterale(res);
+
+                        expAff.push(e);
+                    }
+                }
+                else if(expAff.top().getType()=="Programme")
+                {
+                    Programme v1=dynamic_cast<Programme&>(expAff.top());
+                    expMng.removeLitterale(expAff.top());
+                    expAff.pop();
+                    if (s=="SWAP")
+                    {
+                        Programme res("");
+                        res=managePileOpeT2AndT1(v1, v2,s, res);
+                        Litterale& e=expMng.addLitterale(res);
+
+                        expAff.push(e);
                     }
                 }
             }
@@ -2511,8 +2540,8 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
                         {
                             expAff.setMessage("Erreur : commande inconnue");
                         }
-                        //i++;
-                        //j = i;
+                        i++;
+                        j = i;
                     }
                 }
             }
@@ -2692,6 +2721,7 @@ void Controleur::commande(const QString& c, bool beepOption)
                 {
                     Programme p=dynamic_cast<Programme&>(a.getLitterale());
                     expAff.push(expMng.addLitterale(p));
+                    manageUnOpe(true, "EVAL", i, j);
 
                 }
             }
