@@ -82,6 +82,8 @@ class QComputer : public QWidget{
     QLabel* valVar;
     QLineEdit* getNomVar;
     QLineEdit* getValVar;
+    QPushButton* enregVar;
+    Atome* beingModified;
 
     //Editeur de programme
     QWidget* fenetreEditProg;
@@ -132,6 +134,7 @@ public:
     void changeNbViewsVarEdit(unsigned int nbAtomes);
     void createGraphicPad();
 public slots:
+    void updateAtome();
     void toggleBeep();
     void toggleGraphicPad();
     void refresh();
@@ -144,7 +147,7 @@ public slots:
     void backspace();
     void updateProg();
     void updateEditVar();
-    void modifierVar(unsigned int i);
+    void modifierVar();
 signals:
     void textChanged(const QString &text);
 private slots:

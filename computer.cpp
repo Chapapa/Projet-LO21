@@ -1990,8 +1990,8 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
                         expAff.push(e);
                     }
-                    i++;
-                    j = i;
+                    //i++;
+                    //j = i;
                     return;
                 }
 
@@ -2035,8 +2035,8 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
                         expAff.push(e);
                     }
-                    i++;
-                    j = i;
+                    //i++;
+                    //j = i;
                     //expAff.setMessage(resA.getLitterale().toString());
                     return;
                 }
@@ -2083,8 +2083,8 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
                         expAff.push(e);
                     }
-                    i++;
-                    j = i;
+                    //i++;
+                    //j = i;
                     //expAff.setMessage(resA.getLitterale().toString());
                     return;
                 }
@@ -2323,8 +2323,8 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
             }
             if (s== "DROP")
             {
-                i++;
-                j = i;
+                //i++;
+                //j = i;
                 return;
             }
             if (s == "NOT")
@@ -2363,8 +2363,8 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
             }
             if (s== "DROP")
             {
-                i++;
-                j = i;
+                //i++;
+                //j = i;
                 return;
             }
 
@@ -2511,8 +2511,8 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
                         {
                             expAff.setMessage("Erreur : commande inconnue");
                         }
-                        i++;
-                        j = i;
+                        //i++;
+                        //j = i;
                     }
                 }
             }
@@ -2598,10 +2598,6 @@ void Controleur::redoCommand()
     reinstateMemento(redo);
 }
 
-void Controleur::lastArgsCommand()
-{
-
-}
 
 void Controleur::updateUndo()
 {

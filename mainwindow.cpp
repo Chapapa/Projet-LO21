@@ -91,24 +91,23 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     //Fenetre d'édition d'une variable
     fenetreModifVar = new QWidget;
     fenetreModifVar->setWindowTitle("Editeur de variable");
-//    fenetreModifVar->setFixedHeight(300);
-//    fenetreModifVar->setFixedWidth(400);
     layoutModifVar = new QHBoxLayout(fenetreModifVar);
     layoutVVar = new QVBoxLayout();
     layoutVGetModifVar = new QVBoxLayout();
-    nomVar = new QLabel();
-    valVar = new QLabel();
+    nomVar = new QLabel("Nom de la variable:");
+    valVar = new QLabel("Valeur de la variable:");
     getNomVar = new QLineEdit();
     getValVar = new QLineEdit();
-    nomVar->setText("Nom de la variable:");
-    valVar->setText("Valeur de la variable:");
+    enregVar = new QPushButton("Enregistrer");
     layoutModifVar->addLayout(layoutVVar);
     layoutModifVar->addLayout(layoutVGetModifVar);
+    layoutModifVar->addWidget(enregVar);
     layoutVVar->addWidget(nomVar);
     layoutVVar->addWidget(valVar);
     layoutVGetModifVar->addWidget(getNomVar);
     layoutVGetModifVar->addWidget(getValVar);
     layoutModifVar->setAlignment(Qt::AlignTop);
+    connect(enregVar,SIGNAL(clicked()),this,SLOT(updateAtome()));
 
 
     // Editeur de programme
@@ -498,14 +497,37 @@ void QComputer::updateEditVar()
         atomeNom = "modifier ";
         atomeNom += (**tmp2).toString();
         modifier[i]->setText(atomeNom);
-        connect(modifier[i], SIGNAL(pressed()),this,SLOT(modifierVar(i)));
+        connect(modifier[i], SIGNAL(clicked()),this,SLOT(modifierVar()));
         tmp2--;
     }
 }
 
-void QComputer::modifierVar(unsigned int i)
+void QComputer::modifierVar()
 {
+    QPushButton* p = qobject_cast<QPushButton *>(sender());
     fenetreModifVar->show();
+    unsigned int j;
+    for(unsigned int i = 0; i < controleur->getNbAtomes(); i++)
+    {
+        if(modifier[i] == p)
+            j = i;
+    }
+    j = controleur->getNbAtomes() - j - 1;
+    //Atome* a;
+    Atome** tmp = controleur->getAtomes();
+    beingModified = tmp[j];
+    getNomVar->setText(tmp[j]->getNom());
+    getValVar->setText(tmp[j]->getLitterale().toString());
+}
+
+void QComputer::updateAtome()
+{
+    QString nom = getNomVar->text();
+    QString val = getValVar->text();
+    QString s = val + " " + nom + " STO" + " DROP";
+    controleur->removeAtome(*beingModified);
+    controleur->commande(s, beep);
+    fenetreModifVar->hide();
 }
 
 void QComputer::getNextCommande()
