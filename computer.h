@@ -1,3 +1,12 @@
+/**
+ * \file computer.h
+ * \brief Déclarations des classes du calculateur
+ *
+ * Programme de test pour l'objet de gestion des chaînes de caractères Str_t.
+ */
+
+
+
 #ifndef _COMPUTER_H
 #define _COMPUTER_H
 
@@ -8,6 +17,10 @@
 #include <windows.h>
 using namespace std;
 
+/**
+ *  \class ComputerException
+ *  \brief Gestion des Exception
+ */
 class ComputerException
 {
     QString info;
@@ -16,7 +29,12 @@ public:
     QString getInfo() const { return info; }
 };
 
-
+/**
+ *  \class Litterale
+ *  \brief Gestion des litterales
+ *  \details Il s'agit d'une classe abstraite, dont tous les types de litterale vont herite.
+ *   Grace au polymorphisme, cette classe nous permet de stocker a la fois les litterales numeriques, atomes, expressions et programmes dans un meme tableau.
+ */
 class Litterale
 {
     QString type;
@@ -32,6 +50,12 @@ public:
 
 // gestion espace tabulation retour chariot non faite
 // pour EVAL ne pas mettre d'espace apres [ et avant ]
+/**
+ *  \class Programme
+ *  \brief Gestion des programmes
+ *  \details La classe programme herite de Litterale.
+ *  Un programme est une suite d'operandes entree par l'utilisateur entre crochets
+ */
 class Programme : public Litterale
 {
     QString prog;
@@ -48,6 +72,13 @@ public:
 
 };
 
+/**
+ *  \class Atome
+ *  \brief Gestion des atomes
+ *  \details La classe Atome herite de Litterale.
+ *  Un atome est une suite de caracteres majuscules et de chiffres et commence par une lettre majuscule
+ *  Un atome peut identifier un numerique, un programme ou une expression
+ */
 class Atome : public Litterale
 {
     QString nom;
@@ -65,7 +96,12 @@ public:
 
 };
 
-
+/**
+ *  \class Expression
+ *  \brief Gestion des expressions
+ *
+ * \details La classe Expression herite de la classe Litterale. Elle gère la manipulation des nombres réels,rationnels, complexes et entiers.
+ */
 class Expression : public Litterale
 {
     QString exp;
@@ -98,7 +134,12 @@ public :
 
 };
 
-
+/**
+ *  \class Numerique
+ *  \brief Gestion des Numeriques
+ *
+ * \details La classe Numerique herite de la classe Litterale. Elle gère la manipulation des nombres réels,rationnels, complexes et entiers.
+ */
 
 class Numerique : public Litterale
 {
@@ -185,6 +226,12 @@ public:
 
 
 
+/**
+ *  \class Item
+ *  \brief Gestion des items
+ *
+ * \details La classe Item encapsule un attribut exp de type Litterale* qui contient l’adresse d’un objet Litterale à afficher.
+ */
 
 class Item
 {
@@ -196,6 +243,13 @@ public:
     Litterale& getLitterale() const;
 };
 
+/**
+ *  \class Pile
+ *  \brief Gestion de la pile
+ *
+ * \details La pile est indispensable a l'evaluation d'une formule ecrite en RPN.
+ *  La classe pile est chargé de la gestion de la pile d’affichage des litterales. Elle emet aussi des messages destinés à l’utilisateur.
+ */
 class Pile : public QObject
 {
     Q_OBJECT
@@ -260,6 +314,12 @@ signals:
     void atomeAdded();
 };
 
+/**
+ *  \class LitteraleManager
+ *  \brief Responsable de la creation et de la destruction des litterales
+ *
+ * \details Le LitteraleManager est un singleton. Il contient un tableau de pointeur de Litterale.
+ */
 class LitteraleManager
 {
     Litterale** exps;
@@ -364,6 +424,14 @@ public:
 
 class Controleur;
 
+
+
+/**
+ *  \class Memento
+ *  \brief Implementation du design pattern memento
+ *
+ * \details Le Memento permet de restaurer un état précédent de la pile (undo/redo) sans violer le principe d'encapsulation.
+ */
 class Memento
 {
   public:
@@ -395,6 +463,10 @@ class Memento
     QString lastOpe;
 };
 
+/**
+ *  \class Controleur
+ *  \brief Interface avec l'utilisateur
+ */
 class Controleur
 {
     LitteraleManager& expMng;
@@ -506,6 +578,18 @@ bool estUnProgramme(QString s);
 bool estUnOperateurSansArg(const QString s);
 bool estUnIndentificateur(const Expression& e);
 
+
+
+/**
+ * \fn template<class T1, class T2> T1 Controleur::managePileOpeT2AndT1(T1 v1, T2 v2,QString s, T1 res)
+ * \brief Patron de fonction pour realiser less operations de pile.
+ *
+ * \param v1 Deuxieme argument depile
+ * \param v2 Premier argument depile
+ * \param s QString qui represente l'operateur a appliquer
+ * \param res resultat de l'operation
+ * \return La fonction retourne le resultat de l'operation qui sera empile par la suite.
+ */
 
 template<class T1, class T2>
 T1 Controleur::managePileOpeT2AndT1(T1 v1, T2 v2,QString s, T1 res)
