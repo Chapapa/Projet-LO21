@@ -178,42 +178,31 @@ void QComputer::createGraphicPad()
 {
     layout1 = new QHBoxLayout;
     un = new QPushButton("1",this);
-    un->show();
     deux = new QPushButton("2",this);
-    deux->show();
     trois = new QPushButton("3",this);
-    trois->show();
     layout1->addWidget(un);
     layout1->addWidget(deux);
     layout1->addWidget(trois);
 
     layout2 = new QHBoxLayout;
     quatre = new QPushButton("4", this);
-    quatre->show();
     cinq = new QPushButton("5", this);
-    cinq->show();
     six = new QPushButton("6", this);
-    six->show();
     layout2->addWidget(quatre);
     layout2->addWidget(cinq);
     layout2->addWidget(six);
 
     layout3 = new QHBoxLayout;
     sept = new QPushButton("7", this);
-    sept->show();
     huit = new QPushButton("8", this);
-    huit->show();
     neuf = new QPushButton("9", this);
-    neuf->show();
     layout3->addWidget(sept);
     layout3->addWidget(huit);
     layout3->addWidget(neuf);
 
     layout4 = new QHBoxLayout;
     zero = new QPushButton("0", this);
-    zero->show();
     point = new QPushButton(".", this);
-    point->show();
 
     correction = new QPushButton("Corr", this);
     correction->show();
@@ -225,21 +214,15 @@ void QComputer::createGraphicPad()
 
     layout5 = new QVBoxLayout;
     plus = new QPushButton("+", this);
-    plus->show();
     moins = new QPushButton("-", this);
-    moins->show();
     fois = new QPushButton("*", this);
-    fois->show();
     sur = new QPushButton("/", this);
-    sur->show();
-    entree = new QPushButton("Entrée", this);
-    entree->show();
-    entree->setDefault(true);
+
     layout5->addWidget(plus);
     layout5->addWidget(moins);
     layout5->addWidget(fois);
     layout5->addWidget(sur);
-    layout5->addWidget(entree);
+
 
     layoutG = new QVBoxLayout;
     layoutG->addLayout(layout1);
@@ -251,8 +234,16 @@ void QComputer::createGraphicPad()
     layoutB->addLayout(layoutG);
     layoutB->addLayout(layout5);
 
+    layout6 = new QHBoxLayout;
+    espace = new QPushButton("Espace");
+    entree = new QPushButton("Entrée", this);
+    entree->setDefault(true);
+    layout6->addWidget(espace);
+    layout6->addWidget(entree);
+
     layoutCalc = new QVBoxLayout;
     layoutCalc->addLayout(layoutB);
+    layoutCalc->addLayout(layout6);
     couche->addLayout(layoutCalc);
     setLayout(couche);
 
@@ -273,6 +264,7 @@ void QComputer::createGraphicPad()
     mapper->setMapping( moins, "-" );
     mapper->setMapping( fois, "*" );
     mapper->setMapping( sur, "/" );
+    mapper->setMapping( espace, " " );
 
     connect( zero, SIGNAL(clicked()), mapper, SLOT(map()) );
     connect( un, SIGNAL(clicked()), mapper, SLOT(map()) );
@@ -289,6 +281,7 @@ void QComputer::createGraphicPad()
     connect( moins, SIGNAL(clicked()), mapper, SLOT(map()) );
     connect( fois, SIGNAL(clicked()), mapper, SLOT(map()) );
     connect( sur, SIGNAL(clicked()), mapper, SLOT(map()) );
+    connect( espace, SIGNAL(clicked()), mapper, SLOT(map()) );
     connect( entree, SIGNAL(clicked()), this, SLOT(getNextCommande()) );
 
     connect(correction,SIGNAL(clicked()),this, SLOT( backspace()));
@@ -319,6 +312,7 @@ void QComputer::changeNbViews()
         str+=":";
         nombres<<str;
     }
+    vuePile->setVerticalHeaderLabels(nombres);
     for(i=0;i<pile->getNbItemsToAffiche();i++)
         vuePile->setItem(i,0, new QTableWidgetItem(""));
     refresh();
@@ -405,6 +399,7 @@ void QComputer::toggleGraphicPad()
         fois->show();
         sur->show();
         entree->show();
+        espace->show();
         correction->show();
     }
     else
@@ -425,6 +420,7 @@ void QComputer::toggleGraphicPad()
         fois->hide();
         sur->hide();
         entree->hide();
+        espace->hide();
         correction->hide();
     }
 

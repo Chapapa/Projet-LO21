@@ -107,6 +107,7 @@ class QComputer : public QWidget{
     QHBoxLayout *layout3;
     QHBoxLayout *layout4;
     QVBoxLayout *layout5;
+    QHBoxLayout *layout6;
     QVBoxLayout *layoutG;
     QHBoxLayout *layoutB;
     QVBoxLayout *layoutCalc;
@@ -126,6 +127,7 @@ class QComputer : public QWidget{
     QPushButton* fois;
     QPushButton* sur;
     QPushButton* entree;
+    QPushButton* espace;
     QPushButton* correction;
     bool beep;
 public:
