@@ -1,11 +1,7 @@
 /**
  * \file computer.h
  * \brief Déclarations des classes du calculateur
- *
- * Programme de test pour l'objet de gestion des chaînes de caractères Str_t.
  */
-
-
 
 #ifndef _COMPUTER_H
 #define _COMPUTER_H
@@ -465,7 +461,7 @@ class Memento
 
 /**
  *  \class Controleur
- *  \brief Interface avec l'utilisateur
+ *  \brief Interface avec l'utilisateur et gestion des identificateurs entres par l'utilisateur
  */
 class Controleur
 {

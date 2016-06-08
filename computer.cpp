@@ -2,6 +2,12 @@
 #include <algorithm>
 
 void decompCommande(const QString& c,int &i, int &j);
+/**
+ * \fn QString Programme::toExpr()const
+ * \brief Conversion d'un programme en expression
+ * \return Cette methode retourne une chaine de caractère qui correspond au programme, ecrite selon les conventions utilisees pour les expressions
+ */
+
 QString Programme::toExpr()const
 {
     QString s;
@@ -68,13 +74,20 @@ bool estUnIndentificateur(const Expression& e)
 
 }
 
-
-
 Litterale& Atome::getLitterale() const
 {
         if (exp==nullptr) throw ComputerException("Atome : tentative d'acces a une Litterale inexistante");
         return *exp;
 }
+
+/**
+ * \fn Atome Expression::operatorSTO(Litterale& l)
+ * \brief Operateur pour asssocier une litterale et un identificateur
+ *
+ * \param l Litterale a stocker
+ *
+ * \return La methode retourne l'atome pointant sur la literale stockee
+ */
 
 Atome Expression::operatorSTO(Litterale& l)
 {
@@ -416,11 +429,6 @@ Expression Expression::operatorNEG()
 
 Expression Expression::operator*(const Expression& e)
 {
-   /* QString res;
-    res=exp+"*"+e.exp;
-
-    return Expression(res);*/
-
     int i=0;
     bool priorite=true;
     while(i < (exp.length()))
@@ -468,10 +476,6 @@ Expression Expression::operator*(const Expression& e)
 
 Expression Expression::operator/(const Expression& e)
 {
-    /*QString res;
-    res=exp+"/"+e.exp;
-
-    return Expression(res);*/
     int i=0;
     bool priorite=true;
     while(i < (exp.length()))
@@ -659,7 +663,15 @@ Expression Expression::operator-(const Expression& e)
     return Expression(res);
 }
 
-//Pour enlever les espaces dans les expressions entrées par l'utilisateur
+
+/**
+ * \fn QString RemoveSpaces(QString s)
+ * \brief La fonction enleve les espaces dans les expressions entrées par l'utilisateur
+ *
+ * \param s Expression entree par l'utilisateur
+
+ * \return La fonction retourne la chaine de caractere sans espaces
+ */
 QString RemoveSpaces(QString s)
 {
     QString res = "";
@@ -1068,7 +1080,14 @@ Numerique Numerique::operatorIM()
     return res;
 }
 
-
+/**
+ * \fn QString Numerique::getResTypeRe( double nr, int dr)
+ * \brief La methode permet de determiner le type de Numerique de la partie reelle resultant de l'operation
+ *
+ * \param nr Numerateur reel
+ * \param dr Denominateur reel
+ * \return La fonction retourne "entier", "reel", "rationnel"
+ */
 QString Numerique::getResTypeRe( double nr, int dr)
 {
     QString res;
@@ -1091,7 +1110,14 @@ QString Numerique::getResTypeRe( double nr, int dr)
 
 }
 
-
+/**
+ * \fn QString Numerique::getResTypeIm(double ni, int di)
+ * \brief La methode permet de determiner le type de Numerique de la partie imaginaire resultant de l'operation
+ *
+ * \param ni Numerateur imaginaire
+ * \param di Denominateur imaginaire
+ * \return La fonction retourne "entier", "reel", "rationnel"
+ */
 QString Numerique::getResTypeIm(double ni, int di)
 {
     QString res;
@@ -1114,25 +1140,33 @@ QString Numerique::getResTypeIm(double ni, int di)
     return res;
 }
 
+/**
+ * \fn void Numerique::simplificationRe()
+ * \brief Simplification de la partie reel d un numerique si il s'agit d'un rationnel
+ */
 void Numerique::simplificationRe()
 {
     // si le numerateur est 0, le denominateur prend la valeur 1
     if (numReel==0) { denomReel=1; return; }
-    /* un denominateur ne devrait pas Ãªtre 0;
-    si c'est le cas, on sort de la mÃ©thode */
+    /* un denominateur ne devrait pas etre 0;
+    si c'est le cas, on sort de la methode */
     if (denomReel==0) return;
     /* utilisation de l'algorithme d'Euclide pour trouver le Plus Grand Commun
     Denominateur (PGCD) entre le numerateur et le denominateur */
     int a=numReel, b=denomReel;
-    // on ne travaille quâ€™avec des valeurs positives...
+    // on ne travaille qu avec des valeurs positives...
     if (a<0) a=-a; if (b<0) b=-b;
     while(a!=b){ if (a>b) a=a-b; else b=b-a; }
     // on divise le numerateur et le denominateur par le PGCD=a
     numReel/=a; denomReel/=a;
-    // si le denominateur est negatif, on fait passer le signe - au numÃ©rateur
+    // si le denominateur est negatif, on fait passer le signe - au numerateur
     if (denomReel<0) { denomReel=-denomReel; numReel=-numReel; }
 }
 
+/**
+ * \fn void Numerique::simplificationIm()
+ * \brief Simplification de la partie imaginaire d un numerique si il s'agit d'un rationnel
+ */
 void Numerique::simplificationIm()
 {
     // si le numerateur est 0, le denominateur prend la valeur 1
@@ -1152,7 +1186,10 @@ void Numerique::simplificationIm()
     if (denomIm<0) { denomIm=-denomIm; numIm=-numIm; }
 }
 
-
+/**
+ * \fn void Numerique::setRationnelRe(int n,int d)
+ * \brief Accesseur en ecriture pour la partie reelle de type rationnel d'un numerique
+ */
 void Numerique::setRationnelRe(int n,int d)
 {
     if(d==0)
@@ -1169,7 +1206,10 @@ void Numerique::setRationnelRe(int n,int d)
         setTypeRe("entier");
 
 }
-
+/**
+ * \fn void Numerique::setRationnelIm(int n,int d)
+ * \brief Accesseur en ecriture pour la partie imaginaire de type rationnel d'un numerique
+ */
 void Numerique::setRationnelIm(int n,int d)
 {
     if(d==0)
@@ -1190,14 +1230,20 @@ void Numerique::setRationnelIm(int n,int d)
 LitteraleManager::Handler LitteraleManager::handler=LitteraleManager::Handler();
 
 
-
+/**
+ * \fn void LitteraleManager::libererInstance()
+ * \brief Design pattern singleton : liberation de l'instance
+ */
 void LitteraleManager::libererInstance()
 {
     delete handler.instance;
     handler.instance=nullptr;
 }
 
-
+/**
+ * \fn QString Numerique::toString() const
+ * \brief Transformation d'un numerique en chaine de caractere pour son affichage
+ */
 QString Numerique::toString() const
 {
     QString val;
@@ -1246,6 +1292,10 @@ QString Numerique::toString() const
     }
 }
 
+/**
+ * \fn void LitteraleManager::agrandissementCapacite()
+ * \brief Gestion des éventuels besoins en agrandissement du tableau de pointeurs de litterales
+ */
 void LitteraleManager::agrandissementCapacite()
 {
     Litterale** newtab=new Litterale*[(nbMax+1)*2];
@@ -1257,7 +1307,11 @@ void LitteraleManager::agrandissementCapacite()
 }
 
 
-
+/**
+ * \fn Litterale& LitteraleManager::addLitteraleE(QString v)
+ * \brief Alloue dynamiquement un objet Expression dont l’adresse est sauvegardée dans le tableau de pointeurs
+ *  d’objets Litterale qui a été alloué dynamiquement
+ */
 Litterale& LitteraleManager::addLitteraleE(QString v)
 {
     if (nb==nbMax) agrandissementCapacite();
@@ -1265,6 +1319,11 @@ Litterale& LitteraleManager::addLitteraleE(QString v)
     return *exps[nb-1];
 }
 
+/**
+ * \fn Litterale& LitteraleManager::addLitteraleA(QString v)
+ * \brief Alloue dynamiquement un objet Atome dont l’adresse est sauvegardée dans le tableau de pointeurs
+ *  d’objets Litterale qui a été alloué dynamiquement
+ */
 Litterale& LitteraleManager::addLitteraleA(QString v)
 {
     if (nb==nbMax) agrandissementCapacite();
@@ -1272,20 +1331,33 @@ Litterale& LitteraleManager::addLitteraleA(QString v)
     return *exps[nb-1];
 }
 
+/**
+ * \fn Litterale& LitteraleManager::addLitteraleP(QString v)
+ * \brief Alloue dynamiquement un objet Programme dont l’adresse est sauvegardée dans le tableau de pointeurs
+ *  d’objets Litterale qui a été alloué dynamiquement
+ */
 Litterale& LitteraleManager::addLitteraleP(QString v)
 {
     if (nb==nbMax) agrandissementCapacite();
     exps[nb++]=new Programme(v);
     return *exps[nb-1];
 }
-
+/**
+ * \fn Litterale& LitteraleManager::addLitterale(int v)
+ * \brief Alloue dynamiquement un objet Numerique de type "entier" dont l’adresse est sauvegardée dans le tableau de pointeurs
+ *  d’objets Litterale qui a été alloué dynamiquement
+ */
 Litterale& LitteraleManager::addLitterale(int v)
 {
     if (nb==nbMax) agrandissementCapacite();
     exps[nb++]=new Numerique(v);
     return *exps[nb-1];
 }
-
+/**
+ * \fn Litterale& LitteraleManager::addLitterale(double v)
+ * \brief Alloue dynamiquement un objet Numerique de type "reel" dont l’adresse est sauvegardée dans le tableau de pointeurs
+ *  d’objets Litterale qui a été alloué dynamiquement
+ */
 Litterale& LitteraleManager::addLitterale(double v)
 {
     if (nb==nbMax) agrandissementCapacite();
@@ -1293,7 +1365,12 @@ Litterale& LitteraleManager::addLitterale(double v)
     return *exps[nb-1];
 }
 
-
+/**
+ * \fn void LitteraleManager::removeLitterale(Litterale& e)
+ * \brief Suppression d une litterale
+ *
+ * \param e Litterale a supprimer
+ */
 void LitteraleManager::removeLitterale(Litterale& e)
 {
     unsigned int i=0;
@@ -1306,20 +1383,30 @@ void LitteraleManager::removeLitterale(Litterale& e)
 }
 
 
-
+/**
+ * \fn LitteraleManager::~LitteraleManager()
+ * \brief Destructeur de la classe LitteraleManager
+ */
 LitteraleManager::~LitteraleManager()
 {
     for(unsigned int i=0; i<nb; i++) delete exps[i];
     delete[] exps;
 }
 
+/**
+ * \fn Litterale& Item::getLitterale() const
+ * \brief Accesseur en lecture pour l'attribut exp de la classe Item
+ */
 Litterale& Item::getLitterale() const
 {
         if (exp==nullptr) throw ComputerException("Item : tentative d'acces a une Litterale inexistante");
         return *exp;
 }
 
-
+/**
+ * \fn void Pile::agrandissementCapacite()
+ * \brief Gestion des éventuels besoins en agrandissement du tableau d Items
+ */
 void Pile::agrandissementCapacite()
 {
     Item* newtab=new Item[(nbMax+1)*2];
@@ -1330,6 +1417,10 @@ void Pile::agrandissementCapacite()
     delete[] old;
 }
 
+/**
+ * \fn void Pile::push(Litterale& e)
+ * \brief Empile une nouvelle litterale transmise par référence.
+ */
 void Pile::push(Litterale& e)
 {
     if (nb==nbMax) agrandissementCapacite();
@@ -1338,7 +1429,10 @@ void Pile::push(Litterale& e)
     modificationEtat();
 }
 
-
+/**
+ * \fn void Pile::pop()
+ * \brief Depile l’objet Item au sommet de la pile
+ */
 void Pile::pop()
 {
     nb--;
@@ -1346,6 +1440,10 @@ void Pile::pop()
     modificationEtat();
 }
 
+/**
+ * \fn void Pile::affiche(QTextStream& f) const
+ * \brief Affiche la pile : message et litterales
+ */
 void Pile::affiche(QTextStream& f) const
 {
     f<<"********************************************* \n";
@@ -1358,18 +1456,29 @@ void Pile::affiche(QTextStream& f) const
     f<<"---------------------------------------------\n";
 }
 
-
+/**
+ * \fn Pile::~Pile()
+ * \brief Destructeur de la classe pile
+ */
 Pile::~Pile()
 {
     delete[] items;
 }
-
+/**
+ * \fn void Pile::pop()
+ * \brief Retourne une référence sur la litterale au sommet de la pile,
+ */
 Litterale& Pile::top() const
 {
     if (nb==0) throw ComputerException("aucune Litterale sur la pile");
     return items[nb-1].getLitterale();
 }
+/**
+ * \fn int Controleur::chercherAtome(QString s)
+ * \brief Cherche si un atome est deja utilise comme identificateur
+ * \return La methode retourne la position de l'atome si il existe, -1 sinon.
 
+ */
 int Controleur::chercherAtome(QString s)
 {
     for(int i=nbAtomes-1; i>=0; i--)
@@ -1384,6 +1493,10 @@ int Controleur::chercherAtome(QString s)
     return -1;
 }
 
+/**
+ * \fn void Controleur::agrandissementCapacite()
+ * \brief Gestion des éventuels besoins en agrandissement du tableau d Atome
+ */
 void Controleur::agrandissementCapacite()
 {
     Atome** newtab=new Atome*[(nbAtomesMax+1)*2];
@@ -1394,6 +1507,12 @@ void Controleur::agrandissementCapacite()
     delete[] old;
 }
 
+/**
+ * \fn void Controleur::removeAtome(Atome& e)
+ * \brief Suppression d un atome
+ *
+ * \param e Atome a supprimer
+ */
 void Controleur::removeAtome(Atome& e)
 {
     unsigned int i=0;
@@ -1405,6 +1524,11 @@ void Controleur::removeAtome(Atome& e)
     nbAtomes--;
 }
 
+/**
+ * \fn bool estUneExpression(const QString s)
+ * \brief Teste si la chaine passee en argument est une expression
+ * \param s QString a tester
+ */
 bool estUneExpression(const QString s)
 {
     if( s[0]=='\'' && s[s.length()-1]=='\'' )
@@ -1412,6 +1536,11 @@ bool estUneExpression(const QString s)
     return false;
 }
 
+/**
+ * \fn bool estUnProgramme(QString s)
+ * \brief Teste si la chaine passee en argument est un programme
+ * \param s QString a tester
+ */
 bool estUnProgramme(QString s)
 {
     if( s[0]=='[' && s[s.length()-1]==']' )
@@ -1419,6 +1548,11 @@ bool estUnProgramme(QString s)
     return false;
 }
 
+/**
+ * \fn bool estUnOperateurBinaire(const QString s)
+ * \brief Teste si la chaine passee en argument est un operateur binaire
+ * \param s QString a tester
+ */
 bool estUnOperateurBinaire(const QString s)
 {
     if (s=="+") return true;
@@ -1440,7 +1574,11 @@ bool estUnOperateurBinaire(const QString s)
     if (s=="STO") return true;
     return false;
 }
-
+/**
+ * \fn bool estUnOperateurUnaire(const QString s)
+ * \brief Teste si la chaine passee en argument est un operateur unaire
+ * \param s QString a tester
+ */
 bool estUnOperateurUnaire(const QString s)
 {
     if (s=="NEG") return true;
@@ -1457,6 +1595,11 @@ bool estUnOperateurUnaire(const QString s)
     return false;
 }
 
+/**
+ * \fn bool estUnOperateurSansArg(const QString s)
+ * \brief Teste si la chaine passee en argument est un operateur qui ne prend pas d'argument
+ * \param s QString a tester
+ */
 bool estUnOperateurSansArg(const QString s)
 {
     if (s=="CLEAR") return true;
@@ -1465,26 +1608,44 @@ bool estUnOperateurSansArg(const QString s)
     if (s=="LASTARGS") return true;
     return false;
 }
-
+/**
+ * \fn bool estUnOperateur(const QString s)
+ * \brief Teste si la chaine passee en argument est un operateur
+ * \param s QString a tester
+ */
 bool estUnOperateur(const QString s)
 {
     return(estUnOperateurBinaire(s) || estUnOperateurSansArg(s) || estUnOperateurUnaire(s));
 }
-
+/**
+ * \fn bool estUnEntier(const QString s)
+ * \brief Teste si la chaine passee en argument est un entier
+ * \param s QString a tester
+ */
 bool estUnEntier(const QString s)
 {
    bool ok=false;
    s.toInt(&ok);
    return ok;
 }
-
+/**
+ * \fn bool estUnReel(const QString s)
+ * \brief Teste si la chaine passee en argument est un reel
+ * \param s QString a tester
+ */
 bool estUnReel(const QString s)
 {
    bool ok=false;
    s.toDouble(&ok);
    return ok;
 }
-
+/**
+ * \fn bool estUnRationnel(const QString c, QString s, int i)
+ * \brief Teste si la chaine passee en argument est un entier
+ * \param c Chaine de caractere totale
+ * \param s Sous chaine situee avant i
+ * \param i indice ou on devrait rencontrer '/' si il s'agit d'un rationnel
+ */
 bool estUnRationnel(const QString c, QString s, int i)
 {
     if(estUnEntier(s) && c[i]=='/')
@@ -1507,6 +1668,15 @@ bool estUnRationnel(const QString c, QString s, int i)
     return false;
 }
 
+/**
+ * \fn Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep)
+ * \brief Gestion des operations numeriques binaires entre 2 Numeriques
+ * \param v1 2e Numerique depile
+ * \param v2 1er Numerique depile
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ * \param beep bip sonore
+ */
 Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep)
 {
     if (s == "+") res = v1 + v2;
@@ -1577,7 +1747,15 @@ Numerique Controleur::manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString 
     }
     return res;
 }
-
+/**
+ * \fn Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep)
+ * \brief Gestion des operations logiques binaires entre 2 Numeriques
+ * \param v1 2e Numerique depile
+ * \param v2 1er Numerique depile
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ * \param beep bip sonore
+ */
 Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep)
 {
     if (s == "==")
@@ -1669,7 +1847,14 @@ Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QStrin
     }
     return res;
 }*/
-
+/**
+ * \fn Expression Controleur::manageNumOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res)
+ * \brief Gestion des operations numeriques binaires entre une Expression et un Numerique
+ * \param v1 2e Litterale depilee (Expression)
+ * \param v2 1er Litterale depilee (Numerique converti en Expression)
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ */
 Expression Controleur::manageNumOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res)
 {
     if (s == "+") res = v1 + v2E;
@@ -1679,7 +1864,14 @@ Expression Controleur::manageNumOpeNumAndExpr(Expression v1, Expression v2E, QSt
     if (s == "$") res = v1.operator$(v2E);
     return res;
 }
-
+/**
+ * \fn Expression Controleur::manageLogicOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res)
+ * \brief Gestion des operations logiques binaires entre une Expression et un Numerique
+ * \param v1 2e Litterale depilee (Expression)
+ * \param v2 1er Litterale depilee (Numerique converti en Expression)
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ */
 Expression Controleur::manageLogicOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res)
 {
     if (s == "AND") res = v1.operatorAND(v2E);
@@ -1703,7 +1895,15 @@ Expression Controleur::manageLogicOpeNumAndExpr(Expression v1, Expression v2E, Q
     }
     return res;
 }*/
-
+/**
+ * \fn Expression Controleur::manageNumOpeExprAndExpr(Expression v1, Expression v2, QString s, Expression res)
+ * \brief Gestion des operations numeriques binaires entre 2 expressions
+ * \param v1 2e Expression depilee
+ * \param v2 1er Expression depilee
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ * \param beep bip sonore
+ */
 Expression Controleur::manageNumOpeExprAndExpr(Expression v1, Expression v2, QString s, Expression res)
 {
     if (s == "+") res = v1 + v2;
@@ -1713,7 +1913,15 @@ Expression Controleur::manageNumOpeExprAndExpr(Expression v1, Expression v2, QSt
     if (s == "$") res = v1.operator$(v2);
     return res;
 }
-
+/**
+ * \fn Expression Controleur::manageLogicOpeExprAndExpr(Expression v1, Expression v2, QString s, Expression res)
+ * \brief Gestion des operations logiques binaires entre 2 expressions
+ * \param v1 2e Expression depile
+ * \param v2 1er Expression depile
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ * \param beep bip sonore
+ */
 Expression Controleur::manageLogicOpeExprAndExpr(Expression v1, Expression v2, QString s, Expression res)
 {
     if (s == "AND") res = v1.operatorAND(v2);
