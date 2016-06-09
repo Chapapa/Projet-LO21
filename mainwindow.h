@@ -1,25 +1,3 @@
-/*#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
-
-#include <QMainWindow>
-
-namespace Ui {
-class MainWindow;
-}
-
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
-
-public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-
-private:
-    Ui::MainWindow *ui;
-};
-
-#endif // MAINWINDOW_H*/
 #ifndef QCOMPUTER_H
 #define QCOMPUTER_H
 #include <QApplication>
@@ -43,8 +21,12 @@ private:
 #include <QIcon>
 #include <windows.h>
 #include "computer.h"
+#include "pile.h"
+#include "controleur.h"
+#include "atome.h"
 
-class QComputer : public QWidget{
+class QComputer : public QWidget
+{
     Q_OBJECT
     //Main view
     QLineEdit* message;
@@ -99,7 +81,6 @@ class QComputer : public QWidget{
     QAction *ActiverSons;
     QAction *ParamCalc;
     QAction *EditerVar;
-    QAction *EditerProg;
 
     //Graphic pad
     QHBoxLayout* layout1;

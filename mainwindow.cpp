@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 
+
 QComputer::QComputer(QWidget *parent):QWidget(parent)
 {
 
@@ -123,7 +124,7 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     connect(pile, SIGNAL(edit()),this,SLOT(editProg()));
     connect(appliquer, SIGNAL(pressed()),this,SLOT(updateProg()));
 
-    // Barre d'options
+    // Toolbar
     menuOptions = new QMenu(this);
     menuEdition = new QMenu(this);
 
@@ -137,10 +138,9 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     beep = true;
     ActiverSons->setCheckable(true);
     ActiverSons->setChecked(true);
-    ParamCalc = menuOptions->addAction("Paramètres du calculateur");
+    ParamCalc = menuEdition->addAction("Paramètres du calculateur");
 
     EditerVar = menuEdition->addAction("Editer les variables stockées");
-    EditerProg = menuEdition->addAction("Editer les programmes stockés");
 
 
     connect(AfficherGraphicPad, SIGNAL(triggered()), this, SLOT(toggleGraphicPad()));
