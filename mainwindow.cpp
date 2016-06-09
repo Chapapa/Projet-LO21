@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 
-
+/**
+ * \fn QComputer::QComputer(QWidget *parent):QWidget(parent)
+ * \brief Constructeur
+ */
 QComputer::QComputer(QWidget *parent):QWidget(parent)
 {
 
@@ -158,6 +161,10 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     QObject::connect( this, SIGNAL(textChanged(QString)), &label, SLOT(setText(QString)) );
 }
 
+/**
+ * \fn void QComputer::updateProg()
+ * \brief Mise a jour d un programme
+ */
 void QComputer::updateProg()
 {
     pile->pop();
@@ -165,6 +172,10 @@ void QComputer::updateProg()
     refresh();
 }
 
+/**
+ * \fn void QComputer::editProg()
+ * \brief Edition d un programme
+ */
 void QComputer::editProg()
 {
     editProgT->setText(pile->top().toString());
@@ -174,6 +185,11 @@ void QComputer::editProg()
         fenetreEditProg->hide();
 }
 
+
+/**
+ * \fn void QComputer::createGraphicPad()
+ * \brief Creation du clavier graphique
+ */
 void QComputer::createGraphicPad()
 {
     layout1 = new QHBoxLayout;
@@ -290,6 +306,11 @@ void QComputer::createGraphicPad()
     connect( mapper, SIGNAL(mapped(QString)), this, SLOT(buttonClicked(QString)) );
 }
 
+
+/**
+ * \fn void QComputer::changeNbViews()
+ * \brief Parametrer le nombre d'items a afficher
+ */
 void QComputer::changeNbViews()
 {
     pile->setNbItemsToAffiche(getNbVuesPile->text().toInt());
@@ -319,6 +340,10 @@ void QComputer::changeNbViews()
     getNbVuesPile->clear();
 }
 
+/**
+ * \fn void QComputer::changeNbViewsVarEdit(unsigned int nbAtomes)
+ * \brief Parametrer le nombre de variables a afficher
+ */
 void QComputer::changeNbViewsVarEdit(unsigned int nbAtomes)
 {
     vueVarStockees->setFixedHeight(30*(vueVarStockees->rowCount()+1)+3);
@@ -358,6 +383,10 @@ void QComputer::changeNbViewsVarEdit(unsigned int nbAtomes)
     fenetreVarStockees->setFixedHeight(30*(vueVarStockees->rowCount())+20);
 }
 
+/**
+ * \fn void QComputer::toggleParamCalcView()
+ * \brief Afficher/masquer la fenetre d'edition des parametres du calculateur
+ */
 void QComputer::toggleParamCalcView()
 {
     if(fenetreParamCalc->isHidden())
@@ -366,6 +395,10 @@ void QComputer::toggleParamCalcView()
         fenetreParamCalc->hide();
 }
 
+/**
+ * \fn void QComputer::toggleEditerVarView()
+ * \brief Afficher/masquer la fenetre de gestion/edition des variables stockees
+ */
 void QComputer::toggleEditerVarView()
 {
     if(fenetreVarStockees->isHidden())
@@ -374,11 +407,19 @@ void QComputer::toggleEditerVarView()
         fenetreVarStockees->hide();
 }
 
+/**
+ * \fn void QComputer::toggleBeep()
+ * \brief activation/desactivation du bip sonore
+ */
 void QComputer::toggleBeep()
 {
     beep = !beep;
 }
 
+/**
+ * \fn void QComputer::toggleGraphicPad()
+ * \brief Afficher/masquer le clavier
+ */
 void QComputer::toggleGraphicPad()
 {
     if(plus->isHidden())
@@ -426,16 +467,29 @@ void QComputer::toggleGraphicPad()
 
 }
 
+
+/**
+ * \fn const QString QComputer::text() const
+ * \brief Retourne le texte entre dans la zone de commande
+ */
 const QString QComputer::text() const
 {
     return commande->text();
 }
 
+/**
+ * \fn void QComputer::buttonClicked( const QString &newText )
+ * \brief Mettre a jour la commande en ajoutant la valeur du bouton sur lequel l'utilisateur clique
+ */
 void QComputer::buttonClicked( const QString &newText )
 {
     commande->setText( commande->text() + newText );
 }
 
+/**
+ * \fn void QComputer::setText( const QString &newText )
+ * \brief Affecte la chaine de caractere en parametre a la commande
+ */
 void QComputer::setText( const QString &newText )
 {
     if( newText == commande->text() )
@@ -447,7 +501,10 @@ void QComputer::setText( const QString &newText )
     emit textChanged( commande->text() );
 }
 
-
+/**
+ * \fn void QComputer::refresh()
+ * \brief Rafraichir le calculateur
+ */
 void QComputer::refresh()
 {
     //MaJ du message
@@ -464,6 +521,10 @@ void QComputer::refresh()
     }
 }
 
+/**
+ * \fn void QComputer::updateEditVar()
+ * \brief Mettre a jour la vue dediee a la gestion des variables
+ */
 void QComputer::updateEditVar()
 {
     unsigned int nbAtomes = controleur->getNbAtomes();
@@ -498,6 +559,10 @@ void QComputer::updateEditVar()
     }
 }
 
+/**
+ * \fn void QComputer::modifierVar()
+ * \brief Modifier une variable stockee
+ */
 void QComputer::modifierVar()
 {
     QPushButton* p = qobject_cast<QPushButton *>(sender());
@@ -516,6 +581,10 @@ void QComputer::modifierVar()
     getValVar->setText(tmp[j]->getLitterale().toString());
 }
 
+/**
+ * \fn void QComputer::updateAtome()
+ * \brief Mettre a jour un atome
+ */
 void QComputer::updateAtome()
 {
     QString nom = getNomVar->text();
@@ -526,6 +595,10 @@ void QComputer::updateAtome()
     fenetreModifVar->hide();
 }
 
+/**
+ * \fn void QComputer::getNextCommande()
+ * \brief Passer a la commande suivante
+ */
 void QComputer::getNextCommande()
 {
     pile->setMessage("");
@@ -534,6 +607,10 @@ void QComputer::getNextCommande()
     commande->clear();
 }
 
+/**
+ * \fn void QComputer::backspace()
+ * \brief Effacer le dernier caractere entre
+ */
 void QComputer::backspace()
 {
     QString s=commande->text().mid(0,commande->text().length()-1);
