@@ -1,5 +1,5 @@
 #include "controleur.h"
-#include "litterale.h"
+#include "Litterale/litterale.h"
 #include "computer.h"
 
 
@@ -426,7 +426,7 @@ void Controleur::getRationnel(QString s, int &i, int &j, const QString& c)
     expAff.push(e);
 }
 
-void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
+void Controleur::manageBinOpe(bool beep, QString s)
 {
     try
     {
@@ -748,7 +748,7 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
 }
 
-void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
+void Controleur::manageUnOpe(bool beep, QString s)
 {
     /*if(expAff.top().getType()=="Atome")
     {
@@ -1028,7 +1028,7 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
                         {
                             if (expAff.taille() >= 2)
                             {
-                                manageBinOpe(false, str, i, j); // Gère toutes les opérations à effectuer avec l'opérateur binaire reçu
+                                manageBinOpe(false, str); // Gère toutes les opérations à effectuer avec l'opérateur binaire reçu
                             }// taille>=2
                             else //Manque d'opérandes
                             {
@@ -1040,7 +1040,7 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
                         {
                             if (expAff.taille() >= 1)
                             {
-                                manageUnOpe(false, str, i, j); // Gère toutes les opérations à effectuer avec l'opérateur unaire reçu
+                                manageUnOpe(false, str); // Gère toutes les opérations à effectuer avec l'opérateur unaire reçu
                             }
                             else // Pas d'opérande
                             {
@@ -1145,10 +1145,11 @@ void Controleur::manageSansArgOpe(bool beep, QString s/*, int &i, int &j*/)
 
 void Controleur::undoCommand()
 {
-    if(redo)
-        delete redo;
-    redo = new Memento(expMng, expAff, lastOpe);
-    reinstateMemento(undo);
+    if(lastOpe != "UNDO")
+    {
+        updateRedo();
+        reinstateMemento(undo);
+    }
 }
 
 
@@ -1162,14 +1163,14 @@ void Controleur::updateUndo()
 {
     if(undo)
         delete undo;
-    undo = new Memento(expMng, expAff, lastOpe);
+    undo = new Memento(expMng, expAff, "UNDO");
 }
 
 void Controleur::updateRedo()
 {
     if(redo)
         delete redo;
-    redo = new Memento(expMng, expAff, lastOpe);
+    redo = new Memento(expMng, expAff, "REDO");
 }
 
 void Controleur::updateLastArgs()
@@ -1252,7 +1253,7 @@ void Controleur::commande(const QString& c, bool beepOption)
                 {
                     Programme p=dynamic_cast<Programme&>(a.getLitterale());
                     expAff.push(expMng.addLitterale(p));
-                    manageUnOpe(true, "EVAL", i, j);
+                    manageUnOpe(true, "EVAL");
 
                 }
             }
@@ -1262,7 +1263,7 @@ void Controleur::commande(const QString& c, bool beepOption)
         {
             if (expAff.taille() >= 2)
             {
-                manageBinOpe(beepOption, s, i, j); // Gère toutes les opérations à effectuer avec l'opérateur binaire reçu
+                manageBinOpe(beepOption, s); // Gère toutes les opérations à effectuer avec l'opérateur binaire reçu
             }// taille>=2
             else //Manque d'opérandes
             {
@@ -1275,7 +1276,7 @@ void Controleur::commande(const QString& c, bool beepOption)
         {
             if (expAff.taille() >= 1)
             {
-                manageUnOpe(beepOption, s, i, j); // Gère toutes les opérations à effectuer avec l'opérateur unaire reçu
+                manageUnOpe(beepOption, s); // Gère toutes les opérations à effectuer avec l'opérateur unaire reçu
             }
             else // Pas d'opérande
             {

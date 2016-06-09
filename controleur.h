@@ -5,12 +5,12 @@
 
 class Controleur;
 
-#include "Litterale_mng.h"
+#include "Litterale/Litterale_mng.h"
 #include "pile.h"
-#include "atome.h"
-#include "numerique.h"
-#include "programme.h"
-#include "expression.h"
+#include "Litterale/atome.h"
+#include "Litterale/numerique.h"
+#include "Litterale/programme.h"
+#include "Litterale/expression.h"
 
 /**
  *  \class Memento
@@ -41,7 +41,7 @@ class Memento
             nb++;
         }
     }
-
+    void setLastOpe(QString lo) {lastOpe = lo;}
   private:
     friend class Controleur;
     LitteraleManager& lm;
@@ -98,9 +98,9 @@ public:
 
     void getRationnel(QString s, int &i, int &j, const QString& c);
 
-    void manageBinOpe(bool beep, QString s, int &i, int &j);
-    void manageUnOpe(bool beep, QString s, int &i, int &j);
-    void manageSansArgOpe(bool beep, QString s/*, int &i, int &j*/);
+    void manageBinOpe(bool beep, QString s);
+    void manageUnOpe(bool beep, QString s);
+    void manageSansArgOpe(bool beep, QString s);
 
     Numerique manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep);
     Numerique manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep);

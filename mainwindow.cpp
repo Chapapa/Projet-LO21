@@ -127,9 +127,14 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     // Toolbar
     menuOptions = new QMenu(this);
     menuEdition = new QMenu(this);
+    undoRedo = new QMenu(this);
 
+    tbar->addWidget(undoRedo);
     tbar->addWidget(menuOptions);
     tbar->addWidget(menuEdition);
+
+    Undo = undoRedo->addAction("Annuler");
+    Redo = undoRedo->addAction("Refaire");
 
     AfficherGraphicPad = menuOptions->addAction("Activer/Desactiver le clavier Graphique");
     AfficherGraphicPad->setCheckable(true);
@@ -142,7 +147,15 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
 
     EditerVar = menuEdition->addAction("Editer les variables stockées");
 
+    Undo->setShortcut(tr("Ctrl+Z"));
+    Redo->setShortcut(tr("Ctrl+Y"));
+    ctrlZ = new QShortcut(tr("Ctrl+Z"), this);
+    ctrlY = new QShortcut(tr("Ctrl+Y"), this);
+    connect(ctrlZ, SIGNAL(activated()), this, SLOT(undo()));
+    connect(ctrlY, SIGNAL(activated()), this, SLOT(redo()));
 
+    connect(Undo, SIGNAL(triggered()), this, SLOT(undo()));
+    connect(Redo, SIGNAL(triggered()), this, SLOT(redo()));
     connect(AfficherGraphicPad, SIGNAL(triggered()), this, SLOT(toggleGraphicPad()));
     connect(ParamCalc, SIGNAL(triggered()), this, SLOT(toggleParamCalcView()));
     connect(ActiverSons, SIGNAL(triggered()), this, SLOT(toggleBeep()));
@@ -317,6 +330,16 @@ void QComputer::changeNbViews()
         vuePile->setItem(i,0, new QTableWidgetItem(""));
     refresh();
     getNbVuesPile->clear();
+}
+
+void QComputer::undo()
+{
+    controleur->undoCommand();
+}
+
+void QComputer::redo()
+{
+    controleur->redoCommand();
 }
 
 void QComputer::changeNbViewsVarEdit(unsigned int nbAtomes)

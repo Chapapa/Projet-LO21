@@ -19,11 +19,12 @@
 #include <QMainWindow>
 #include <QString>
 #include <QIcon>
+#include <QShortcut>
 #include <windows.h>
 #include "computer.h"
 #include "pile.h"
 #include "controleur.h"
-#include "atome.h"
+#include "Litterale/atome.h"
 
 class QComputer : public QWidget
 {
@@ -77,10 +78,15 @@ class QComputer : public QWidget
     QToolBar *tbar;
     QMenu *menuEdition;
     QMenu *menuOptions;
+    QMenu *undoRedo;
+    QAction *Undo;
+    QAction *Redo;
     QAction *AfficherGraphicPad;
     QAction *ActiverSons;
     QAction *ParamCalc;
     QAction *EditerVar;
+    QShortcut* ctrlZ;
+    QShortcut* ctrlY;
 
     //Graphic pad
     QHBoxLayout* layout1;
@@ -131,6 +137,8 @@ public slots:
     void updateProg();
     void updateEditVar();
     void modifierVar();
+    void undo();
+    void redo();
 signals:
     void textChanged(const QString &text);
 private slots:

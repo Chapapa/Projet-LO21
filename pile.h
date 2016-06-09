@@ -4,7 +4,7 @@
 class Litterale;
 #include "computer.h"
 #include "item.h"
-#include "litterale.h"
+#include "Litterale/litterale.h"
 
 
 /**

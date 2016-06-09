@@ -3,11 +3,6 @@
 
 
 void decompCommande(const QString& c,int &i, int &j);
-/**
- * \fn QString Programme::toExpr()const
- * \brief Conversion d'un programme en expression
- * \return Cette methode retourne une chaine de caractère qui correspond au programme, ecrite selon les conventions utilisees pour les expressions
- */
 
 
 
