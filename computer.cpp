@@ -55,7 +55,10 @@ QString Programme::toExpr()const
     return exp;
 }
 
-
+/**
+ * \fn bool estUnIndentificateur(const Expression& e)
+ * \brief Test si l'expression passee en argument est un identificateur
+ */
 bool estUnIndentificateur(const Expression& e)
 {
     int i=0;
@@ -74,6 +77,10 @@ bool estUnIndentificateur(const Expression& e)
 
 }
 
+/**
+ * \fn Litterale& Atome::getLitterale() const
+ * \brief Accesseur en lecture de l'attribut exp
+ */
 Litterale& Atome::getLitterale() const
 {
         if (exp==nullptr) throw ComputerException("Atome : tentative d'acces a une Litterale inexistante");
@@ -109,6 +116,10 @@ Atome Expression::operatorSTO(Litterale& l)
     return NULL;
 }
 
+/**
+ * \fn Expression Expression::operator<=(const Expression& e)
+ * \brief Operateur <=
+ */
 Expression Expression::operator<=(const Expression& e)
 {
     int i=0;
@@ -156,6 +167,10 @@ Expression Expression::operator<=(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator>=(const Expression& e)
+ * \brief Operateur >=
+ */
 Expression Expression::operator>=(const Expression& e)
 {
     int i=0;
@@ -203,6 +218,10 @@ Expression Expression::operator>=(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator<(const Expression& e)
+ * \brief Operateur <
+ */
 Expression Expression::operator<(const Expression& e)
 {
     int i=0;
@@ -249,7 +268,10 @@ Expression Expression::operator<(const Expression& e)
         res= "("+exp+")<("+e.exp+")";
     return Expression(res);
 }
-
+/**
+ * \fn Expression Expression::operator>(const Expression& e)
+ * \brief Operateur >
+ */
 Expression Expression::operator>(const Expression& e)
 {
     int i=0;
@@ -297,6 +319,10 @@ Expression Expression::operator>(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator!=(const Expression& e)
+ * \brief Operateur !=
+ */
 Expression Expression::operator!=(const Expression& e)
 {
 
@@ -345,7 +371,10 @@ Expression Expression::operator!=(const Expression& e)
     return Expression(res);
 }
 
-
+/**
+ * \fn Expression Expression::operator==(const Expression& e)
+ * \brief Operateur ==
+ */
 Expression Expression::operator==(const Expression& e)
 {
 
@@ -393,7 +422,10 @@ Expression Expression::operator==(const Expression& e)
         res= "("+exp+")==("+e.exp+")";
     return Expression(res);
 }
-
+/**
+ * \fn Expression Expression::operatorAND(const Expression& e)
+ * \brief Operateur AND
+ */
 Expression Expression::operatorAND(const Expression& e)
 {
     QString res;
@@ -401,7 +433,10 @@ Expression Expression::operatorAND(const Expression& e)
 
     return Expression(res);
 }
-
+/**
+ * \fn Expression Expression::operatorOR(const Expression& e)
+ * \brief Operateur OR
+ */
 Expression Expression::operatorOR(const Expression& e)
 {
     QString res;
@@ -409,7 +444,10 @@ Expression Expression::operatorOR(const Expression& e)
 
     return Expression(res);
 }
-
+/**
+ * \fn Expression Expression::operatorNOT()
+ * \brief Operateur NOT
+ */
 Expression Expression::operatorNOT()
 {
     QString res;
@@ -418,7 +456,10 @@ Expression Expression::operatorNOT()
     return Expression(res);
 }
 
-
+/**
+ * \fn Expression Expression::operatorNEG()
+ * \brief Operateur NEG
+ */
 Expression Expression::operatorNEG()
 {
     QString res;
@@ -427,6 +468,10 @@ Expression Expression::operatorNEG()
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator*(const Expression& e)
+ * \brief Operateur *
+ */
 Expression Expression::operator*(const Expression& e)
 {
     int i=0;
@@ -474,6 +519,10 @@ Expression Expression::operator*(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator/(const Expression& e)
+ * \brief Operateur /
+ */
 Expression Expression::operator/(const Expression& e)
 {
     int i=0;
@@ -522,6 +571,10 @@ Expression Expression::operator/(const Expression& e)
 
 }
 
+/**
+ * \fn Expression Expression::operator$(const Expression& e)
+ * \brief Operateur $
+ */
 Expression Expression::operator$(const Expression& e)
 {
     int i=0;
@@ -569,6 +622,10 @@ Expression Expression::operator$(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator+(const Expression& e)
+ * \brief Operateur +
+ */
 Expression Expression::operator+(const Expression& e)
 {
     int i=0;
@@ -616,6 +673,10 @@ Expression Expression::operator+(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator-(const Expression& e)
+ * \brief Operateur -
+ */
 Expression Expression::operator-(const Expression& e)
 {
     int i=0;
@@ -663,7 +724,6 @@ Expression Expression::operator-(const Expression& e)
     return Expression(res);
 }
 
-
 /**
  * \fn QString RemoveSpaces(QString s)
  * \brief La fonction enleve les espaces dans les expressions entrées par l'utilisateur
@@ -683,6 +743,11 @@ QString RemoveSpaces(QString s)
     return res;
 }
 
+
+/**
+ * \fn Numerique Numerique::operator+(const Numerique& n)
+ * \brief Operateur +
+ */
 Numerique Numerique::operator+(const Numerique& n)
 {
     double nr;
@@ -718,6 +783,10 @@ Numerique Numerique::operator+(const Numerique& n)
     return res;
 }
 
+/**
+ * \fn Numerique Numerique::operator-(const Numerique& n)
+ * \brief Operateur -
+ */
 Numerique Numerique::operator-(const Numerique& n)
 {
     double nr;
@@ -752,7 +821,10 @@ Numerique Numerique::operator-(const Numerique& n)
     return res;
 }
 
-
+/**
+ * \fn Numerique Numerique::operator*(const Numerique& n)
+ * \brief Operateur *
+ */
 Numerique Numerique::operator*(const Numerique& n)
 {
     double nr;
@@ -788,6 +860,10 @@ Numerique Numerique::operator*(const Numerique& n)
     return res;
 }
 
+/**
+ * \fn Numerique Numerique::operator/(const Numerique& n)
+ * \brief Operateur /
+ */
 Numerique Numerique::operator/(const Numerique& n)
 {
     double nr;
@@ -828,13 +904,20 @@ Numerique Numerique::operator/(const Numerique& n)
 
 }
 
+/**
+ * \fn Numerique Numerique::operator$(const Numerique& n)
+ * \brief Operateur $
+ */
 Numerique Numerique::operator$(const Numerique& n)
 {
     Numerique res(numReel,n.numReel,typeRe,n.typeRe, denomReel, n.denomReel);
     return res;
 }
 
-
+/**
+ * \fn Numerique Numerique::operatorDIV(const Numerique& n)
+ * \brief Operateur DIV
+ */
 Numerique Numerique::operatorDIV(const Numerique& n)
 {
    int num=(int)numReel/(int)n.numReel;
@@ -843,6 +926,10 @@ Numerique Numerique::operatorDIV(const Numerique& n)
 
 }
 
+/**
+ * \fn Numerique Numerique::operatorMOD(const Numerique& n)
+ * \brief Operateur MOD
+ */
 Numerique Numerique::operatorMOD(const Numerique& n)
 {
    int num=(int)numReel%(int)n.numReel;
@@ -850,6 +937,10 @@ Numerique Numerique::operatorMOD(const Numerique& n)
    return res;
 }
 
+/**
+ * \fn Numerique Numerique::operator==(const Numerique& n)
+ * \brief Operateur ==
+ */
 Numerique Numerique::operator==(const Numerique& n)
 {
 
@@ -866,6 +957,10 @@ Numerique Numerique::operator==(const Numerique& n)
 
 }
 
+/**
+ * \fn Numerique Numerique::operator!=(const Numerique& n)
+ * \brief Operateur !=
+ */
 Numerique Numerique::operator!=(const Numerique& n)
 {
 
@@ -882,6 +977,10 @@ Numerique Numerique::operator!=(const Numerique& n)
 
 }
 
+/**
+ * \fn Numerique Numerique::operator>=(const Numerique& n)
+ * \brief Operateur >=
+ */
 Numerique Numerique::operator>=(const Numerique& n)
 {
     double temp1=(double)numReel/(double)denomReel;
@@ -898,6 +997,10 @@ Numerique Numerique::operator>=(const Numerique& n)
     }
 }
 
+/**
+ * \fn Numerique Numerique::operator<=(const Numerique& n)
+ * \brief Operateur <=
+ */
 Numerique Numerique::operator<=(const Numerique& n)
 {
     double temp1=(double)numReel/(double)denomReel;
@@ -914,6 +1017,10 @@ Numerique Numerique::operator<=(const Numerique& n)
     }
 }
 
+/**
+ * \fn Numerique Numerique::operator<(const Numerique& n)
+ * \brief Operateur <
+ */
 Numerique Numerique::operator<(const Numerique& n)
 {
     double temp1=(double)numReel/(double)denomReel;
@@ -930,6 +1037,10 @@ Numerique Numerique::operator<(const Numerique& n)
     }
 }
 
+/**
+ * \fn Numerique Numerique::operator>(const Numerique& n)
+ * \brief Operateur >
+ */
 Numerique Numerique::operator>(const Numerique& n)
 {
     double temp1=(double)numReel/(double)denomReel;
@@ -946,6 +1057,10 @@ Numerique Numerique::operator>(const Numerique& n)
     }
 }
 
+/**
+ * \fn Numerique Numerique::operatorAND(const Numerique& n)
+ * \brief Operateur AND
+ */
 Numerique Numerique::operatorAND(const Numerique& n)
 {
 
@@ -976,6 +1091,10 @@ Numerique Numerique::operatorAND(const Numerique& n)
     }
 }
 
+/**
+ * \fn Numerique Numerique::operatorOR(const Numerique& n)
+ * \brief Operateur OR
+ */
 Numerique Numerique::operatorOR(const Numerique& n)
 {
     if ( numReel>0 || n.numReel>0)
@@ -996,6 +1115,10 @@ Numerique Numerique::operatorOR(const Numerique& n)
 
 }
 
+/**
+ * \fn Numerique Numerique::operatorNOT()
+ * \brief Operateur NOT
+ */
 Numerique Numerique::operatorNOT()
 {
     if ( numReel>0)
@@ -1015,18 +1138,29 @@ Numerique Numerique::operatorNOT()
     }
 }
 
+/**
+ * \fn Numerique Numerique::operatorNEG()
+ * \brief Operateur NEG
+ */
 Numerique Numerique::operatorNEG()
 {
     Numerique res(-numReel,-numIm,typeRe,typeIm,denomReel, denomIm);
     return res;
 }
 
+/**
+ * \fn Numerique Numerique::operatorNUM()
+ * \brief Operateur NUM : retourne le numerateur
+ */
 Numerique Numerique::operatorNUM()
 {
     Numerique res(numReel,"entier");
     return res;
 }
-
+/**
+ * \fn Numerique Numerique::operatorDEN()
+ * \brief Operateur DEN : retourne le denominateur
+ */
 Numerique Numerique::operatorDEN()
 {
 
@@ -1034,6 +1168,10 @@ Numerique Numerique::operatorDEN()
     return res;
 }
 
+/**
+ * \fn Numerique Numerique::operatorRE()
+ * \brief Operateur RE : retourne la partie reelle
+ */
 Numerique Numerique::operatorRE()
 {
     QString typeRes;
@@ -1057,6 +1195,11 @@ Numerique Numerique::operatorRE()
     return res;
 }
 
+
+/**
+ * \fn Numerique Numerique::operatorIM()
+ * \brief Operateur IM : retourne la partie imaginaire
+ */
 Numerique Numerique::operatorIM()
 {
     QString typeRes;
@@ -1949,6 +2092,15 @@ Expression Controleur::manageLogicOpeExprAndExpr(Expression v1, Expression v2, Q
     return res;
 }
 */
+
+/**
+ * \fn Expression Controleur::manageNumOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
+ * \brief Gestion des operations numeriques binaires entre un Numerique et une Expression
+ * \param v1 2e Litterale depilee : Numerique converti en expression
+ * \param v2 1er Litterale depilee : Expression
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ */
 Expression Controleur::manageNumOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
 {
     if (s == "+") resE = v1E + v2;
@@ -1959,6 +2111,15 @@ Expression Controleur::manageNumOpeExprAndNum(Expression v1E, Expression v2, QSt
     return resE;
 }
 
+
+/**
+ * \fn Expression Controleur::manageLogicOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
+ * \brief Gestion des operations logiques binaires entre un Numerique et une Expression
+ * \param v1 2e Litterale depilee : Numerique converti en expression
+ * \param v2 1er Litterale depilee : Expression
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ */
 Expression Controleur::manageLogicOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
 {
     if (s == "AND") resE = v1E.operatorAND(v2);
@@ -1986,6 +2147,14 @@ Expression Controleur::manageLogicOpeExprAndNum(Expression v1E, Expression v2, Q
     return res;
 }*/
 
+/**
+ * \fn Atome Controleur::manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s, Atome res)
+ * \brief Gestion de l'identification d'un Numerique par une Expression
+ * \param v1 2e Litterale depilee : Numerique a stocker
+ * \param v2 1er Litterale depilee : Expression
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ */
 Atome Controleur::manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s, Atome res)
 {
     if (s == "STO")
@@ -1997,6 +2166,14 @@ Atome Controleur::manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s
     return res;
 }
 
+/**
+ * \fn Atome Controleur::manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString s, Atome res)
+ * \brief Gestion de l'identification d'une Expression par une Expression
+ * \param v1 2e Litterale depilee : Expression a stocker
+ * \param v2 1er Litterale depilee : Expression
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ */
 Atome Controleur::manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString s, Atome res)
 {
     if (s == "STO")
@@ -2008,6 +2185,14 @@ Atome Controleur::manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString
     return res;
 }
 
+/**
+ * \fn Atome Controleur::manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString s, Atome res)
+ * \brief Gestion de l'identification d'un Programme par une Expression
+ * \param v1 2e Litterale depilee : Programme a stocker
+ * \param v2 1er Litterale depilee : Expression
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ */
 Atome Controleur::manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString s, Atome res)
 {
     if (s == "STO")
@@ -2019,6 +2204,13 @@ Atome Controleur::manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString
     return res;
 }
 
+/**
+ * \fn void decompCommande(const QString& c,int &i, int &j)
+ * \brief Détermine les i et j pour décomposer la commande reçue
+ * \param c Chaine a decomposer
+ * \param i Fin de la sous chaine
+ * \param j Debut de la sous chaine
+ */
 void decompCommande(const QString& c,int &i, int &j)
 {
     while(i < (c.length()-1) && c[i] == ' ')
@@ -2084,6 +2276,14 @@ void decompCommande(const QString& c,int &i, int &j)
     }
 }
 
+/**
+ * \fn void Controleur::getRationnel(QString s, int &i, int &j, const QString& c)
+ * \brief Empile un rationnel
+ * \param c Chaine a decomposer
+ * \param i Fin de la sous chaine
+ * \param j Debut de la sous chaine
+ * \param s sous chaine
+ */
 void Controleur::getRationnel(QString s, int &i, int &j, const QString& c)
 {
     Numerique v1(s.toInt());
@@ -2104,6 +2304,14 @@ void Controleur::getRationnel(QString s, int &i, int &j, const QString& c)
     expAff.push(e);
 }
 
+/**
+ * \fn void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
+ * \brief Gestion des operations binaires
+ * \param beep activation/desactivation du bip sonore
+ * \param i Fin de la sous chaine
+ * \param j Debut de la sous chaine
+ * \param s operateur
+ */
 void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 {
     try
@@ -2426,6 +2634,14 @@ void Controleur::manageBinOpe(bool beep, QString s, int &i, int &j)
 
 }
 
+/**
+ * \fn void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
+ * \brief Gestion des operations unaires
+ * \param beep activation/desactivation du bip sonore
+ * \param i Fin de la sous chaine
+ * \param j Debut de la sous chaine
+ * \param s operateur
+ */
 void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
 {    
     /*if(expAff.top().getType()=="Atome")
@@ -2761,7 +2977,13 @@ void Controleur::manageUnOpe(bool beep, QString s, int &i, int &j)
     }
 }
 
-void Controleur::manageSansArgOpe(bool beep, QString s/*, int &i, int &j*/)
+/**
+ * \fn void Controleur::manageSansArgOpe(bool beep, QString s)
+ * \brief Gestion des operations unaires
+ * \param beep activation/desactivation du bip sonore
+ * \param s operateur
+ */
+void Controleur::manageSansArgOpe(bool beep, QString s)
 {
     if (s == "CLEAR")
     {
@@ -2821,6 +3043,10 @@ void Controleur::manageSansArgOpe(bool beep, QString s/*, int &i, int &j*/)
     }
 }
 
+/**
+ * \fn void Controleur::undoCommand()
+ * \brief Operateur undo
+ */
 void Controleur::undoCommand()
 {
     if(redo)
@@ -2829,13 +3055,19 @@ void Controleur::undoCommand()
     reinstateMemento(undo);
 }
 
-
+/**
+ * \fn void Controleur::redoCommand()
+ * \brief Operateur redo
+ */
 void Controleur::redoCommand()
 {
     reinstateMemento(redo);
 }
 
-
+/**
+ * \fn void Controleur::updateUndo()
+ * \brief Mise a jour du memento undo
+ */
 void Controleur::updateUndo()
 {
     if(undo)
@@ -2843,6 +3075,10 @@ void Controleur::updateUndo()
     undo = new Memento(expMng, expAff, lastOpe);
 }
 
+/**
+ * \fn void Controleur::updateRedo()
+ * \brief Mise a jour du memento redo
+ */
 void Controleur::updateRedo()
 {
     if(redo)
@@ -2850,6 +3086,10 @@ void Controleur::updateRedo()
     redo = new Memento(expMng, expAff, lastOpe);
 }
 
+/**
+ * \fn void Controleur::updateLastArgs()
+ * \brief Mise a jour du memento pour l'operateur LASTARG
+ */
 void Controleur::updateLastArgs()
 {
     if(lastArgs)
@@ -2857,7 +3097,12 @@ void Controleur::updateLastArgs()
     lastArgs = new Memento(expMng, expAff, lastOpe);
 }
 
-
+/**
+ * \fn void Controleur::commande(const QString& c, bool beepOption)
+ * \brief Gestion de la commande reçue
+ * \param c commande a traiter
+ * \param beepOption activation/desactivation du bip sonore
+ */
 void Controleur::commande(const QString& c, bool beepOption)
 {
     QString s;

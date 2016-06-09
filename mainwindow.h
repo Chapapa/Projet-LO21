@@ -44,6 +44,11 @@ private:
 #include <windows.h>
 #include "computer.h"
 
+
+/**
+ *  \class QComputer
+ *  \brief Interface graphique de l'application
+ */
 class QComputer : public QWidget{
     Q_OBJECT
     //Main view
