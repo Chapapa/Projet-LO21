@@ -42,7 +42,7 @@ public :
 
 };
 
-bool estUnIndentificateur(const Expression& e);
+bool estUnIdentificateur(const Expression& e);
 
 #endif // EXPRESSION
 

@@ -6,7 +6,7 @@
 #include "programme.h"
 
 
-bool estUnIndentificateur(const Expression& e)
+bool estUnIdentificateur(const Expression& e)
 {
     int i=0;
     QString s=e.getExp();

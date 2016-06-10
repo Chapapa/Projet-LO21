@@ -509,7 +509,7 @@ void Controleur::manageBinOpe(bool beep, QString s)
                 {
                     Atome resA("");
                     if(!estUnOperateurBinaire(v2.getExp())&& !estUnOperateurUnaire(v2.getExp())&& !estUnOperateurSansArg(v2.getExp())
-                            && estUnIndentificateur(v2))
+                            && estUnIdentificateur(v2))
                     {
                         resA = manageAtomeOpeExprAndExpr(v1, v2,s, resA);
                         //Litterale& e=expMng.addLitterale(resA);
@@ -553,7 +553,7 @@ void Controleur::manageBinOpe(bool beep, QString s)
                 {
                     Atome resA("");
                     if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) &&
-                            !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
+                            !estUnOperateurSansArg(v2.getExp()) && estUnIdentificateur(v2))
                     {
                         resA = manageAtomeOpeNumAndExpr(v1, v2,s, resA);
                         //Litterale& e=expMng.addLitterale(resA);
@@ -604,7 +604,7 @@ void Controleur::manageBinOpe(bool beep, QString s)
                 if (s=="STO")
                 {
                     Atome resA("");
-                    if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()) && estUnIndentificateur(v2))
+                    if(!estUnOperateurBinaire(v2.getExp()) && !estUnOperateurUnaire(v2.getExp()) && !estUnOperateurSansArg(v2.getExp()) && estUnIdentificateur(v2))
                     {
                         resA = manageAtomeOpePrgmAndExpr(v1, v2,s, resA);
                         //Litterale& e=expMng.addLitterale(resA.getLitterale());
@@ -750,56 +750,6 @@ void Controleur::manageBinOpe(bool beep, QString s)
 
 void Controleur::manageUnOpe(bool beep, QString s)
 {
-    /*if(expAff.top().getType()=="Atome")
-    {
-        try
-        {
-
-            Atome v1=dynamic_cast<Atome&>(expAff.top());
-            expMng.removeLitterale(expAff.top());
-            expAff.pop();
-
-
-            Atome res("");// on initialise res a zero
-            if (s == "FORGET")
-            {
-                res = v1.operatorFORGET();
-                removeAtome(v1);
-                Litterale& e=expMng.addLitterale(res);
-                expAff.push(e);
-            }
-            else
-            {
-                if (v1.getLitterale().getType()=="Numerique")
-                {
-                    Numerique n=dynamic_cast<Numerique&>(v1.getLitterale());
-                    expAff.push(expMng.addLitterale(n));
-                }
-                if (v1.getLitterale().getType()=="Programme")
-                {
-                    Programme p=dynamic_cast<Programme&>(v1.getLitterale());
-                    expAff.push(expMng.addLitterale(p));
-
-                }
-                if (v1.getLitterale().getType()=="Expression")
-                {
-                    Expression p=dynamic_cast<Expression&>(v1.getLitterale());
-                    expAff.push(expMng.addLitterale(p));
-
-                }
-            }
-
-
-
-        }
-        catch(std::bad_cast& e)
-        {
-            if(beep)
-                Beep(500,500);
-            expAff.setMessage(e.what());
-        }
-    }*/
-
 
     if(expAff.top().getType()=="Numerique")
     {
@@ -931,7 +881,7 @@ void Controleur::manageUnOpe(bool beep, QString s)
             if (s == "FORGET")
             {
                 Atome resA("");
-                if(estUnIndentificateur(v1.getExp()) && !estUnOperateur(v1.getExp()))
+                if(estUnIdentificateur(v1.getExp()) && !estUnOperateur(v1.getExp()))
                 {
                     int ind=chercherAtome(v1.getExp());
                     if( ind == -1)// n'existe pas
@@ -951,10 +901,118 @@ void Controleur::manageUnOpe(bool beep, QString s)
                  return;
             }
 
+            if(s == "EVAL")
+            {
+                QString str;
+                int i=0, j=0;
+                QString c=v1.getExp();
+                while(i < (c.length()))
+                {
+                    decompCommande(c, i, j);// détermine les i et j pour décomposer la commande reçue à chaque itération de la boucle
+
+                    if(i-j != 0)
+                        str = c.mid(j,i-j);
+                    else
+                        str = c.mid(j, 1);
+
+                    if(estUnIdentificateur(str) && !estUnOperateur(str))
+                    {
+                        if (chercherAtome(str)== -1)// n'existe pas
+                        {
+                            expAff.setMessage("Erreur : l'identificateur n'existe pas");
+                        }
+                        else if (chercherAtome(str)!= -1)// existe
+                        {
+                            Atome a=dynamic_cast<Atome&>(*atomes[chercherAtome(str)]);
+                            if (a.getLitterale().getType()=="Numerique")
+                            {
+                                Numerique n=dynamic_cast<Numerique&>(a.getLitterale());
+                                expAff.push(expMng.addLitterale(n));
+                            }
+                            else
+                            {
+                                expAff.setMessage("Erreur : l'identificateur ne pointe pas sur un numerique");
+                            }
+                        }
+                    }
+                    else if(estUnOperateurBinaire(str))
+                    {
+
+                        j = i;
+                        while(i < (c.length()-1) && !estUnOperateur((QString)c[i]) && c[i] != '(' && c[i] != ')')
+                        {
+                            i++;
+                        }
+                        if(i == c.length()-1)
+                        {
+                            i++;
+                        }
+                        QString str2;
+                        if(i-j != 0)
+                            str2 = c.mid(j,i-j);
+                        else
+                            str2 = c.mid(j, 1);
+                        if(estUnIdentificateur(str2) && !estUnOperateur(str2))
+                        {
+                            if (chercherAtome(str2)== -1)// n'existe pas
+                            {
+                                expAff.setMessage("Erreur : l'identificateur n'existe pas");
+                            }
+                            else if (chercherAtome(str2)!= -1)// existe
+                            {
+                                Atome a=dynamic_cast<Atome&>(*atomes[chercherAtome(str2)]);
+                                if (a.getLitterale().getType()=="Numerique")
+                                {
+                                    Numerique n=dynamic_cast<Numerique&>(a.getLitterale());
+                                    expAff.push(expMng.addLitterale(n));
+                                }
+                                else
+                                {
+                                    expAff.setMessage("Erreur : l'identificateur ne pointe pas sur un numerique");
+                                }
+                            }
+                        }
+                        if (expAff.taille() >= 2)
+                        {
+                            manageBinOpe(beep, str); // Gère toutes les opérations à effectuer avec l'opérateur binaire reçu
+                        }// taille>=2
+                        else //Manque d'opérandes
+                        {
+                            expAff.setMessage("Erreur : pas assez d'arguments");
+                        }
+                    }
+                    else if(estUnOperateurUnaire(str))
+                    {
+                        if (expAff.taille() >= 1)
+                        {
+                            manageUnOpe(beep, str); // Gère toutes les opérations à effectuer avec l'opérateur unaire reçu
+                        }
+                        else // Pas d'opérande
+                        {
+                            expAff.setMessage("Erreur : pas assez d'arguments");
+                        }
+
+                    }
+                    else if(estUnOperateurSansArg(str))
+                    {
+                        manageSansArgOpe(beep, str);
+                    }
+
+                    else
+                    {
+                        expAff.setMessage("Erreur : commande inconnue");
+                    }
+                    j = i;
+                }
+            }
+
 
             if (s == "NOT") res = v1.operatorNOT();
-            Litterale& e=expMng.addLitterale(res);
-            expAff.push(e);
+            if(res.getExp()!="")
+            {
+                Litterale& e=expMng.addLitterale(res);
+                expAff.push(e);
+            }
         }
         catch(std::bad_cast& e)
         {
@@ -995,10 +1053,6 @@ void Controleur::manageUnOpe(bool beep, QString s)
                         else
                             str = c.mid(j, 1);
 
-                        if(str != "UNDO")
-                        {
-
-                        }
 
                         if(i < c.length()-1 && estUnRationnel(c, str, i))
                         {
@@ -1028,7 +1082,7 @@ void Controleur::manageUnOpe(bool beep, QString s)
                         {
                             if (expAff.taille() >= 2)
                             {
-                                manageBinOpe(false, str); // Gère toutes les opérations à effectuer avec l'opérateur binaire reçu
+                                manageBinOpe(beep, str); // Gère toutes les opérations à effectuer avec l'opérateur binaire reçu
                             }// taille>=2
                             else //Manque d'opérandes
                             {
@@ -1040,7 +1094,7 @@ void Controleur::manageUnOpe(bool beep, QString s)
                         {
                             if (expAff.taille() >= 1)
                             {
-                                manageUnOpe(false, str); // Gère toutes les opérations à effectuer avec l'opérateur unaire reçu
+                                manageUnOpe(beep, str); // Gère toutes les opérations à effectuer avec l'opérateur unaire reçu
                             }
                             else // Pas d'opérande
                             {
@@ -1234,11 +1288,10 @@ void Controleur::commande(const QString& c, bool beepOption)
             s = s.mid(1,s.length()-2);
             expAff.push(expMng.addLitteraleP(s));
         }
-        else if(estUnIndentificateur(s) && !estUnOperateur(s))
+        else if(estUnIdentificateur(s) && !estUnOperateur(s))
         {
             if (chercherAtome(s)== -1)// n'existe pas
             {
-                Expression e(s);
                 expAff.push(expMng.addLitteraleE(s));
             }
             else if (chercherAtome(s)!= -1)// existe deja
@@ -1249,12 +1302,16 @@ void Controleur::commande(const QString& c, bool beepOption)
                     Numerique n=dynamic_cast<Numerique&>(a.getLitterale());
                     expAff.push(expMng.addLitterale(n));
                 }
-                if (a.getLitterale().getType()=="Programme")
+                else if (a.getLitterale().getType()=="Programme")
                 {
                     Programme p=dynamic_cast<Programme&>(a.getLitterale());
                     expAff.push(expMng.addLitterale(p));
                     manageUnOpe(true, "EVAL");
-
+                }
+                else if (a.getLitterale().getType()=="Expression")
+                {
+                    Expression n=dynamic_cast<Expression&>(a.getLitterale());
+                    expAff.push(expMng.addLitterale(n));
                 }
             }
 

@@ -1,14 +1,10 @@
 #include "mainwindow.h"
 
-<<<<<<< HEAD
 
-
-=======
 /**
  * \fn QComputer::QComputer(QWidget *parent):QWidget(parent)
  * \brief Constructeur
  */
->>>>>>> 0de3cf773974d681d214b0986679abf8576e35b6
 QComputer::QComputer(QWidget *parent):QWidget(parent)
 {
 
@@ -357,7 +353,6 @@ void QComputer::changeNbViews()
     getNbVuesPile->clear();
 }
 
-<<<<<<< HEAD
 void QComputer::undo()
 {
     controleur->undoCommand();
@@ -368,12 +363,10 @@ void QComputer::redo()
     controleur->redoCommand();
 }
 
-=======
 /**
  * \fn void QComputer::changeNbViewsVarEdit(unsigned int nbAtomes)
  * \brief Parametrer le nombre de variables a afficher
  */
->>>>>>> 0de3cf773974d681d214b0986679abf8576e35b6
 void QComputer::changeNbViewsVarEdit(unsigned int nbAtomes)
 {
     vueVarStockees->setFixedHeight(30*(vueVarStockees->rowCount()+1)+3);

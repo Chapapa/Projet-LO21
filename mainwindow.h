@@ -26,17 +26,11 @@
 #include "controleur.h"
 #include "Litterale/atome.h"
 
-<<<<<<< HEAD
-class QComputer : public QWidget
-{
-=======
-
 /**
  *  \class QComputer
  *  \brief Interface graphique de l'application
  */
 class QComputer : public QWidget{
->>>>>>> 0de3cf773974d681d214b0986679abf8576e35b6
     Q_OBJECT
     //Main view
     QLineEdit* message;
