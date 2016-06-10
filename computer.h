@@ -23,7 +23,15 @@ class ComputerException
 {
     QString info;
 public:
+    /**
+     * \fn  ComputerException(const QString& str)
+     * \brief Constructeur
+     */
     ComputerException(const QString& str):info(str){}
+    /**
+     * \fn  QString getInfo() const
+     * \brief Accesseur en lecture de l'attribut info qui recupere la raison de l'exeption
+     */
     QString getInfo() const { return info; }
 };
 
