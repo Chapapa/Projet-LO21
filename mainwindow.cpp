@@ -353,11 +353,19 @@ void QComputer::changeNbViews()
     getNbVuesPile->clear();
 }
 
+/**
+ * \fn void QComputer::undo()
+ * \brief Operation undo : retabli l'etat du calculateur avant la derniere operation
+ */
 void QComputer::undo()
 {
     controleur->undoCommand();
 }
 
+/**
+ * \fn void QComputer::redo()
+ * \brief Operation redo : retabli l'etat du calculateur avant la derniere operation undo
+ */
 void QComputer::redo()
 {
     controleur->redoCommand();

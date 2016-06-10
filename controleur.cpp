@@ -223,21 +223,11 @@ Numerique Controleur::manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QStrin
     return res;
 }
 
-/*Numerique Controleur::managePileOpeNumAndNum(Numerique v1, Numerique v2,QString s, Numerique res)
-{
-    if (s == "SWAP")
-    {
-        res=v1;
-        Litterale& l=expMng.addLitterale(v2);
-        expAff.push(l);
-    }
-    return res;
-}*/
 /**
  * \fn Expression Controleur::manageNumOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res)
  * \brief Gestion des operations numeriques binaires entre une Expression et un Numerique
  * \param v1 2e Litterale depilee (Expression)
- * \param v2 1er Litterale depilee (Numerique converti en Expression)
+ * \param v2E 1er Litterale depilee (Numerique converti en Expression)
  * \param s operateur a appliquer
  * \param res Variable ou stocker le resultat
  */
@@ -254,7 +244,7 @@ Expression Controleur::manageNumOpeNumAndExpr(Expression v1, Expression v2E, QSt
  * \fn Expression Controleur::manageLogicOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res)
  * \brief Gestion des operations logiques binaires entre une Expression et un Numerique
  * \param v1 2e Litterale depilee (Expression)
- * \param v2 1er Litterale depilee (Numerique converti en Expression)
+ * \param v2E 1er Litterale depilee (Numerique converti en Expression)
  * \param s operateur a appliquer
  * \param res Variable ou stocker le resultat
  */
@@ -271,16 +261,6 @@ Expression Controleur::manageLogicOpeNumAndExpr(Expression v1, Expression v2E, Q
     return res;
 }
 
-/*Expression Controleur::managePileOpeNumAndExpr(Expression v1, Numerique v2,QString s, Expression res)
-{
-    if (s == "SWAP")
-    {
-        res=v1;
-        Litterale& l=expMng.addLitterale(v2);
-        expAff.push(l);
-    }
-    return res;
-}*/
 /**
  * \fn Expression Controleur::manageNumOpeExprAndExpr(Expression v1, Expression v2, QString s, Expression res)
  * \brief Gestion des operations numeriques binaires entre 2 expressions
@@ -288,7 +268,6 @@ Expression Controleur::manageLogicOpeNumAndExpr(Expression v1, Expression v2E, Q
  * \param v2 1er Expression depilee
  * \param s operateur a appliquer
  * \param res Variable ou stocker le resultat
- * \param beep bip sonore
  */
 Expression Controleur::manageNumOpeExprAndExpr(Expression v1, Expression v2, QString s, Expression res)
 {
@@ -306,7 +285,6 @@ Expression Controleur::manageNumOpeExprAndExpr(Expression v1, Expression v2, QSt
  * \param v2 1er Expression depile
  * \param s operateur a appliquer
  * \param res Variable ou stocker le resultat
- * \param beep bip sonore
  */
 Expression Controleur::manageLogicOpeExprAndExpr(Expression v1, Expression v2, QString s, Expression res)
 {
@@ -322,19 +300,14 @@ Expression Controleur::manageLogicOpeExprAndExpr(Expression v1, Expression v2, Q
     return res;
 }
 
-/*Expression Controleur::managePileOpeExprAndExpr(Expression v1, Expression v2,QString s, Expression res)
-{
-    if (s == "SWAP")
-    {
-        res=v1;
-        Litterale& l=expMng.addLitterale(v2);
-
-        expAff.push(l);
-
-    }
-    return res;
-}
-*/
+/**
+ * \fn Expression Controleur::manageNumOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
+ * \brief Gestion des operations numeriques binaires entre un Numerique et une Expression
+ * \param v1E 2e Litterale depilee : Numerique converti en expression
+ * \param v2 1er Litterale depilee : Expression
+ * \param s operateur a appliquer
+ * \param resE Variable ou stocker le resultat
+ */
 Expression Controleur::manageNumOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
 {
     if (s == "+") resE = v1E + v2;
@@ -345,6 +318,14 @@ Expression Controleur::manageNumOpeExprAndNum(Expression v1E, Expression v2, QSt
     return resE;
 }
 
+/**
+ * \fn Expression Controleur::manageLogicOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
+ * \brief Gestion des operations logiques binaires entre un Numerique et une Expression
+ * \param v1E 2e Litterale depilee : Numerique converti en expression
+ * \param v2 1er Litterale depilee : Expression
+ * \param s operateur a appliquer
+ * \param resE Variable ou stocker le resultat
+ */
 Expression Controleur::manageLogicOpeExprAndNum(Expression v1E, Expression v2, QString s, Expression resE)
 {
     if (s == "AND") resE = v1E.operatorAND(v2);
@@ -358,20 +339,15 @@ Expression Controleur::manageLogicOpeExprAndNum(Expression v1E, Expression v2, Q
     return resE;
 }
 
-/*Numerique Controleur::managePileOpeExprAndNum(Numerique v1, Expression v2,QString s, Numerique res)
-{
-    if (s == "SWAP")
-    {
-        res=v1;
-        Litterale& l=expMng.addLitterale(v2);
-        expAff.push(l);
 
-        Litterale& e=expMng.addLitterale(res);
-        expAff.push(e);
-    }
-    return res;
-}*/
-
+/**
+ * \fn Atome Controleur::manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s, Atome res)
+ * \brief Gestion de l'identification d'un Numerique par une Expression
+ * \param v1 2e Litterale depilee : Numerique a stocker
+ * \param v2 1er Litterale depilee : Expression
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ */
 Atome Controleur::manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s, Atome res)
 {
     if (s == "STO")
@@ -383,6 +359,14 @@ Atome Controleur::manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s
     return res;
 }
 
+/**
+ * \fn Atome Controleur::manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString s, Atome res)
+ * \brief Gestion de l'identification d'une Expression par une Expression
+ * \param v1 2e Litterale depilee : Expression a stocker
+ * \param v2 1er Litterale depilee : Expression
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ */
 Atome Controleur::manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString s, Atome res)
 {
     if (s == "STO")
@@ -394,6 +378,14 @@ Atome Controleur::manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString
     return res;
 }
 
+/**
+ * \fn Atome Controleur::manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString s, Atome res)
+ * \brief Gestion de l'identification d'un Programme par une Expression
+ * \param v1 2e Litterale depilee : Programme a stocker
+ * \param v2 1er Litterale depilee : Expression
+ * \param s operateur a appliquer
+ * \param res Variable ou stocker le resultat
+ */
 Atome Controleur::manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString s, Atome res)
 {
     if (s == "STO")
@@ -405,7 +397,14 @@ Atome Controleur::manageAtomeOpePrgmAndExpr (Programme v1, Expression v2,QString
     return res;
 }
 
-
+/**
+ * \fn void Controleur::getRationnel(QString s, int &i, int &j, const QString& c)
+ * \brief Empile un rationnel
+ * \param c Chaine a decomposer
+ * \param i Fin de la sous chaine
+ * \param j Debut de la sous chaine
+ * \param s sous chaine
+ */
 void Controleur::getRationnel(QString s, int &i, int &j, const QString& c)
 {
     Numerique v1(s.toInt());
@@ -426,6 +425,12 @@ void Controleur::getRationnel(QString s, int &i, int &j, const QString& c)
     expAff.push(e);
 }
 
+/**
+ * \fn void Controleur::manageBinOpe(bool beep, QString s)
+ * \brief Gestion des operations binaires
+ * \param beep activation/desactivation du bip sonore
+ * \param s operateur
+ */
 void Controleur::manageBinOpe(bool beep, QString s)
 {
     try
@@ -748,6 +753,12 @@ void Controleur::manageBinOpe(bool beep, QString s)
 
 }
 
+/**
+ * \fn void Controleur::manageUnOpe(bool beep, QString s)
+ * \brief Gestion des operations unaires
+ * \param beep activation/desactivation du bip sonore
+ * \param s operateur
+ */
 void Controleur::manageUnOpe(bool beep, QString s)
 {
 
@@ -1137,6 +1148,12 @@ void Controleur::manageUnOpe(bool beep, QString s)
     }
 }
 
+/**
+ * \fn void Controleur::manageSansArgOpe(bool beep, QString s)
+ * \brief Gestion des operations unaires
+ * \param beep activation/desactivation du bip sonore
+ * \param s operateur
+ */
 void Controleur::manageSansArgOpe(bool beep, QString s/*, int &i, int &j*/)
 {
     if (s == "CLEAR")
@@ -1197,6 +1214,10 @@ void Controleur::manageSansArgOpe(bool beep, QString s/*, int &i, int &j*/)
     }
 }
 
+/**
+ * \fn void Controleur::undoCommand()
+ * \brief Operateur undo
+ */
 void Controleur::undoCommand()
 {
     if(lastOpe != "UNDO")
@@ -1206,13 +1227,19 @@ void Controleur::undoCommand()
     }
 }
 
-
+/**
+ * \fn void Controleur::redoCommand()
+ * \brief Operateur redo
+ */
 void Controleur::redoCommand()
 {
     reinstateMemento(redo);
 }
 
-
+/**
+ * \fn void Controleur::updateUndo()
+ * \brief Mise a jour du memento undo
+ */
 void Controleur::updateUndo()
 {
     if(undo)
@@ -1220,6 +1247,10 @@ void Controleur::updateUndo()
     undo = new Memento(expMng, expAff, "UNDO");
 }
 
+/**
+ * \fn void Controleur::updateRedo()
+ * \brief Mise a jour du memento redo
+ */
 void Controleur::updateRedo()
 {
     if(redo)
@@ -1227,6 +1258,10 @@ void Controleur::updateRedo()
     redo = new Memento(expMng, expAff, "REDO");
 }
 
+/**
+ * \fn void Controleur::updateLastArgs()
+ * \brief Mise a jour du memento pour l'operateur LASTARG
+ */
 void Controleur::updateLastArgs()
 {
     if(lastArgs)
@@ -1235,7 +1270,12 @@ void Controleur::updateLastArgs()
 }
 
 
-
+/**
+ * \fn void Controleur::commande(const QString& c, bool beepOption)
+ * \brief Gestion de la commande reçue
+ * \param c commande a traiter
+ * \param beepOption activation/desactivation du bip sonore
+ */
 void Controleur::commande(const QString& c, bool beepOption)
 {
     QString s;

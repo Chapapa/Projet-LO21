@@ -1,5 +1,9 @@
 #include "numerique.h"
 
+/**
+ * \fn Numerique Numerique::operator+(const Numerique& n)
+ * \brief Operateur +
+ */
 Numerique Numerique::operator+(const Numerique& n)
 {
     double nr;
@@ -35,6 +39,10 @@ Numerique Numerique::operator+(const Numerique& n)
     return res;
 }
 
+/**
+ * \fn Numerique Numerique::operator-(const Numerique& n)
+ * \brief Operateur -
+ */
 Numerique Numerique::operator-(const Numerique& n)
 {
     double nr;
@@ -69,7 +77,10 @@ Numerique Numerique::operator-(const Numerique& n)
     return res;
 }
 
-
+/**
+ * \fn Numerique Numerique::operator*(const Numerique& n)
+ * \brief Operateur *
+ */
 Numerique Numerique::operator*(const Numerique& n)
 {
     double nr;
@@ -105,6 +116,10 @@ Numerique Numerique::operator*(const Numerique& n)
     return res;
 }
 
+/**
+ * \fn Numerique Numerique::operator/(const Numerique& n)
+ * \brief Operateur /
+ */
 Numerique Numerique::operator/(const Numerique& n)
 {
     double nr;
@@ -145,13 +160,20 @@ Numerique Numerique::operator/(const Numerique& n)
 
 }
 
+/**
+ * \fn Numerique Numerique::operator$(const Numerique& n)
+ * \brief Operateur $
+ */
 Numerique Numerique::operator$(const Numerique& n)
 {
     Numerique res(numReel,n.numReel,typeRe,n.typeRe, denomReel, n.denomReel);
     return res;
 }
 
-
+/**
+ * \fn Numerique Numerique::operatorDIV(const Numerique& n)
+ * \brief Operateur DIV
+ */
 Numerique Numerique::operatorDIV(const Numerique& n)
 {
    int num=(int)numReel/(int)n.numReel;
@@ -160,6 +182,10 @@ Numerique Numerique::operatorDIV(const Numerique& n)
 
 }
 
+/**
+ * \fn Numerique Numerique::operatorMOD(const Numerique& n)
+ * \brief Operateur MOD
+ */
 Numerique Numerique::operatorMOD(const Numerique& n)
 {
    int num=(int)numReel%(int)n.numReel;
@@ -167,6 +193,10 @@ Numerique Numerique::operatorMOD(const Numerique& n)
    return res;
 }
 
+/**
+ * \fn Numerique Numerique::operator==(const Numerique& n)
+ * \brief Operateur ==
+ */
 Numerique Numerique::operator==(const Numerique& n)
 {
 
@@ -183,6 +213,10 @@ Numerique Numerique::operator==(const Numerique& n)
 
 }
 
+/**
+ * \fn Numerique Numerique::operator!=(const Numerique& n)
+ * \brief Operateur !=
+ */
 Numerique Numerique::operator!=(const Numerique& n)
 {
 
@@ -199,6 +233,10 @@ Numerique Numerique::operator!=(const Numerique& n)
 
 }
 
+/**
+ * \fn Numerique Numerique::operator>=(const Numerique& n)
+ * \brief Operateur >=
+ */
 Numerique Numerique::operator>=(const Numerique& n)
 {
     double temp1=(double)numReel/(double)denomReel;
@@ -215,6 +253,10 @@ Numerique Numerique::operator>=(const Numerique& n)
     }
 }
 
+/**
+ * \fn Numerique Numerique::operator<=(const Numerique& n)
+ * \brief Operateur <=
+ */
 Numerique Numerique::operator<=(const Numerique& n)
 {
     double temp1=(double)numReel/(double)denomReel;
@@ -231,6 +273,11 @@ Numerique Numerique::operator<=(const Numerique& n)
     }
 }
 
+
+/**
+ * \fn Numerique Numerique::operator<(const Numerique& n)
+ * \brief Operateur <
+ */
 Numerique Numerique::operator<(const Numerique& n)
 {
     double temp1=(double)numReel/(double)denomReel;
@@ -247,6 +294,10 @@ Numerique Numerique::operator<(const Numerique& n)
     }
 }
 
+/**
+ * \fn Numerique Numerique::operator>(const Numerique& n)
+ * \brief Operateur >
+ */
 Numerique Numerique::operator>(const Numerique& n)
 {
     double temp1=(double)numReel/(double)denomReel;
@@ -263,6 +314,10 @@ Numerique Numerique::operator>(const Numerique& n)
     }
 }
 
+/**
+ * \fn Numerique Numerique::operatorAND(const Numerique& n)
+ * \brief Operateur AND
+ */
 Numerique Numerique::operatorAND(const Numerique& n)
 {
 
@@ -293,6 +348,10 @@ Numerique Numerique::operatorAND(const Numerique& n)
     }
 }
 
+/**
+ * \fn Numerique Numerique::operatorOR(const Numerique& n)
+ * \brief Operateur OR
+ */
 Numerique Numerique::operatorOR(const Numerique& n)
 {
     if ( numReel>0 || n.numReel>0)
@@ -313,6 +372,10 @@ Numerique Numerique::operatorOR(const Numerique& n)
 
 }
 
+/**
+ * \fn Numerique Numerique::operatorNOT()
+ * \brief Operateur NOT
+ */
 Numerique Numerique::operatorNOT()
 {
     if ( numReel>0)
@@ -332,18 +395,30 @@ Numerique Numerique::operatorNOT()
     }
 }
 
+/**
+ * \fn Numerique Numerique::operatorNEG()
+ * \brief Operateur NEG
+ */
 Numerique Numerique::operatorNEG()
 {
     Numerique res(-numReel,-numIm,typeRe,typeIm,denomReel, denomIm);
     return res;
 }
 
+/**
+ * \fn Numerique Numerique::operatorNUM()
+ * \brief Operateur NUM : retourne le numerateur
+ */
 Numerique Numerique::operatorNUM()
 {
     Numerique res(numReel,"entier");
     return res;
 }
 
+/**
+ * \fn Numerique Numerique::operatorDEN()
+ * \brief Operateur DEN : retourne le denominateur
+ */
 Numerique Numerique::operatorDEN()
 {
 
@@ -351,6 +426,10 @@ Numerique Numerique::operatorDEN()
     return res;
 }
 
+/**
+ * \fn Numerique Numerique::operatorRE()
+ * \brief Operateur RE : retourne la partie reelle
+ */
 Numerique Numerique::operatorRE()
 {
     QString typeRes;
@@ -374,6 +453,10 @@ Numerique Numerique::operatorRE()
     return res;
 }
 
+/**
+ * \fn Numerique Numerique::operatorIM()
+ * \brief Operateur IM : retourne la partie imaginaire
+ */
 Numerique Numerique::operatorIM()
 {
     QString typeRes;

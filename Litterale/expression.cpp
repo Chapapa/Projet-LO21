@@ -5,7 +5,10 @@
 #include "numerique.h"
 #include "programme.h"
 
-
+/**
+ * \fn bool estUnIdentificateur(const Expression& e)
+ * \brief Test si l'expression passee en argument est un identificateur
+ */
 bool estUnIdentificateur(const Expression& e)
 {
     int i=0;
@@ -23,6 +26,15 @@ bool estUnIdentificateur(const Expression& e)
     return false;
 
 }
+
+/**
+ * \fn Atome Expression::operatorSTO(Litterale& l)
+ * \brief Operateur pour asssocier une litterale et un identificateur
+ *
+ * \param l Litterale a stocker
+ *
+ * \return La methode retourne l'atome pointant sur la literale stockee
+ */
 
 Atome Expression::operatorSTO(Litterale& l)
 {
@@ -44,6 +56,10 @@ Atome Expression::operatorSTO(Litterale& l)
     return NULL;
 }
 
+/**
+ * \fn Expression Expression::operator<=(const Expression& e)
+ * \brief Operateur <=
+ */
 Expression Expression::operator<=(const Expression& e)
 {
     int i=0;
@@ -91,6 +107,10 @@ Expression Expression::operator<=(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator>=(const Expression& e)
+ * \brief Operateur >=
+ */
 Expression Expression::operator>=(const Expression& e)
 {
     int i=0;
@@ -138,6 +158,10 @@ Expression Expression::operator>=(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator<(const Expression& e)
+ * \brief Operateur <
+ */
 Expression Expression::operator<(const Expression& e)
 {
     int i=0;
@@ -185,6 +209,10 @@ Expression Expression::operator<(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator>(const Expression& e)
+ * \brief Operateur >
+ */
 Expression Expression::operator>(const Expression& e)
 {
     int i=0;
@@ -232,6 +260,10 @@ Expression Expression::operator>(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator!=(const Expression& e)
+ * \brief Operateur !=
+ */
 Expression Expression::operator!=(const Expression& e)
 {
 
@@ -280,7 +312,10 @@ Expression Expression::operator!=(const Expression& e)
     return Expression(res);
 }
 
-
+/**
+ * \fn Expression Expression::operator==(const Expression& e)
+ * \brief Operateur ==
+ */
 Expression Expression::operator==(const Expression& e)
 {
 
@@ -329,6 +364,10 @@ Expression Expression::operator==(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operatorAND(const Expression& e)
+ * \brief Operateur AND
+ */
 Expression Expression::operatorAND(const Expression& e)
 {
     QString res;
@@ -337,6 +376,10 @@ Expression Expression::operatorAND(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operatorOR(const Expression& e)
+ * \brief Operateur OR
+ */
 Expression Expression::operatorOR(const Expression& e)
 {
     QString res;
@@ -345,6 +388,10 @@ Expression Expression::operatorOR(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operatorNOT()
+ * \brief Operateur NOT
+ */
 Expression Expression::operatorNOT()
 {
     QString res;
@@ -353,7 +400,10 @@ Expression Expression::operatorNOT()
     return Expression(res);
 }
 
-
+/**
+ * \fn Expression Expression::operatorNEG()
+ * \brief Operateur NEG
+ */
 Expression Expression::operatorNEG()
 {
     QString res;
@@ -362,6 +412,10 @@ Expression Expression::operatorNEG()
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator*(const Expression& e)
+ * \brief Operateur *
+ */
 Expression Expression::operator*(const Expression& e)
 {
     int i=0;
@@ -409,6 +463,10 @@ Expression Expression::operator*(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator/(const Expression& e)
+ * \brief Operateur /
+ */
 Expression Expression::operator/(const Expression& e)
 {
     int i=0;
@@ -457,6 +515,10 @@ Expression Expression::operator/(const Expression& e)
 
 }
 
+/**
+ * \fn Expression Expression::operator$(const Expression& e)
+ * \brief Operateur $
+ */
 Expression Expression::operator$(const Expression& e)
 {
     int i=0;
@@ -504,6 +566,10 @@ Expression Expression::operator$(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator+(const Expression& e)
+ * \brief Operateur +
+ */
 Expression Expression::operator+(const Expression& e)
 {
     int i=0;
@@ -551,6 +617,10 @@ Expression Expression::operator+(const Expression& e)
     return Expression(res);
 }
 
+/**
+ * \fn Expression Expression::operator-(const Expression& e)
+ * \brief Operateur -
+ */
 Expression Expression::operator-(const Expression& e)
 {
     int i=0;

@@ -5,9 +5,6 @@
 void decompCommande(const QString& c,int &i, int &j);
 
 
-
-
-
 /**
  * \fn QString RemoveSpaces(QString s)
  * \brief La fonction enleve les espaces dans les expressions entrées par l'utilisateur
@@ -175,7 +172,13 @@ bool estUnRationnel(const QString c, QString s, int i)
     return false;
 }
 
-
+/**
+ * \fn void decompCommande(const QString& c,int &i, int &j)
+ * \brief Détermine les i et j pour décomposer la commande reçue
+ * \param c Chaine a decomposer
+ * \param i Fin de la sous chaine
+ * \param j Debut de la sous chaine
+ */
 void decompCommande(const QString& c,int &i, int &j)
 {
     while(i < (c.length()-1) && c[i] == ' ')

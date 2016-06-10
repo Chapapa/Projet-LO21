@@ -18,8 +18,23 @@ class Programme : public Litterale
 {
     QString prog;
 public:
+
+    /**
+     * \fn  Programme(QString p)
+     * \brief Constructeur de la classe Programme
+     */
     Programme(QString p):prog(p),Litterale("Programme"){}
+
+    /**
+     * \fn QString getProg()
+     * \brief Accesseur en lecture de l'attribut prog
+     */
     QString getProg() const{return prog;}
+
+    /**
+     * \fn QString toString()const
+     * \brief La methode convertie une expression en QString
+     */
     QString toString()const {
         QString res= "["+prog+"]";
         return res;

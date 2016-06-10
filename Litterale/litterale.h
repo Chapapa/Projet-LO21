@@ -13,9 +13,28 @@ class Litterale
     QString type;
     friend class LitteraleManager;
 public:
+    /**
+     * \fn Litterale (const QString t)
+     * \brief Constructeur de la classe Litterale
+     */
     Litterale (const QString t):type(t){}
+
+    /**
+     * \fn QString getType() const
+     * \brief Accesseur en lecture de l'attribut type
+     */
     QString getType() const {return type;}
+
+    /**
+     * \fn QString setType() const
+     * \brief Accesseur en ecriture de l'attribut type
+     */
     void setType(QString s){type=s;}
+
+    /**
+     * \fn QString toString()const
+     * \brief La methode convertie une expression en QString
+     */
     virtual QString toString()const=0;
     //virtual double getValue() const=0;
 };
