@@ -1235,6 +1235,75 @@ void Controleur::updateLastArgs()
 }
 
 
+/**
+ * \fn void Controleur::updateFile()
+ * \brief Met a jour le fichier de restauration
+ */
+void Controleur::updateFile()
+{
+    QString texte;
+    LitteraleManager::Iterator itL = expMng.getIterator();
+    unsigned int nb = 0;
+    for(Pile::iterator it=expAff.begin(); it!=expAff.end() && nb<expAff.getNbItems();++it)
+    {
+        texte += itL.current().toString() + "\n";
+        itL.next();
+        nb++;
+    }
+    for(unsigned int i = 0; i < nbAtomes; i++)
+    {
+        texte += atomes[i]->getLitterale().toString() + " " + atomes[i]->getNom() + " STO\n";
+    }
+
+    lastLaunch->open(QIODevice::WriteOnly | QIODevice::Text);
+
+    QTextStream flux(lastLaunch);
+    flux << texte;
+
+    lastLaunch->close();
+}
+
+/**
+ * \fn void Controleur::loadFile()
+ * \brief Charge le fichier de restauration
+ */
+void Controleur::loadFile(bool beep)
+{
+    QString texte;
+    if(lastLaunch->open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        texte = lastLaunch->readAll();
+        lastLaunch->close();
+    }
+    QString c;
+    unsigned int i = 0;
+    bool removeTop;
+    while(!texte[i].isNull())
+    {
+        c = "";
+        if(texte[i]=='\n')
+            i++;
+        while(!texte[i].isNull() && texte[i]!='\n')
+        {
+            c += texte[i];
+            i++;
+        }
+        if(c.contains("STO"))
+            removeTop = true;
+        commande(c, beep);
+        if (removeTop)
+        {
+            expMng.removeLitterale(expAff.top());
+            expAff.pop();
+            removeTop = false;
+        }
+    }
+}
+void Controleur::initFile()
+{
+    lastLaunch = new QFile("lastLaunch.txt");
+}
+
 
 void Controleur::commande(const QString& c, bool beepOption)
 {
@@ -1358,5 +1427,5 @@ void Controleur::commande(const QString& c, bool beepOption)
 
     }
 
-
+    updateFile();
 }

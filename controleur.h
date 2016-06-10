@@ -4,7 +4,7 @@
 
 
 class Controleur;
-
+#include <QFile>
 #include "Litterale/Litterale_mng.h"
 #include "pile.h"
 #include "Litterale/atome.h"
@@ -67,9 +67,13 @@ class Controleur
     unsigned int nbAtomes;
     unsigned int nbAtomesMax;
     void agrandissementCapacite();
+    QFile* lastLaunch;
 
 public:
 
+    void initFile();
+    void loadFile(bool beep);
+    void updateFile();
     unsigned int getNbAtomes(){return nbAtomes;}
    /*~Controleur();*/
     Atome** getAtomes() {return atomes;}
@@ -152,6 +156,7 @@ public:
             nb++;
         }
     }
+
 };
 
 

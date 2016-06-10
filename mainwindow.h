@@ -20,6 +20,7 @@
 #include <QString>
 #include <QIcon>
 #include <QShortcut>
+#include <QFile>
 #include <windows.h>
 #include "computer.h"
 #include "pile.h"
@@ -41,8 +42,6 @@ class QComputer : public QWidget{
     Pile* pVarEdit;
     Pile* pProgEdit;
     Controleur* controleur;
-
-
 
 
     //Paramètres du calculateur

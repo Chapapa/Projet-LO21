@@ -23,6 +23,10 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
 
     controleur= new Controleur(*(new LitteraleManager),*pile);
 
+
+
+
+
     setWindowTitle("UTComputer");
     message->setReadOnly(true);
     message->setText("Bienvenue");
@@ -172,6 +176,9 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     QLabel label;
     couche->addWidget( &label );
     QObject::connect( this, SIGNAL(textChanged(QString)), &label, SLOT(setText(QString)) );
+    controleur->initFile();
+    controleur->loadFile(true);
+    refresh();
 }
 
 /**
@@ -184,6 +191,7 @@ void QComputer::updateProg()
     controleur->commande(editProgT->toPlainText(), beep);
     refresh();
 }
+
 
 /**
  * \fn void QComputer::editProg()
