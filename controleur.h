@@ -21,6 +21,10 @@ class Controleur;
 class Memento
 {
   public:
+    /**
+     * \fn Memento(LitteraleManager& lm1,Pile& p1, QString lo)
+     * \brief Constructeur
+     */
     Memento(LitteraleManager& lm1,Pile& p1, QString lo): lm(*(new LitteraleManager)), p(*(new Pile))
     {
         p.setNbItemsToAffiche(p1.getNbItemsToAffiche());
@@ -41,6 +45,10 @@ class Memento
             nb++;
         }
     }
+    /**
+     * \fn void setLastOpe(QString lo)
+     * \brief Accesseur en ecriture de l'attribut lastope (dernier operateur applique)
+     */
     void setLastOpe(QString lo) {lastOpe = lo;}
   private:
     friend class Controleur;
@@ -74,9 +82,21 @@ public:
     void initFile();
     void loadFile(bool beep);
     void updateFile();
+    /**
+     * \fn unsigned int getNbAtomes()
+     * \brief Accesseur en lecture de l'attribut nbAtome
+     */
     unsigned int getNbAtomes(){return nbAtomes;}
-   /*~Controleur();*/
+    /**
+     * \fn Atome** getAtomes()
+     * \brief Accesseur en lecture de l'attribut atomes
+     */
     Atome** getAtomes() {return atomes;}
+
+    /**
+     * \fn Atome& addAtome(Atome v)
+     * \brief Ajout de l'atome passe en argument
+     */
     Atome& addAtome(Atome v)
     {
         if (nbAtomes==nbAtomesMax) agrandissementCapacite();
@@ -86,8 +106,15 @@ public:
     void removeAtome(Atome& e);
 
     int chercherAtome(QString s);
+    /**
+     * \fn Atome& operator[](int i)
+     * \brief Operateur []
+     */
     Atome& operator[](int i){return *atomes[i];}
-
+    /**
+     * \fn Controleur(LitteraleManager& m, Pile& v)
+     * \brief Constructeur
+     */
     Controleur(LitteraleManager& m, Pile& v):expMng(m), expAff(v),lastOpe(""),
         undo(nullptr), redo(nullptr), lastArgs(nullptr),nbAtomes(0),nbAtomesMax(0), atomes(nullptr){}
     void commande(const QString& c, bool beep);
@@ -108,16 +135,16 @@ public:
 
     Numerique manageNumOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep);
     Numerique manageLogicOpeNumAndNum(Numerique v1, Numerique v2, QString s, Numerique res, bool beep);
-    Numerique managePileOpeNumAndNum(Numerique v1, Numerique v2,QString s, Numerique res);
+    //Numerique managePileOpeNumAndNum(Numerique v1, Numerique v2,QString s, Numerique res);
     Expression manageNumOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res);
     Expression manageLogicOpeNumAndExpr(Expression v1, Expression v2E, QString s, Expression res);
-    Expression managePileOpeNumAndExpr(Expression v1, Numerique v2, QString s, Expression res);
+    //Expression managePileOpeNumAndExpr(Expression v1, Numerique v2, QString s, Expression res);
     Expression manageNumOpeExprAndExpr(Expression v1, Expression v2E, QString s, Expression res);
     Expression manageLogicOpeExprAndExpr(Expression v1, Expression v2E, QString s, Expression res);
-    Expression managePileOpeExprAndExpr(Expression v1, Expression v2,QString s, Expression res);
+    //Expression managePileOpeExprAndExpr(Expression v1, Expression v2,QString s, Expression res);
     Expression manageNumOpeExprAndNum(Expression v1, Expression v2E,QString s, Expression res);
     Expression manageLogicOpeExprAndNum(Expression v1, Expression v2E,QString s, Expression res);
-    Numerique managePileOpeExprAndNum(Numerique v1, Expression v2,QString s, Numerique res);
+    //Numerique managePileOpeExprAndNum(Numerique v1, Expression v2,QString s, Numerique res);
 
     Atome manageAtomeOpeNumAndExpr(Numerique v1, Expression v2,QString s, Atome res);
     Atome manageAtomeOpeExprAndExpr(Expression v1, Expression v2,QString s, Atome res);
@@ -125,11 +152,18 @@ public:
 
     template<class T1, class T2>
     T1 managePileOpeT2AndT1(T1 v1, T2 v2,QString s, T1 res);
-
+    /**
+     * \fn Memento *createMemento()
+     * \brief Cree un nouveau Memento
+     */
     Memento *createMemento()
     {
         return new Memento(expMng, expAff,lastOpe);
     }
+    /**
+     * \fn void reinstateMemento(Memento *mem)
+     * \brief Retabli le Memento
+     */
     void reinstateMemento(Memento *mem)
     {
         expAff.setNbItemsToAffiche(mem->p.getNbItemsToAffiche());

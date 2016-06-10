@@ -14,8 +14,22 @@ class Expression : public Litterale
 {
     QString exp;
 public :
+    /**
+     * \fn Expression(QString e)
+     * \brief Constructeur de la classe Expression
+     */
     Expression(QString e):exp(e),Litterale("Expression"){}
+
+    /**
+     * \fn QString getExp()
+     * \brief Accesseur en lecture de l'attribut exp
+     */
     QString getExp() const{return exp;}
+
+    /**
+     * \fn QString toString()const
+     * \brief La methode convertie une expression en QString
+     */
     QString toString()const {
         QString res= "'"+exp+"'";
         return res;
