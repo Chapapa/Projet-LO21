@@ -23,10 +23,6 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
 
     controleur= new Controleur(*(new LitteraleManager),*pile);
 
-
-
-
-
     setWindowTitle("UTComputer");
     message->setReadOnly(true);
     message->setText("Bienvenue");
