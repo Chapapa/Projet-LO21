@@ -189,8 +189,7 @@ void decompCommande(const QString& c,int &i, int &j)
         i++;
     }
     j = i;
-    if(i < (c.length()-1) && c[i] == '-')
-        i++;
+
     if (i < (c.length()-1) && c[i] != '\'' && c[i] != '[')
     {
         if((c[i] == '<' || c[i] == '>') && c[i+1] == '=')
@@ -241,6 +240,13 @@ void decompCommande(const QString& c,int &i, int &j)
         i++;
 
         if(i < c.length()-1 && estUnOperateurBinaire(c[i]) && i == j)
+        {
+            i++;
+        }
+    }
+    if(i < (c.length()) && i > 0 && (c[i-1] == '-' && c[i]>='0' && c[i]<='9'))
+    {
+        while(i < c.length() && c[i]!=' ')
         {
             i++;
         }

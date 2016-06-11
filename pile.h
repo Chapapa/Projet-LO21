@@ -196,6 +196,7 @@ signals:
     void modificationEtat();
     void edit();
     void atomeAdded();
+    void atomeRemoved();
 };
 
 #endif // PILE

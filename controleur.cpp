@@ -52,6 +52,7 @@ void Controleur::removeAtome(Atome& e)
     i++;
     while(i<nbAtomes) { atomes[i-1]=atomes[i]; i++; }
     nbAtomes--;
+    expAff.atomeRemoved();
 }
 
 /**
@@ -1133,10 +1134,6 @@ void Controleur::manageUnOpe(bool beep, QString s)
                                     expAff.pop();
                                 }
                             }
-                            if(str == "UNDO")
-                            {
-
-                            }
 
                         }
 
@@ -1229,11 +1226,8 @@ void Controleur::manageSansArgOpe(bool beep, QString s/*, int &i, int &j*/)
  */
 void Controleur::undoCommand()
 {
-    if(lastOpe != "UNDO")
-    {
-        updateRedo();
-        reinstateMemento(undo);
-    }
+    updateRedo();
+    reinstateMemento(undo);
 }
 
 /**

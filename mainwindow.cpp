@@ -90,6 +90,7 @@ QComputer::QComputer(QWidget *parent):QWidget(parent)
     fenetreVarStockees->setFixedHeight(30*(vueVarStockees->rowCount())+20);
 
     connect(pile, SIGNAL(atomeAdded()),this, SLOT(updateEditVar()));
+    connect(pile, SIGNAL(atomeRemoved()),this, SLOT(updateEditVar()));
 
 
     //Fenetre d'édition d'une variable
@@ -556,33 +557,35 @@ void QComputer::updateEditVar()
 {
     unsigned int nbAtomes = controleur->getNbAtomes();
     changeNbViewsVarEdit(nbAtomes);
+    if(nbAtomes != 0)
+    {
+        for(unsigned int i = 0; i < nbAtomes; i++)
+        {
+            vueVarStockees->item(i,0)->setText("");
+            vueVarStockees->item(i,1)->setText("");
+        }
+        Atome** tmp2 = controleur->getAtomes();
 
-    for(unsigned int i = 0; i < nbAtomes; i++)
-    {
-        vueVarStockees->item(i,0)->setText("");
-        vueVarStockees->item(i,1)->setText("");
-    }
-    Atome** tmp2 = controleur->getAtomes();
-
-    for(unsigned int j = 0; j < nbAtomes; j++)
-    {
-        vueVarStockees->item(nbAtomes-j-1,0)->setText((**tmp2).toString());
-        vueVarStockees->item(nbAtomes-j-1,1)->setText((**tmp2).getLitterale().toString());
-        tmp2++;
-    }
-    QString atomeNom;
-    tmp2 = controleur->getAtomes();
-    for(unsigned int i = 0; i < nbAtomes - 1; i++)
-    {
-        tmp2++;
-    }
-    for(unsigned int i = 0; i < nbAtomes; i++)
-    {
-        atomeNom = "modifier ";
-        atomeNom += (**tmp2).toString();
-        modifier[i]->setText(atomeNom);
-        connect(modifier[i], SIGNAL(clicked()),this,SLOT(modifierVar()));
-        tmp2--;
+        for(unsigned int j = 0; j < nbAtomes; j++)
+        {
+            vueVarStockees->item(nbAtomes-j-1,0)->setText((**tmp2).toString());
+            vueVarStockees->item(nbAtomes-j-1,1)->setText((**tmp2).getLitterale().toString());
+            tmp2++;
+        }
+        QString atomeNom;
+        tmp2 = controleur->getAtomes();
+        for(unsigned int i = 0; i < nbAtomes - 1; i++)
+        {
+            tmp2++;
+        }
+        for(unsigned int i = 0; i < nbAtomes; i++)
+        {
+            atomeNom = "modifier ";
+            atomeNom += (**tmp2).toString();
+            modifier[i]->setText(atomeNom);
+            connect(modifier[i], SIGNAL(clicked()),this,SLOT(modifierVar()));
+            tmp2--;
+        }
     }
 }
 
